@@ -13,7 +13,7 @@ func main() {
     text := "Dive into NLTK: Part-of-speech tagging and POS Tagger."
     tagger := aptag.NewPerceptronTagger()
 
-    tokens = tagger.TokenizeAndTag(string(text))
+    tokens = tagger.TokenizeAndTag(text)
     for _, tok := range tokens {
         fmt.Println(tok.Text, tok.Tag)
     }
@@ -33,7 +33,7 @@ go get github.com/jdkato/aptag
 | NLTK    |    0.893 |      6.755 |
 | aptag   |    0.961 |      2.879 |
 
-(see `scripts/test_model.py`.)
+(see [`scripts/test_model.py`](https://github.com/jdkato/aptag/blob/master/scripts/test_model.py))
 
 ## Notice
 
