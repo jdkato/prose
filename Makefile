@@ -9,7 +9,7 @@ LDFLAGS=-ldflags "-s -w -X main.Version=$(VERSION)"
 
 .PHONY: clean test lint ci cross install bump model setup
 
-all: model build
+all: build
 
 build:
 	go build ${LDFLAGS} -o bin/aptag ./cmd/aptag
