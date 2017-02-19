@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/jdkato/aptag/tokenize"
-	"gopkg.in/neurosnap/sentences.v1"
-	"gopkg.in/neurosnap/sentences.v1/english"
 )
 
 var none = regexp.MustCompile(`^(?:0|\*[\w?]\*|\*\-\d{1,3}|\*[A-Z]+\*\-\d{1,3}|\*)$`)
@@ -15,21 +13,13 @@ var keep = regexp.MustCompile(`^\-[A-Z]{3}\-$`)
 
 // PerceptronTagger ...
 type PerceptronTagger struct {
-	Model      *AveragedPerceptron
-	STokenizer *sentences.DefaultSentenceTokenizer
-	WTokenizer tokenize.WordTokenizer
+	Model *AveragedPerceptron
 }
 
 // NewPerceptronTagger ...
 func NewPerceptronTagger() *PerceptronTagger {
 	var pt PerceptronTagger
-	var err error
-
 	pt.Model = NewAveragedPerceptron()
-	pt.STokenizer, err = english.NewSentenceTokenizer(nil)
-	checkError(err)
-	pt.WTokenizer = tokenize.WordTokenizerFn
-
 	return &pt
 }
 
@@ -69,8 +59,8 @@ func (pt PerceptronTagger) Tag(words []string) []tokenize.Token {
 // TokenizeAndTag ...
 func (pt PerceptronTagger) TokenizeAndTag(corpus string) []tokenize.Token {
 	var tokens []tokenize.Token
-	for _, s := range pt.STokenizer.Tokenize(corpus) {
-		tokens = append(tokens, pt.Tag(pt.WTokenizer(s.Text))...)
+	for _, s := range tokenize.SentenceTokenizer(corpus) {
+		tokens = append(tokens, pt.Tag(tokenize.WordTokenizer(s.Text))...)
 	}
 	return tokens
 }

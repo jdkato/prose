@@ -13,8 +13,8 @@ var sentToWords = map[string][]string{
 	"abbreviations like M.D. and initials containing periods, they": []string{"abbreviations", "like", "M.D.", "and", "initials", "containing", "periods", ",", "they"},
 }
 
-func TestWordTokenizerFn(t *testing.T) {
+func TestWordTokenizer(t *testing.T) {
 	for sent, words := range sentToWords {
-		assert.Equal(t, words, WordTokenizerFn(sent))
+		assert.Equal(t, words, WordTokenizer(sent))
 	}
 }

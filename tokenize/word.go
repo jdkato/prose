@@ -45,40 +45,37 @@ var contractions = []*regexp.Regexp{
 	regexp.MustCompile(`(?i) ('t)(was)\b`),
 }
 
-// WordTokenizer ...
-type WordTokenizer func(sent string) []string
-
-// WordTokenizerFn ...
-func WordTokenizerFn(sent string) []string {
+// WordTokenizer splits text into words.
+func WordTokenizer(text string) []string {
 	for substitution, r := range startingQuotes {
-		sent = r.ReplaceAllString(sent, substitution)
+		text = r.ReplaceAllString(text, substitution)
 	}
 
 	for substitution, r := range punctuation {
-		sent = r.ReplaceAllString(sent, substitution)
+		text = r.ReplaceAllString(text, substitution)
 	}
 
 	for _, r := range punctuation2 {
-		sent = r.ReplaceAllString(sent, " $1 ")
+		text = r.ReplaceAllString(text, " $1 ")
 	}
 
 	for substitution, r := range brackets {
-		sent = r.ReplaceAllString(sent, substitution)
+		text = r.ReplaceAllString(text, substitution)
 	}
 
-	sent = " " + sent + " "
+	text = " " + text + " "
 
 	for substitution, r := range endingQuotes {
-		sent = r.ReplaceAllString(sent, substitution)
+		text = r.ReplaceAllString(text, substitution)
 	}
 
 	for _, r := range endingQuotes2 {
-		sent = r.ReplaceAllString(sent, "$1 $2 ")
+		text = r.ReplaceAllString(text, "$1 $2 ")
 	}
 
 	for _, r := range contractions {
-		sent = r.ReplaceAllString(sent, " $1 $2 ")
+		text = r.ReplaceAllString(text, " $1 $2 ")
 	}
 
-	return strings.Split(strings.TrimSpace(sent), " ")
+	return strings.Split(strings.TrimSpace(text), " ")
 }
