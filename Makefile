@@ -1,4 +1,4 @@
-BASE_DIR=$(shell echo $$GOPATH)/src/github.com/jdkato/aptag
+BASE_DIR=$(shell echo $$GOPATH)/src/github.com/jdkato/prose
 BUILD_DIR=./builds
 COMMIT= `git rev-parse --short HEAD 2>/dev/null`
 
@@ -12,10 +12,10 @@ LDFLAGS=-ldflags "-s -w -X main.Version=$(VERSION)"
 all: build
 
 build:
-	go build ${LDFLAGS} -o bin/aptag ./cmd/aptag
+	go build ${LDFLAGS} -o bin/prose ./cmd/prose
 
 build-win:
-	go build ${LDFLAGS} -o bin/aptag.exe ./cmd/aptag
+	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 test:
 	go test -v ./...

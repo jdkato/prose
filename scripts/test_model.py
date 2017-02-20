@@ -29,7 +29,7 @@ class APTagger(TaggerI):
     """A wrapper around the aptag Go library.
     """
     def tag(self, tokens):
-        prog = os.path.join('bin', 'aptag --tokens')
+        prog = os.path.join('bin', 'prose')
         ret, tags, err = pipe_through_prog(prog, ' '.join(tokens))
         return tags
 
