@@ -55,4 +55,4 @@ bump:
 	echo $(VER) > $(VERSION_FILE)
 
 model:
-	go-bindata -ignore=\\.DS_Store -pkg="model" -o model/model.go model/
+	go-bindata -nomemcopy -ignore=\\.DS_Store -pkg="model" -o model/model.go model/
