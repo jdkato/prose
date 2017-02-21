@@ -33,3 +33,8 @@ func (p PunktSentenceTokenizer) Tokenize(text string) []string {
 	}
 	return sents
 }
+
+// RawTokenize splits text into a slice of sentence tokens.
+func (p PunktSentenceTokenizer) RawTokenize(text string) []*sentences.Sentence {
+	return p.tokenizer.Tokenize(text)
+}
