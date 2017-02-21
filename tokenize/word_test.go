@@ -13,8 +13,9 @@ var sentToWords = map[string][]string{
 	"abbreviations like M.D. and initials containing periods, they": []string{"abbreviations", "like", "M.D.", "and", "initials", "containing", "periods", ",", "they"},
 }
 
-func TestWordTokenizer(t *testing.T) {
+func TestTreebankWordTokenizer(t *testing.T) {
+	tokenizer := new(TreebankWordTokenizer)
 	for sent, words := range sentToWords {
-		assert.Equal(t, words, WordTokenizer(sent))
+		assert.Equal(t, words, tokenizer.Tokenize(sent))
 	}
 }

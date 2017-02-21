@@ -5,6 +5,16 @@ import (
 	"strings"
 )
 
+// TreebankWordTokenizer is a port if NLTK's Treebank tokenizer.
+// See https://github.com/nltk/nltk/blob/develop/nltk/tokenize/treebank.py.
+type TreebankWordTokenizer struct {
+}
+
+// NewTreebankWordTokenizer creates a new TreebankWordTokenizer.
+func NewTreebankWordTokenizer() *TreebankWordTokenizer {
+	return new(TreebankWordTokenizer)
+}
+
 var startingQuotes = map[string]*regexp.Regexp{
 	"``":     regexp.MustCompile(`^\"`),
 	" $1 ":   regexp.MustCompile("(``)"),
@@ -45,8 +55,8 @@ var contractions = []*regexp.Regexp{
 	regexp.MustCompile(`(?i) ('t)(was)\b`),
 }
 
-// WordTokenizer splits text into words.
-func WordTokenizer(text string) []string {
+// Tokenize splits text into words.
+func (t TreebankWordTokenizer) Tokenize(text string) []string {
 	for substitution, r := range startingQuotes {
 		text = r.ReplaceAllString(text, substitution)
 	}

@@ -6,75 +6,29 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jdkato/prose/tokenize"
 	"github.com/jdkato/prose/util"
 )
 
 var none = regexp.MustCompile(`^(?:0|\*[\w?]\*|\*\-\d{1,3}|\*[A-Z]+\*\-\d{1,3}|\*)$`)
 var keep = regexp.MustCompile(`^\-[A-Z]{3}\-$`)
 
-// AveragedPerceptron ...
-type AveragedPerceptron struct {
-	Classes   []string
-	Instances int
-	Stamps    map[string]int
-	TagMap    map[string]string
-	Totals    map[string]int
-	Weights   map[string]map[string]float64
-}
-
-// NewAveragedPerceptron ...
-func NewAveragedPerceptron() *AveragedPerceptron {
-	var ap AveragedPerceptron
-	var err error
-
-	ap.Totals = make(map[string]int)
-	ap.Stamps = make(map[string]int)
-	err = json.Unmarshal(util.GetAsset("classes.json"), &ap.Classes)
-	util.CheckError(err)
-	err = json.Unmarshal(util.GetAsset("tags.json"), &ap.TagMap)
-	util.CheckError(err)
-	err = json.Unmarshal(util.GetAsset("weights.json"), &ap.Weights)
-	util.CheckError(err)
-	return &ap
-}
-
-// Predict ...
-func (ap AveragedPerceptron) Predict(features map[string]float64) string {
-	var weights map[string]float64
-	var found bool
-
-	scores := make(map[string]float64)
-	for feat, value := range features {
-		if weights, found = ap.Weights[feat]; !found || value == 0 {
-			continue
-		}
-		for label, weight := range weights {
-			if _, ok := scores[label]; ok {
-				scores[label] += value * weight
-			} else {
-				scores[label] = value * weight
-			}
-		}
-	}
-	return max(scores)
-}
-
-// PerceptronTagger ...
+// PerceptronTagger is a port of Textblob's "fast and accurate" POS tagger.
+// See https://github.com/sloria/textblob-aptagger for details.
 type PerceptronTagger struct {
-	Model *AveragedPerceptron
+	model *averagedPerceptron
 }
 
-// NewPerceptronTagger ...
+// NewPerceptronTagger creates a new PerceptronTagger and load its
+// averagedPerceptron model.
 func NewPerceptronTagger() *PerceptronTagger {
 	var pt PerceptronTagger
-	pt.Model = NewAveragedPerceptron()
+	pt.model = newAveragedPerceptron()
 	return &pt
 }
 
-// Tag ...
-func (pt PerceptronTagger) Tag(words []string) []tokenize.Token {
-	var tokens []tokenize.Token
+// Tag takes a slice of words and returns a slice of tagged tokens.
+func (pt PerceptronTagger) Tag(words []string) []Token {
+	var tokens []Token
 	var clean []string
 	var tag string
 	var found bool
@@ -94,10 +48,10 @@ func (pt PerceptronTagger) Tag(words []string) []tokenize.Token {
 			tag = "-NONE-"
 		} else if keep.MatchString(word) {
 			tag = word
-		} else if tag, found = pt.Model.TagMap[word]; !found {
-			tag = pt.Model.Predict(featurize(i, word, context, p1, p2))
+		} else if tag, found = pt.model.tagMap[word]; !found {
+			tag = pt.model.predict(featurize(i, word, context, p1, p2))
 		}
-		tokens = append(tokens, tokenize.Token{Tag: tag, Text: word})
+		tokens = append(tokens, Token{Tag: tag, Text: word})
 		p2 = p1
 		p1 = tag
 	}
@@ -105,13 +59,50 @@ func (pt PerceptronTagger) Tag(words []string) []tokenize.Token {
 	return tokens
 }
 
-// TokenizeAndTag ...
-func (pt PerceptronTagger) TokenizeAndTag(corpus string) []tokenize.Token {
-	var tokens []tokenize.Token
-	for _, s := range tokenize.SentenceTokenizer(corpus) {
-		tokens = append(tokens, pt.Tag(tokenize.WordTokenizer(s.Text))...)
+type averagedPerceptron struct {
+	classes   []string
+	instances int
+	stamps    map[string]int
+	tagMap    map[string]string
+	totals    map[string]int
+	weights   map[string]map[string]float64
+}
+
+func newAveragedPerceptron() *averagedPerceptron {
+	var ap averagedPerceptron
+	var err error
+
+	ap.totals = make(map[string]int)
+	ap.stamps = make(map[string]int)
+
+	err = json.Unmarshal(util.GetAsset("classes.json"), &ap.classes)
+	util.CheckError(err)
+	err = json.Unmarshal(util.GetAsset("tags.json"), &ap.tagMap)
+	util.CheckError(err)
+	err = json.Unmarshal(util.GetAsset("weights.json"), &ap.weights)
+	util.CheckError(err)
+
+	return &ap
+}
+
+func (ap averagedPerceptron) predict(features map[string]float64) string {
+	var weights map[string]float64
+	var found bool
+
+	scores := make(map[string]float64)
+	for feat, value := range features {
+		if weights, found = ap.weights[feat]; !found || value == 0 {
+			continue
+		}
+		for label, weight := range weights {
+			if _, ok := scores[label]; ok {
+				scores[label] += value * weight
+			} else {
+				scores[label] = value * weight
+			}
+		}
 	}
-	return tokens
+	return max(scores)
 }
 
 func max(scores map[string]float64) string {
