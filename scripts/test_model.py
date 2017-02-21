@@ -54,6 +54,6 @@ if __name__ == '__main__':
     headers = ['Library', 'Accuracy', 'Time (sec)']
     table = [
         ['NLTK', round(PT.evaluate(sents), 3), round(pt_time, 3)],
-        ['aptag', round(APTagger().evaluate(sents), 3), round(AP_TIME, 3)]
+        ['Prose', round(APTagger().evaluate(sents), 3), round(AP_TIME, 3)]
     ]
     print(tabulate(table, headers, tablefmt='pipe'))
