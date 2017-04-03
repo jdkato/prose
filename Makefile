@@ -18,8 +18,7 @@ build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 test:
-	go test -v ./...
-
+	go test -v ./tokenize
 ci: test lint
 
 lint:
@@ -39,11 +38,8 @@ lint:
 		./...
 
 setup:
-	go get -u github.com/alecthomas/gometalinter
-	go get -u github.com/stretchr/testify/assert
-	go get -u github.com/urfave/cli
 	go get -u github.com/jteeuwen/go-bindata/...
-	go-bindata -ignore=\\.DS_Store -pkg="model" -o model/model.go model/
+	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
 	gometalinter --install
 
 bump:
@@ -55,4 +51,4 @@ bump:
 	echo $(VER) > $(VERSION_FILE)
 
 model:
-	go-bindata -nomemcopy -ignore=\\.DS_Store -pkg="model" -o model/model.go model/
+	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/

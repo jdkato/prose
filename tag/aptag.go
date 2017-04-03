@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jdkato/prose/util"
+	"github.com/jdkato/prose/internal/util"
 )
 
 var none = regexp.MustCompile(`^(?:0|\*[\w?]\*|\*\-\d{1,3}|\*[A-Z]+\*\-\d{1,3}|\*)$`)

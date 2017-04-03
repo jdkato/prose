@@ -1,0 +1,13 @@
+{
+    "dependencies": {
+        "github.com/stretchr/testify": {
+            "branch": "master"
+        },
+        "github.com/urfave/cli": {
+            "branch": "master"
+        },
+        "gopkg.in/neurosnap/sentences.v1": {
+            "branch": "master"
+        }
+    }
+}
