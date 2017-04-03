@@ -18,7 +18,6 @@ build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 test-tokenize:
-	python3 scripts/treebank_words.py
 	go test -v ./tokenize
 
 test: test-tokenize
@@ -42,6 +41,7 @@ lint:
 		./tokenize ./tag
 
 setup:
+	go get -u github.com/alecthomas/gometalinter
 	go get -u github.com/jteeuwen/go-bindata/...
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
 	gometalinter --install

@@ -1,11 +1,11 @@
 import json
-import pathlib
+import os
 
 from nltk.tokenize import TreebankWordTokenizer, sent_tokenize
 
 if __name__ == '__main__':
     t = TreebankWordTokenizer()
-    with open(pathlib.PurePath('testdata', 'tokenize.json')) as d:
+    with open(os.path.join('testdata', 'tokenize.json')) as d:
         data = json.load(d)
 
     words = []
@@ -15,8 +15,8 @@ if __name__ == '__main__':
             sents.append(s)
             words.append(t.tokenize(s))
 
-    with open(pathlib.PurePath('testdata', 'treebank_words.json'), 'w') as f:
+    with open(os.path.join('testdata', 'treebank_words.json'), 'w') as f:
         json.dump(words, f, indent=4)
 
-    with open(pathlib.PurePath('testdata', 'treebank_sents.json'), 'w') as f:
+    with open(os.path.join('testdata', 'treebank_sents.json'), 'w') as f:
         json.dump(sents, f, indent=4)
