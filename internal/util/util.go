@@ -1,13 +1,31 @@
 package util
 
-import "github.com/jdkato/prose/internal/model"
+import (
+	"io/ioutil"
+	"path/filepath"
 
+	"github.com/jdkato/prose/internal/model"
+)
+
+// ReadDataFile reads data from a file, panicking on any errors.
+func ReadDataFile(path string) []byte {
+	p, err := filepath.Abs(path)
+	CheckError(err)
+
+	data, ferr := ioutil.ReadFile(p)
+	CheckError(ferr)
+
+	return data
+}
+
+// CheckError panics if `err` is not `nil`.
 func CheckError(err error) {
 	if err != nil {
 		panic(err)
 	}
 }
 
+// Min returns the minimum of `a` and `b`.
 func Min(a, b int) int {
 	if a < b {
 		return a
@@ -45,6 +63,7 @@ func IsAlnum(c byte) bool {
 	return (c >= '0' && c <= '9') || IsLetter(c)
 }
 
+// GetAsset returns the named Asset.
 func GetAsset(name string) []byte {
 	b, err := model.Asset("model/" + name)
 	CheckError(err)

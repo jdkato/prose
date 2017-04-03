@@ -16,12 +16,15 @@ func NewTreebankWordTokenizer() *TreebankWordTokenizer {
 }
 
 var startingQuotes = map[string]*regexp.Regexp{
-	"``":     regexp.MustCompile(`^\"`),
-	" $1 ":   regexp.MustCompile("(``)"),
 	"$1 `` ": regexp.MustCompile(`'([ (\[{<])"`),
+	"``":     regexp.MustCompile(`^(")`),
+	" ``":    regexp.MustCompile(`( ")`),
+}
+var startingQuotes2 = map[string]*regexp.Regexp{
+	" $1 ": regexp.MustCompile("(``)"),
 }
 var punctuation = map[string]*regexp.Regexp{
-	" $1$2":    regexp.MustCompile(`([:,])([^\d])`),
+	" $1 $2":   regexp.MustCompile(`([:,])([^\d])`),
 	" ... ":    regexp.MustCompile(`\.\.\.`),
 	"$1 $2$3 ": regexp.MustCompile(`([^\.])(\.)([\]\)}>"\']*)\s*$`),
 	"$1 ' ":    regexp.MustCompile(`([^'])' `),
@@ -31,7 +34,7 @@ var punctuation2 = []*regexp.Regexp{
 	regexp.MustCompile(`([;@#$%&?!])`),
 }
 var brackets = map[string]*regexp.Regexp{
-	" $1 ": regexp.MustCompile(`[\]\[\(\)\{\}\<\>]`),
+	" $1 ": regexp.MustCompile(`([\]\[\(\)\{\}\<\>])`),
 	" -- ": regexp.MustCompile(`--`),
 }
 var endingQuotes = map[string]*regexp.Regexp{
@@ -54,10 +57,16 @@ var contractions = []*regexp.Regexp{
 	regexp.MustCompile(`(?i) ('t)(is)\b`),
 	regexp.MustCompile(`(?i) ('t)(was)\b`),
 }
+var newlines = regexp.MustCompile(`(?:\n|\n\r|\r)`)
+var spaces = regexp.MustCompile(`(?: {2,})`)
 
 // Tokenize splits text into words.
 func (t TreebankWordTokenizer) Tokenize(text string) []string {
 	for substitution, r := range startingQuotes {
+		text = r.ReplaceAllString(text, substitution)
+	}
+
+	for substitution, r := range startingQuotes2 {
 		text = r.ReplaceAllString(text, substitution)
 	}
 
@@ -87,5 +96,7 @@ func (t TreebankWordTokenizer) Tokenize(text string) []string {
 		text = r.ReplaceAllString(text, " $1 $2 ")
 	}
 
-	return strings.Split(strings.TrimSpace(text), " ")
+	text = newlines.ReplaceAllString(text, " ")
+	text = strings.TrimSpace(spaces.ReplaceAllString(text, " "))
+	return strings.Split(text, " ")
 }

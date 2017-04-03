@@ -17,8 +17,12 @@ build:
 build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
-test:
+test-tokenize:
+	python3 scripts/treebank_words.py
 	go test -v ./tokenize
+
+test: test-tokenize
+
 ci: test lint
 
 lint:
@@ -35,7 +39,7 @@ lint:
 		--enable=vet \
 		--enable=vetshadow \
 		--deadline=1m \
-		./...
+		./tokenize ./tag
 
 setup:
 	go get -u github.com/jteeuwen/go-bindata/...

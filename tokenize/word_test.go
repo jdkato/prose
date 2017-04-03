@@ -1,23 +1,28 @@
 package tokenize
 
 import (
+	"encoding/json"
+	"path/filepath"
 	"testing"
 
+	"github.com/jdkato/prose/internal/util"
 	"github.com/stretchr/testify/assert"
 )
 
-var treebankTests = []struct {
-	in  string
-	out []string
-}{
-	{"They'll save and invest more.", []string{"They", "'ll", "save", "and", "invest", "more", "."}},
-	{"How's it going?", []string{"How", "'s", "it", "going", "?"}},
-	{"abbreviations like M.D. and initials containing periods, they", []string{"abbreviations", "like", "M.D.", "and", "initials", "containing", "periods", ",", "they"}},
-}
+var testdata = filepath.Join("..", "testdata")
 
 func TestTreebankWordTokenizer(t *testing.T) {
-	tokenizer := NewTreebankWordTokenizer()
-	for _, tt := range treebankTests {
-		assert.Equal(t, tt.out, tokenizer.Tokenize(tt.in))
+	in := util.ReadDataFile(filepath.Join(testdata, "treebank_sents.json"))
+	out := util.ReadDataFile(filepath.Join(testdata, "treebank_words.json"))
+
+	input := []string{}
+	output := [][]string{}
+
+	util.CheckError(json.Unmarshal(in, &input))
+	util.CheckError(json.Unmarshal(out, &output))
+
+	word := NewTreebankWordTokenizer()
+	for i, s := range input {
+		assert.Equal(t, output[i], word.Tokenize(s))
 	}
 }

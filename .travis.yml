@@ -1,0 +1,18 @@
+language: go
+go:
+  - 1.7
+  - 1.8
+matrix:
+  include:
+    - os: linux
+      env: ARCH="i686"
+    - os: linux
+      env: ARCH="x86_64"
+    - os: osx
+      env: ARCH="x86_64"
+      osx_image: xcode8
+install:
+  - make setup
+  - make build
+script:
+  - make test
