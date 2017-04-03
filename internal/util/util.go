@@ -65,7 +65,7 @@ func IsAlnum(c byte) bool {
 
 // GetAsset returns the named Asset.
 func GetAsset(name string) []byte {
-	b, err := model.Asset("model/" + name)
+	b, err := model.Asset("internal/model/" + name)
 	CheckError(err)
 	return b
 }
