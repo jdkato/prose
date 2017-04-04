@@ -41,6 +41,7 @@ lint:
 		./tokenize ./tag
 
 setup:
+	go get -u github.com/urfave/cli
 	go get -u github.com/alecthomas/gometalinter
 	go get -u github.com/jteeuwen/go-bindata/...
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
