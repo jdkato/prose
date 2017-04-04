@@ -41,6 +41,7 @@ lint:
 		./tokenize ./tag
 
 setup:
+	go get -u github.com/stretchr/testify/assert
 	go get -u github.com/urfave/cli
 	go get -u github.com/alecthomas/gometalinter
 	go get -u github.com/jteeuwen/go-bindata/...
