@@ -26,3 +26,16 @@ func TestTreebankWordTokenizer(t *testing.T) {
 		assert.Equal(t, output[i], word.Tokenize(s))
 	}
 }
+
+func BenchmarkTreebankWordTokenizer(b *testing.B) {
+	in := util.ReadDataFile(filepath.Join(testdata, "treebank_sents.json"))
+	input := []string{}
+	util.CheckError(json.Unmarshal(in, &input))
+
+	word := NewTreebankWordTokenizer()
+	for n := 0; n < b.N; n++ {
+		for _, s := range input {
+			word.Tokenize(s)
+		}
+	}
+}

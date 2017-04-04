@@ -17,6 +17,9 @@ build:
 build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
+bench:
+	go test -bench=. ./tokenize
+
 test-tokenize:
 	go test -v ./tokenize
 
