@@ -9,6 +9,8 @@
 `TreebankWordTokenizer` is a port if NLTK's [Treebank tokenizer](https://github.com/nltk/nltk/blob/develop/nltk/tokenize/treebank.py), which is based on a [sed script](https://github.com/andre-martins/TurboParser/blob/master/scripts/tokenizer.sed) written by Robert McIntyre.
 
 ```go
+package main
+
 import (
     "fmt"
 
@@ -30,6 +32,8 @@ func main() {
 `PerceptronTagger` is a port of Textblob's "fast and accurate" [POS tagger](https://github.com/sloria/textblob-aptagger).
 
 ```go
+package main
+
 import (
     "fmt"
 
@@ -61,6 +65,8 @@ It performs quite well on NLTK's `treebank` corpus:
 `Title` converts a string to title case, while attempting to adhere to common guidelines.
 
 ```go
+package main
+
 import (
     "fmt"
     "strings"
