@@ -1,8 +1,8 @@
 # prose
 
-`prose` is an in-progress Go library for text processing.
+[![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose)
 
-## Install
+`prose` is an in-progress Go library for text processing that supports tokenization, part of speech tagging, text transforming, and text summarization.
 
 ```
 go get github.com/jdkato/prose
@@ -42,12 +42,12 @@ import (
 
 func main() {
     text := "A fast and accurate part-of-speech tagger for Golang."
-	words := tokenize.NewTreebankWordTokenizer().Tokenize(text)
+    words := tokenize.NewTreebankWordTokenizer().Tokenize(text)
 
-	tagger := NewPerceptronTagger()
-	for _, tok := range tagger.Tag(words) {
-		fmt.Println(tok.Text, tok.Tag)
-	}
+    tagger := NewPerceptronTagger()
+    for _, tok := range tagger.Tag(words) {
+        fmt.Println(tok.Text, tok.Tag)
+    }
 }
 ```
 
@@ -74,8 +74,8 @@ import (
 
 func main() {
     text := "the last of the mohicans"
-	fmt.Println(strings.Title(text))   // The Last Of The Mohicans
-	fmt.Println(transform.Title(text)) // The Last of the Mohicans
+    fmt.Println(strings.Title(text))   // The Last Of The Mohicans
+    fmt.Println(transform.Title(text)) // The Last of the Mohicans
 }
 ```
 
