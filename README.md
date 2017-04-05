@@ -82,4 +82,6 @@ func main() {
 }
 ```
 
+Inspiration and test data taken from [python-titlecase](https://github.com/ppannuto/python-titlecase) and [to-title-case](https://github.com/gouch/to-title-case).
+
 ## Summarizing
