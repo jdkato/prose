@@ -1,6 +1,6 @@
 # prose
 
-[![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose)
+[![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose) [![GoDoc](https://godoc.org/github.com/jdkato/prose?status.svg)](https://godoc.org/github.com/jdkato/prose)
 
 `prose` is an in-progress Go library for text processing that supports tokenization, part of speech tagging, text transforming, and text summarization.
 
