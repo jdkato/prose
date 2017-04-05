@@ -18,12 +18,15 @@ build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 bench:
-	go test -bench=. ./tokenize
+	go test -bench=. ./tokenize ./transform
 
 test-tokenize:
 	go test -v ./tokenize
 
-test: test-tokenize
+test-transform:
+	go test -v ./transform
+
+test: test-tokenize test-transform
 
 ci: test lint
 
@@ -41,7 +44,7 @@ lint:
 		--enable=vet \
 		--enable=vetshadow \
 		--deadline=1m \
-		./tokenize ./tag
+		./tokenize ./tag ./transform
 
 setup:
 	go get -u github.com/stretchr/testify/assert
