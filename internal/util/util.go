@@ -69,3 +69,13 @@ func GetAsset(name string) []byte {
 	CheckError(err)
 	return b
 }
+
+// StringInSlice determines if `slice` contains the string `a`.
+func StringInSlice(a string, slice []string) bool {
+	for _, b := range slice {
+		if a == b {
+			return true
+		}
+	}
+	return false
+}
