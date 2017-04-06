@@ -1,5 +1,5 @@
 /*
-Package tokenize implements functions to slice UTF-8 encoded strings.
+Package tokenize implements functions to split strings into slices of substrings.
 */
 package tokenize
 

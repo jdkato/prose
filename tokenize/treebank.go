@@ -10,7 +10,7 @@ import (
 type TreebankWordTokenizer struct {
 }
 
-// NewTreebankWordTokenizer creates a new TreebankWordTokenizer.
+// NewTreebankWordTokenizer is a TreebankWordTokenizer constructor.
 func NewTreebankWordTokenizer() *TreebankWordTokenizer {
 	return new(TreebankWordTokenizer)
 }
@@ -60,7 +60,17 @@ var contractions = []*regexp.Regexp{
 var newlines = regexp.MustCompile(`(?:\n|\n\r|\r)`)
 var spaces = regexp.MustCompile(`(?: {2,})`)
 
-// Tokenize splits text into words.
+// Tokenize splits text into a slice of words.
+//
+// This tokenizer performs the following steps: (1) split on contractions (e.g.,
+// "don't" -> [do n't]), (2) split on punctuation, and (3) split on single
+// quotes when followed by whitespace.
+//
+// For example:
+//
+//    t := NewTreebankWordTokenizer()
+//    t.Tokenize("They'll save and invest more.")
+//    // [They 'll save and invest more .]
 func (t TreebankWordTokenizer) Tokenize(text string) []string {
 	for substitution, r := range startingQuotes {
 		text = r.ReplaceAllString(text, substitution)
