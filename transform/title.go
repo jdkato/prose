@@ -47,7 +47,7 @@ func toTitle(m string, prev byte) string {
 // NOTE: Specical capitlization cases (e.g., "iPhone") and all uppercase
 // strings are not currently handled correctly.
 //
-// TODO: Support AP, APL, MLA, and Chicago variations.
+// TODO: Support AP, APA, MLA, and Chicago variations.
 func Title(s string) string {
 	idx, pos := 0, 0
 	t := sanitizer.Replace(s)
