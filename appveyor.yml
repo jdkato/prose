@@ -5,6 +5,7 @@ environment:
 init:
 - cmd: >-
     set PATH=C:\MinGW\bin;%PATH%
+
     copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
 install:
   - echo %PATH%
@@ -13,6 +14,7 @@ install:
 build_script:
 - cmd: >-
     make setup
+    
     make build-win
 test_script:
 - cmd: make ci
