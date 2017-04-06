@@ -1,3 +1,6 @@
+/*
+Package summarize implements functions for analyzing readability and usage statistics of text.
+*/
 package summarize
 
 import (
