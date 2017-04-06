@@ -18,7 +18,7 @@ build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 bench:
-	go test -bench=. ./tokenize ./transform
+	go test -bench=. ./tokenize ./transform ./summarize
 
 test-tokenize:
 	go test -v ./tokenize
@@ -26,7 +26,10 @@ test-tokenize:
 test-transform:
 	go test -v ./transform
 
-test: test-tokenize test-transform
+test-summarize:
+	go test -v ./summarize
+
+test: test-tokenize test-transform test-summarize
 
 ci: test lint
 
@@ -44,9 +47,10 @@ lint:
 		--enable=vet \
 		--enable=vetshadow \
 		--deadline=1m \
-		./tokenize ./tag ./transform
+		./tokenize ./tag ./transform ./summarize
 
 setup:
+	go get -u github.com/montanaflynn/stats
 	go get -u gopkg.in/neurosnap/sentences.v1/english
 	go get -u github.com/stretchr/testify/assert
 	go get -u github.com/urfave/cli
