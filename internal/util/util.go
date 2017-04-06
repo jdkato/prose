@@ -3,6 +3,7 @@ package util
 import (
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"github.com/jdkato/prose/internal/model"
 )
@@ -74,6 +75,17 @@ func GetAsset(name string) []byte {
 func StringInSlice(a string, slice []string) bool {
 	for _, b := range slice {
 		if a == b {
+			return true
+		}
+	}
+	return false
+}
+
+// HasAnySuffix determines if the string a has any suffixes contained in the
+// slice b.
+func HasAnySuffix(a string, slice []string) bool {
+	for _, b := range slice {
+		if strings.HasSuffix(a, b) {
 			return true
 		}
 	}
