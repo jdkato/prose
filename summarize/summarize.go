@@ -34,7 +34,6 @@ type Document struct {
 	Sentences         map[string]int
 	SentenceTokenizer tokenize.ProseTokenizer
 	WordFrequency     map[string]int
-	Words             []string
 	WordTokenizer     tokenize.ProseTokenizer
 }
 
@@ -85,7 +84,6 @@ func (d *Document) Initialize() {
 			if isComplex(word, syllables) {
 				d.NumComplexWords++
 			}
-			d.Words = append(d.Words, word)
 			d.NumWords++
 		}
 		d.Sentences[s] = int(d.NumWords - wordCount)
