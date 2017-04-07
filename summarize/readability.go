@@ -35,3 +35,10 @@ func (d *Document) AutomatedReadability() float64 {
 	y := 0.5 * (d.NumWords / d.NumSentences)
 	return x + y - 21.43
 }
+
+// ColemanLiau computes the Coleman–Liau index score of the Document d.
+func (d *Document) ColemanLiau() float64 {
+	x := 0.0588 * (d.NumCharacters / d.NumWords) * 100
+	y := 0.296 * (d.NumSentences / d.NumWords) * 100
+	return x - y - 15.8
+}

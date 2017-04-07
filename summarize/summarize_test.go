@@ -34,10 +34,11 @@ func TestSyllables(t *testing.T) {
 }
 
 type testCase struct {
-	Text      string
-	Sentences float64
-	Words     float64
-	PolyWords float64
+	Text       string
+	Sentences  float64
+	Words      float64
+	PolyWords  float64
+	Characters float64
 }
 
 func TestSummarize(t *testing.T) {
@@ -49,5 +50,6 @@ func TestSummarize(t *testing.T) {
 		d := NewDocument(test.Text)
 		assert.Equal(t, test.Sentences, d.NumSentences)
 		assert.Equal(t, test.Words, d.NumWords)
+		assert.Equal(t, test.Characters, d.NumCharacters)
 	}
 }
