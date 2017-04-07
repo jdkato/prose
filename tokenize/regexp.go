@@ -70,5 +70,7 @@ func NewWordPunctTokenizer() *RegexpTokenizer {
 //    t.Tokenize("They'll save and invest more.")
 //    // [They'll save and invest more]
 func NewWordBoundaryTokenizer() *RegexpTokenizer {
-	return &RegexpTokenizer{regex: regexp.MustCompile(`[\w'-]+`), gaps: false}
+	return &RegexpTokenizer{
+		regex: regexp.MustCompile(`(?:[A-Z]\.){2,}|[\p{N}\p{L}'-]+`),
+		gaps:  false}
 }
