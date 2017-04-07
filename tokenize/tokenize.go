@@ -8,6 +8,16 @@ import (
 	"gopkg.in/neurosnap/sentences.v1/english"
 )
 
+// ProseTokenizer is the interface implemented by an object that takes a string
+// and returns a slice of substrings.
+//
+// Implementations include:
+// * TreebankWordTokenizer
+// * RegexpTokenizer
+type ProseTokenizer interface {
+	Tokenize(text string) []string
+}
+
 // TextToWords converts the string text into a slice of words.
 //
 // It does so by tokenizing text into sentences (using a port of NLTK's punkt
