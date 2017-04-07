@@ -24,16 +24,17 @@ import (
 // content of a Document (e.g., we should be able to build it incrementally).
 // Perhaps we should look into using a rope as our underlying data structure?
 type Document struct {
-	Content           string
-	NumCharacters     float64
-	NumComplexWords   float64
-	NumPolysylWords   float64
-	NumSentences      float64
-	NumSyllables      float64
-	NumWords          float64
-	Sentences         map[string]int
+	Content         string           // Actual text
+	NumCharacters   float64          // Number of Characters
+	NumComplexWords float64          // PolysylWords without common suffixes
+	NumPolysylWords float64          // Number of words with > 2 syllables
+	NumSentences    float64          // Number of sentences
+	NumSyllables    float64          // Number of syllables
+	NumWords        float64          // Number of words
+	Sentences       map[string]int   // {sentence: length}
+	Words           map[string][]int // {word: [frequency, syllables]}
+
 	SentenceTokenizer tokenize.ProseTokenizer
-	Words             map[string][]int
 	WordTokenizer     tokenize.ProseTokenizer
 }
 
