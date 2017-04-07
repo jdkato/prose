@@ -8,20 +8,29 @@ import (
 
 	"github.com/jdkato/prose/internal/util"
 	"github.com/jdkato/prose/tokenize"
-	"gopkg.in/neurosnap/sentences.v1/english"
 )
 
 // A Document represents a collection of text to be analyzed.
+//
+// A Document's calculations depend on its word and sentence tokenizers. You
+// can use the defaults by invoking NewDocument, choose another implemention
+// from the tokenize package, or use your own (as long as it implements the
+// ProseTokenizer interface). For example,
+//
+//    d := Document{Content: ..., WordTokenizer: ..., SentenceTokenizer: ...}
+//    d.Initialize()
 type Document struct {
-	NumCharacters   float64
-	NumComplexWords float64
-	NumPolysylWords float64
-	NumSentences    float64
-	Sentences       []string
-	NumSyllables    float64
-	Content         string
-	NumWords        float64
-	Words           []string
+	Content           string
+	NumCharacters     float64
+	NumComplexWords   float64
+	NumPolysylWords   float64
+	NumSentences      float64
+	NumSyllables      float64
+	NumWords          float64
+	Sentences         []string
+	SentenceTokenizer tokenize.ProseTokenizer
+	Words             []string
+	WordTokenizer     tokenize.ProseTokenizer
 }
 
 // An Assessment provides comprehensive access to a Document's metrics.
@@ -36,31 +45,38 @@ type Assessment struct {
 // NewDocument is a Document constructor that takes a string as an argument. It
 // then calculates the data necessary for computing readability and usage
 // statistics.
+//
+// This is a convenience wrapper around the Document initialization process
+// that defaults to using a WordBoundaryTokenizer and a PunktSentenceTokenizer
+// as its word and sentence tokenizers, respectively.
 func NewDocument(text string) *Document {
-	doc := Document{Content: text}
+	wTok := tokenize.NewWordBoundaryTokenizer()
+	sTok := tokenize.NewPunktSentenceTokenizer()
+	doc := Document{Content: text, WordTokenizer: wTok, SentenceTokenizer: sTok}
+	doc.Initialize()
+	return &doc
+}
 
-	wordTokenizer := tokenize.NewWordBoundaryTokenizer()
-	sentTokenizer, err := english.NewSentenceTokenizer(nil)
-	util.CheckError(err)
-
-	for _, s := range sentTokenizer.Tokenize(text) {
-		doc.Sentences = append(doc.Sentences, s.Text)
-		doc.NumSentences++
-		for _, word := range wordTokenizer.Tokenize(s.Text) {
-			doc.NumCharacters += countChars(word)
+// Initialize calculates the data necessary for computing readability and usage
+// statistics.
+func (d *Document) Initialize() {
+	for _, s := range d.SentenceTokenizer.Tokenize(d.Content) {
+		d.Sentences = append(d.Sentences, s)
+		d.NumSentences++
+		for _, word := range d.WordTokenizer.Tokenize(s) {
+			d.NumCharacters += countChars(word)
 			syllables := Syllables(word)
-			doc.NumSyllables += float64(syllables)
+			d.NumSyllables += float64(syllables)
 			if syllables > 2 {
-				doc.NumPolysylWords++
+				d.NumPolysylWords++
 			}
 			if isComplex(word, syllables) {
-				doc.NumComplexWords++
+				d.NumComplexWords++
 			}
-			doc.Words = append(doc.Words, word)
-			doc.NumWords++
+			d.Words = append(d.Words, word)
+			d.NumWords++
 		}
 	}
-	return &doc
 }
 
 // Assess returns an Assessment for the Document d.
