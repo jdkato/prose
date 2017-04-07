@@ -19,6 +19,10 @@ import (
 //
 //    d := Document{Content: ..., WordTokenizer: ..., SentenceTokenizer: ...}
 //    d.Initialize()
+//
+// TODO: There should be a way to efficiently add or remove text from a the
+// content of a Document (e.g., we should be able to build it incrementally).
+// Perhaps we should look into using a rope as our underlying data structure?
 type Document struct {
 	Content           string
 	NumCharacters     float64
@@ -27,8 +31,9 @@ type Document struct {
 	NumSentences      float64
 	NumSyllables      float64
 	NumWords          float64
-	Sentences         []string
+	Sentences         map[string]int
 	SentenceTokenizer tokenize.ProseTokenizer
+	WordFrequency     map[string]int
 	Words             []string
 	WordTokenizer     tokenize.ProseTokenizer
 }
@@ -60,10 +65,16 @@ func NewDocument(text string) *Document {
 // Initialize calculates the data necessary for computing readability and usage
 // statistics.
 func (d *Document) Initialize() {
+	d.WordFrequency = make(map[string]int)
 	for _, s := range d.SentenceTokenizer.Tokenize(d.Content) {
-		d.Sentences = append(d.Sentences, s)
+		wordCount := d.NumWords
 		d.NumSentences++
 		for _, word := range d.WordTokenizer.Tokenize(s) {
+			if count, found := d.WordFrequency[word]; found {
+				d.WordFrequency[word] = count + 1
+			} else {
+				d.WordFrequency[word] = 1
+			}
 			d.NumCharacters += countChars(word)
 			syllables := Syllables(word)
 			d.NumSyllables += float64(syllables)
@@ -76,6 +87,7 @@ func (d *Document) Initialize() {
 			d.Words = append(d.Words, word)
 			d.NumWords++
 		}
+		d.Sentences[s] = int(d.NumWords - wordCount)
 	}
 }
 
