@@ -72,7 +72,7 @@ var spaces = regexp.MustCompile(`(?: {2,})`)
 //    t.Tokenize("They'll save and invest more.")
 //    // [They 'll save and invest more .]
 //
-// NOTE: As mentioned above, this function expects a sentence (not raw text) as 
+// NOTE: As mentioned above, this function expects a sentence (not raw text) as
 // input.
 func (t TreebankWordTokenizer) Tokenize(text string) []string {
 	for substitution, r := range startingQuotes {
