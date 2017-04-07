@@ -18,6 +18,6 @@ func TestUsage(t *testing.T) {
 		d := NewDocument(test.Text)
 		fmt.Printf("Case: %d\n", i)
 		// fmt.Printf("Density: %v\n", d.WordDensity())
-		fmt.Printf("Length: %v\n", d.AverageWordLength())
+		fmt.Printf("Length: %v\n", d.MeanWordLength())
 	}
 }

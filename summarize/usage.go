@@ -9,7 +9,7 @@ func (d *Document) WordDensity() map[string]float64 {
 	return density
 }
 
-// AverageWordLength returns the average number of characters per word.
-func (d *Document) AverageWordLength() float64 {
+// MeanWordLength returns the mean number of characters per word.
+func (d *Document) MeanWordLength() float64 {
 	return d.NumCharacters / d.NumWords
 }
