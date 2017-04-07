@@ -60,7 +60,7 @@ var contractions = []*regexp.Regexp{
 var newlines = regexp.MustCompile(`(?:\n|\n\r|\r)`)
 var spaces = regexp.MustCompile(`(?: {2,})`)
 
-// Tokenize splits text into a slice of words.
+// Tokenize splits a sentence into a slice of words.
 //
 // This tokenizer performs the following steps: (1) split on contractions (e.g.,
 // "don't" -> [do n't]), (2) split on punctuation, and (3) split on single
@@ -71,6 +71,9 @@ var spaces = regexp.MustCompile(`(?: {2,})`)
 //    t := NewTreebankWordTokenizer()
 //    t.Tokenize("They'll save and invest more.")
 //    // [They 'll save and invest more .]
+//
+// NOTE: As mentioned above, this function expects a sentence (not raw text) as 
+// input.
 func (t TreebankWordTokenizer) Tokenize(text string) []string {
 	for substitution, r := range startingQuotes {
 		text = r.ReplaceAllString(text, substitution)
