@@ -66,6 +66,7 @@ func NewDocument(text string) *Document {
 // statistics.
 func (d *Document) Initialize() {
 	d.WordFrequency = make(map[string]int)
+	d.Sentences = make(map[string]int)
 	for _, s := range d.SentenceTokenizer.Tokenize(d.Content) {
 		wordCount := d.NumWords
 		d.NumSentences++
