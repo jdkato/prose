@@ -33,7 +33,7 @@ type Document struct {
 	NumWords          float64
 	Sentences         map[string]int
 	SentenceTokenizer tokenize.ProseTokenizer
-	WordFrequency     map[string]int
+	Words             map[string][]int
 	WordTokenizer     tokenize.ProseTokenizer
 }
 
@@ -64,19 +64,19 @@ func NewDocument(text string) *Document {
 // Initialize calculates the data necessary for computing readability and usage
 // statistics.
 func (d *Document) Initialize() {
-	d.WordFrequency = make(map[string]int)
+	d.Words = make(map[string][]int)
 	d.Sentences = make(map[string]int)
 	for _, s := range d.SentenceTokenizer.Tokenize(d.Content) {
 		wordCount := d.NumWords
 		d.NumSentences++
 		for _, word := range d.WordTokenizer.Tokenize(s) {
-			if count, found := d.WordFrequency[word]; found {
-				d.WordFrequency[word] = count + 1
-			} else {
-				d.WordFrequency[word] = 1
-			}
 			d.NumCharacters += countChars(word)
 			syllables := Syllables(word)
+			if _, found := d.Words[word]; found {
+				d.Words[word][0]++
+			} else {
+				d.Words[word] = []int{1, syllables}
+			}
 			d.NumSyllables += float64(syllables)
 			if syllables > 2 {
 				d.NumPolysylWords++
