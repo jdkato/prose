@@ -10,6 +10,19 @@ import (
 	"github.com/jdkato/prose/tokenize"
 )
 
+// A Word represents a single word in a Document.
+type Word struct {
+	Text      string // the actual text
+	Syllables int    // the number of syllables
+}
+
+// A Sentence represents a single sentence in a Document.
+type Sentence struct {
+	Text   string // the actual text
+	Length int    // the number of words
+	Words  []Word // the words in this sentence
+}
+
 // A Document represents a collection of text to be analyzed.
 //
 // A Document's calculations depend on its word and sentence tokenizers. You
@@ -24,15 +37,15 @@ import (
 // content of a Document (e.g., we should be able to build it incrementally).
 // Perhaps we should look into using a rope as our underlying data structure?
 type Document struct {
-	Content         string           // Actual text
-	NumCharacters   float64          // Number of Characters
-	NumComplexWords float64          // PolysylWords without common suffixes
-	NumPolysylWords float64          // Number of words with > 2 syllables
-	NumSentences    float64          // Number of sentences
-	NumSyllables    float64          // Number of syllables
-	NumWords        float64          // Number of words
-	Sentences       map[string]int   // {sentence: length}
-	Words           map[string][]int // {word: [frequency, syllables]}
+	Content         string         // Actual text
+	NumCharacters   float64        // Number of Characters
+	NumComplexWords float64        // PolysylWords without common suffixes
+	NumPolysylWords float64        // Number of words with > 2 syllables
+	NumSentences    float64        // Number of sentences
+	NumSyllables    float64        // Number of syllables
+	NumWords        float64        // Number of words
+	Sentences       []Sentence     // the Document's sentences
+	WordFrequency   map[string]int // [word]frequency
 
 	SentenceTokenizer tokenize.ProseTokenizer
 	WordTokenizer     tokenize.ProseTokenizer
@@ -65,19 +78,20 @@ func NewDocument(text string) *Document {
 // Initialize calculates the data necessary for computing readability and usage
 // statistics.
 func (d *Document) Initialize() {
-	d.Words = make(map[string][]int)
-	d.Sentences = make(map[string]int)
+	d.WordFrequency = make(map[string]int)
 	for _, s := range d.SentenceTokenizer.Tokenize(d.Content) {
 		wordCount := d.NumWords
 		d.NumSentences++
+		words := []Word{}
 		for _, word := range d.WordTokenizer.Tokenize(s) {
 			d.NumCharacters += countChars(word)
-			syllables := Syllables(word)
-			if _, found := d.Words[word]; found {
-				d.Words[word][0]++
+			if _, found := d.WordFrequency[word]; found {
+				d.WordFrequency[word]++
 			} else {
-				d.Words[word] = []int{1, syllables}
+				d.WordFrequency[word] = 1
 			}
+			syllables := Syllables(word)
+			words = append(words, Word{Text: word, Syllables: syllables})
 			d.NumSyllables += float64(syllables)
 			if syllables > 2 {
 				d.NumPolysylWords++
@@ -87,7 +101,8 @@ func (d *Document) Initialize() {
 			}
 			d.NumWords++
 		}
-		d.Sentences[s] = int(d.NumWords - wordCount)
+		d.Sentences = append(d.Sentences, Sentence{
+			Text: s, Length: int(d.NumWords - wordCount), Words: words})
 	}
 }
 
