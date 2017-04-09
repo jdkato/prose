@@ -41,7 +41,6 @@ lint:
 		--enable=staticcheck \
 		--enable=gofmt \
 		--enable=goimports \
-		--enable=dupl \
 		--enable=misspell \
 		--enable=errcheck \
 		--enable=vet \
