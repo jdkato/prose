@@ -114,33 +114,6 @@ func (d *Document) Assess() *Assessment {
 		AutomatedReadability: d.AutomatedReadability()}
 }
 
-// Syllables returns the number of syllables in the string word.
-func Syllables(word string) int {
-	vowels := []rune{'a', 'e', 'i', 'o', 'u', 'y'}
-	vowelCount := 0
-	ext := len(word)
-
-	lastWasVowel := false
-	for _, c := range word {
-		found := false
-		for _, v := range vowels {
-			if v == c {
-				found = true
-				if !lastWasVowel {
-					vowelCount++
-				}
-				break
-			}
-		}
-		lastWasVowel = found
-	}
-	if (ext > 2 && word[ext-2:] == "es") || (ext > 1 && word[ext-1:] == "e") {
-		vowelCount--
-	}
-
-	return vowelCount
-}
-
 func isComplex(word string, syllables int) bool {
 	if util.HasAnySuffix(word, []string{"es", "ed", "ing"}) {
 		syllables--

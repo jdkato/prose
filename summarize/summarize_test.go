@@ -9,27 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var syllableTests = []struct {
-	in  string
-	out int
-}{
-	{"what", 1},
-	{"take", 1},
-	{"taking", 2},
-	{"dusted", 2},
-	{"redo", 2},
-	{"super", 2},
-	// FIXME: {"worrying", 3},
-	{"Maryland", 3},
-	{"American", 3},
-	{"disenfranchized", 5},
-	{"Sophia", 2},
-	{"misbehaving", 4},
-}
-
 func TestSyllables(t *testing.T) {
-	for _, tt := range syllableTests {
-		assert.Equal(t, tt.out, Syllables(tt.in), tt.in)
+	cases := util.ReadDataFile(filepath.Join(testdata, "syllables.json"))
+	tests := make(map[string]int)
+	util.CheckError(json.Unmarshal(cases, &tests))
+
+	for word, count := range tests {
+		assert.Equal(t, count, Syllables(word), word)
 	}
 }
 
