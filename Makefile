@@ -49,6 +49,7 @@ lint:
 		./tokenize ./tag ./transform ./summarize
 
 setup:
+	go get -u github.com/jdkato/syllables
 	go get -u github.com/montanaflynn/stats
 	go get -u gopkg.in/neurosnap/sentences.v1/english
 	go get -u github.com/stretchr/testify/assert
