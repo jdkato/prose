@@ -110,7 +110,7 @@ func (d *Document) Initialize() {
 func (d *Document) Assess() *Assessment {
 	return &Assessment{
 		FleschKincaid: d.FleschKincaid(), ReadingEase: d.ReadingEase(),
-		GunningFog: d.Gunningfog(), SMOG: d.SMOG(),
+		GunningFog: d.GunningFog(), SMOG: d.SMOG(),
 		AutomatedReadability: d.AutomatedReadability()}
 }
 
