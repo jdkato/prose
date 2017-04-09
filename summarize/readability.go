@@ -16,8 +16,8 @@ func (d *Document) ReadingEase() float64 {
 	return 206.835 - x - y
 }
 
-// Gunningfog computes the Gunning fog index score of the Document d.
-func (d *Document) Gunningfog() float64 {
+// Gunningfog computes the Gunning Fog index score of the Document d.
+func (d *Document) GunningFog() float64 {
 	x := d.NumWords / d.NumSentences
 	y := d.NumComplexWords / d.NumWords
 	return 0.4 * (x + 100.0*y)
