@@ -58,6 +58,7 @@ type Assessment struct {
 	ReadingEase          float64
 	GunningFog           float64
 	SMOG                 float64
+	DaleChall            float64
 }
 
 // NewDocument is a Document constructor that takes a string as an argument. It
@@ -109,8 +110,8 @@ func (d *Document) Initialize() {
 // Assess returns an Assessment for the Document d.
 func (d *Document) Assess() *Assessment {
 	return &Assessment{
-		FleschKincaid: d.FleschKincaid(), ReadingEase: d.ReadingEase(),
-		GunningFog: d.GunningFog(), SMOG: d.SMOG(),
+		FleschKincaid: d.FleschKincaid(), ReadingEase: d.FleschReadingEase(),
+		GunningFog: d.GunningFog(), SMOG: d.SMOG(), DaleChall: d.DaleChall(),
 		AutomatedReadability: d.AutomatedReadability()}
 }
 

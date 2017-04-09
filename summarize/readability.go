@@ -1,6 +1,10 @@
 package summarize
 
-import "math"
+import (
+	"math"
+
+	"github.com/jdkato/prose/internal/util"
+)
 
 // FleschKincaid computes the Flesch–Kincaid grade level of the Document d.
 func (d *Document) FleschKincaid() float64 {
@@ -9,14 +13,14 @@ func (d *Document) FleschKincaid() float64 {
 	return x + y - 15.59
 }
 
-// ReadingEase computes the Flesch reading-ease score of the Document d.
-func (d *Document) ReadingEase() float64 {
+// FleschReadingEase computes the Flesch reading-ease score of the Document d.
+func (d *Document) FleschReadingEase() float64 {
 	x := 1.015 * d.NumWords / d.NumSentences
 	y := 84.6 * d.NumSyllables / d.NumWords
 	return 206.835 - x - y
 }
 
-// Gunningfog computes the Gunning Fog index score of the Document d.
+// GunningFog computes the Gunning Fog index score of the Document d.
 func (d *Document) GunningFog() float64 {
 	x := d.NumWords / d.NumSentences
 	y := d.NumComplexWords / d.NumWords
@@ -41,4 +45,19 @@ func (d *Document) ColemanLiau() float64 {
 	x := 0.0588 * (d.NumCharacters / d.NumWords) * 100
 	y := 0.296 * (d.NumSentences / d.NumWords) * 100
 	return x - y - 15.8
+}
+
+// DaleChall computes the Dale–Chall score of the Document d.
+func (d *Document) DaleChall() float64 {
+	easy := 0.0
+	for word := range d.WordFrequency {
+		// TODO: look into more efficient lookup techniques.
+		if util.StringInSlice(word, easyWords) {
+			easy++
+		}
+	}
+	hard := d.NumWords - easy
+	x := (hard / d.NumWords) * 100
+	y := (d.NumWords / d.NumSentences)
+	return 0.1579*x + 0.0496*y
 }
