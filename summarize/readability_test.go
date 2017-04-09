@@ -23,7 +23,7 @@ func TestReadability(t *testing.T) {
 		fmt.Printf("FleschKincaid: %0.2f\n", d.FleschKincaid())
 		fmt.Printf("ReadingEase: %0.2f\n", d.ReadingEase())
 		fmt.Printf("SMOG: %0.2f\n", d.SMOG())
-		fmt.Printf("Gunningfog: %0.2f\n", d.Gunningfog())
+		fmt.Printf("Gunningfog: %0.2f\n", d.GunningFog())
 		fmt.Printf("ColemanLiau: %0.2f\n", d.ColemanLiau())
 	}
 }
