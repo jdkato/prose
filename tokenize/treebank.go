@@ -63,8 +63,9 @@ var spaces = regexp.MustCompile(`(?: {2,})`)
 // Tokenize splits a sentence into a slice of words.
 //
 // This tokenizer performs the following steps: (1) split on contractions (e.g.,
-// "don't" -> [do n't]), (2) split on punctuation, and (3) split on single
-// quotes when followed by whitespace.
+// "don't" -> [do n't]), (2) split on non-terminating punctuation, (3) split on
+// single quotes when followed by whitespace, and (4) split on periods that
+// appear at the end of lines.
 //
 // For example:
 //
