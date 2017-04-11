@@ -3,8 +3,6 @@ package tokenize
 import "regexp"
 
 // RegexpTokenizer splits a string into substrings using a regular expression.
-//
-// This is a port of NLTK's RegexpTokenizer.
 type RegexpTokenizer struct {
 	regex   *regexp.Regexp
 	gaps    bool
