@@ -5,8 +5,10 @@ import (
 	"strings"
 )
 
-// TreebankWordTokenizer is a port if NLTK's Treebank tokenizer.
-// See https://github.com/nltk/nltk/blob/develop/nltk/tokenize/treebank.py.
+// TreebankWordTokenizer splits a sentence into words.
+//
+// This implementation is a port of the Sed script written by Robert McIntyre,
+// which is available at https://goo.gl/UGZrAc.
 type TreebankWordTokenizer struct {
 }
 

@@ -26,7 +26,7 @@ func main() {
 }
 ```
 
-`TreebankWordTokenizer` is a port if NLTK's [Treebank tokenizer](https://github.com/nltk/nltk/blob/develop/nltk/tokenize/treebank.py), which is based on a [sed script](https://github.com/andre-martins/TurboParser/blob/master/scripts/tokenizer.sed) written by Robert McIntyre.
+`TreebankWordTokenizer` is a port of the [sed script](https://github.com/andre-martins/TurboParser/blob/master/scripts/tokenizer.sed) written by Robert McIntyre.
 
 ## Tagging
 
