@@ -8,7 +8,7 @@ import (
 	"github.com/jdkato/prose/tag"
 )
 
-// quadString creates a string containing all of the tags, each padded to 4 wide
+// quadString creates a string containing all of the tags, each padded to 4 characters wide.
 func quadsString(tagged []tag.Token) string {
 	tagQuads := ""
 	for _, tok := range tagged {
@@ -29,7 +29,6 @@ func quadsString(tagged []tag.Token) string {
 		}
 		tagQuads += tag + padding
 	}
-	//fmt.Println(tagQuads)
 	return tagQuads
 }
 
