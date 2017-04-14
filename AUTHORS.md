@@ -4,4 +4,4 @@
 
 ## Contributors
 
-- Elliott Stoneham
+- Elliott Stoneham (<elliott.stoneham@gmail.com>)

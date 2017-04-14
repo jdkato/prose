@@ -24,6 +24,9 @@ Separate figures from the Bank of England suggested that lenders are offering fe
 Banks reported a tightening of lending criteria, and a drop in loan approval rates.
 A significant majority also reported falling demand.
 Hansen Lu, property economist with Capital Economics, said that pointed to an "even more gloomy picture than the Rics survey".
+
+The above articile was retrieved from the B.B.C. News website on 13 April 2017.
+It was also reported on BBC Radio 4 and BBC Radio 5 Live.
 `
 	expected := []string{
 		"Royal Institution of Chartered Surveyors",
@@ -45,6 +48,10 @@ Hansen Lu, property economist with Capital Economics, said that pointed to an "e
 		"Hansen Lu",
 		"Capital Economics",
 		"Rics",
+		"B.B.C. News",
+		"13 April 2017",
+		"BBC Radio 4",
+		"BBC Radio 5 Live",
 	}
 
 	t.Log(text)
