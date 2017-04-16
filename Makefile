@@ -30,7 +30,7 @@ test-summarize:
 	go test -v ./summarize
 
 test-chunk:
-	go test -v ./summarize
+	go test -v ./chunk
 
 test: test-tokenize test-transform test-summarize test-chunk
 
