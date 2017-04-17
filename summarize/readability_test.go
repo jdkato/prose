@@ -21,14 +21,14 @@ func TestReadability(t *testing.T) {
 		a := d.Assess()
 		fmt.Printf("Case: %d\n", i)
 		fmt.Printf("AutomatedReadability: %0.2f\n", a.AutomatedReadability)
-		fmt.Printf("FleschKincaid: %0.2f\n", a.FleschKincaid)
-		fmt.Printf("ReadingEase: %0.2f\n", a.ReadingEase)
-		fmt.Printf("SMOG: %0.2f\n", a.SMOG)
-		fmt.Printf("Gunningfog: %0.2f\n", a.GunningFog)
 		fmt.Printf("ColemanLiau: %0.2f\n", a.ColemanLiau)
-		fmt.Printf("DaleChall: %0.2f\n", a.DaleChall)
+		fmt.Printf("FleschKincaid: %0.2f\n", a.FleschKincaid)
+		fmt.Printf("Gunningfog: %0.2f\n", a.GunningFog)
+		fmt.Printf("SMOG: %0.2f\n", a.SMOG)
 		fmt.Printf("MeanGrade: %0.2f\n", a.MeanGradeLevel)
-		fmt.Printf("StdGrade: %0.2f\n", a.StdGradeLevel)
+		fmt.Printf("StdDevGrade: %0.2f\n", a.StdDevGradeLevel)
+		fmt.Printf("DaleChall: %0.2f\n", a.DaleChall)
+		fmt.Printf("ReadingEase: %0.2f\n", a.ReadingEase)
 	}
 }
 
