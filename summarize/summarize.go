@@ -54,15 +54,24 @@ type Document struct {
 
 // An Assessment provides comprehensive access to a Document's metrics.
 type Assessment struct {
-	AutomatedReadability float64
-	ColemanLiau          float64
-	DaleChall            float64
-	FleschKincaid        float64
-	GunningFog           float64
-	MeanGradeLevel       float64
-	ReadingEase          float64
-	SMOG                 float64
-	StdGradeLevel        float64
+
+	// assessments returning an estimated grade level
+
+	AutomatedReadability float64 // https://en.wikipedia.org/wiki/Automated_readability_index
+	ColemanLiau          float64 // https://en.wikipedia.org/wiki/Coleman%E2%80%93Liau_index
+	FleschKincaid        float64 // https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests
+	GunningFog           float64 // https://en.wikipedia.org/wiki/Gunning_fog_index
+	SMOG                 float64 // https://en.wikipedia.org/wiki/SMOG
+
+	// mean & standard deviation of the above estimated grade levels
+
+	MeanGradeLevel   float64
+	StdDevGradeLevel float64
+
+	// assessments Not returning an estimated grade level
+
+	DaleChall   float64 // https://en.wikipedia.org/wiki/Dale%E2%80%93Chall_readability_formula
+	ReadingEase float64 // https://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests
 }
 
 // NewDocument is a Document constructor that takes a string as an argument. It
@@ -123,13 +132,13 @@ func (d *Document) Assess() *Assessment {
 		a.ColemanLiau}
 
 	mean, merr := stats.Mean(gradeScores)
-	std, serr := stats.StandardDeviation(gradeScores)
+	stdDev, serr := stats.StandardDeviation(gradeScores)
 	if merr != nil || serr != nil {
 		a.MeanGradeLevel = 0.0
-		a.StdGradeLevel = 0.0
+		a.StdDevGradeLevel = 0.0
 	} else {
 		a.MeanGradeLevel = mean
-		a.StdGradeLevel = std
+		a.StdDevGradeLevel = stdDev
 	}
 
 	return &a
