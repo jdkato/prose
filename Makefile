@@ -29,7 +29,10 @@ test-transform:
 test-summarize:
 	go test -v ./summarize
 
-test: test-tokenize test-transform test-summarize
+test-chunk:
+	go test -v ./chunk
+
+test: test-tokenize test-transform test-summarize test-chunk
 
 ci: test lint
 
@@ -46,7 +49,7 @@ lint:
 		--enable=vet \
 		--enable=vetshadow \
 		--deadline=1m \
-		./tokenize ./tag ./transform ./summarize
+		./tokenize ./tag ./transform ./summarize ./chunk
 
 setup:
 	go get -u github.com/jdkato/syllables

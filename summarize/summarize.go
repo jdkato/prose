@@ -8,6 +8,7 @@ import (
 
 	"github.com/jdkato/prose/internal/util"
 	"github.com/jdkato/prose/tokenize"
+	"github.com/montanaflynn/stats"
 )
 
 // A Word represents a single word in a Document.
@@ -54,11 +55,14 @@ type Document struct {
 // An Assessment provides comprehensive access to a Document's metrics.
 type Assessment struct {
 	AutomatedReadability float64
-	FleschKincaid        float64
-	ReadingEase          float64
-	GunningFog           float64
-	SMOG                 float64
+	ColemanLiau          float64
 	DaleChall            float64
+	FleschKincaid        float64
+	GunningFog           float64
+	MeanGradeLevel       float64
+	ReadingEase          float64
+	SMOG                 float64
+	StdGradeLevel        float64
 }
 
 // NewDocument is a Document constructor that takes a string as an argument. It
@@ -109,10 +113,26 @@ func (d *Document) Initialize() {
 
 // Assess returns an Assessment for the Document d.
 func (d *Document) Assess() *Assessment {
-	return &Assessment{
+	a := Assessment{
 		FleschKincaid: d.FleschKincaid(), ReadingEase: d.FleschReadingEase(),
 		GunningFog: d.GunningFog(), SMOG: d.SMOG(), DaleChall: d.DaleChall(),
-		AutomatedReadability: d.AutomatedReadability()}
+		AutomatedReadability: d.AutomatedReadability(), ColemanLiau: d.ColemanLiau()}
+
+	gradeScores := []float64{
+		a.FleschKincaid, a.AutomatedReadability, a.GunningFog, a.SMOG,
+		a.ColemanLiau}
+
+	mean, merr := stats.Mean(gradeScores)
+	std, serr := stats.StandardDeviation(gradeScores)
+	if merr != nil || serr != nil {
+		a.MeanGradeLevel = 0.0
+		a.StdGradeLevel = 0.0
+	} else {
+		a.MeanGradeLevel = mean
+		a.StdGradeLevel = std
+	}
+
+	return &a
 }
 
 func isComplex(word string, syllables int) bool {
