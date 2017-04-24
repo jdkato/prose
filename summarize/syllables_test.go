@@ -1,7 +1,9 @@
 package summarize
 
 import (
+	"bufio"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -17,6 +19,27 @@ func TestSyllables(t *testing.T) {
 
 	for word, count := range tests {
 		assert.Equal(t, count, Syllables(word), word)
+	}
+
+	// p := filepath.Join(testdata, "1-syllable-words.txt")
+	// testNSyllables(t, p, 1)
+}
+
+func testNSyllables(t *testing.T, fpath string, n int) {
+	file, err := os.Open(fpath)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		word := scanner.Text()
+		assert.Equal(t, n, Syllables(word), word)
+	}
+
+	if err := scanner.Err(); err != nil {
+		panic(err)
 	}
 }
 
