@@ -27,10 +27,7 @@ func TestSyllables(t *testing.T) {
 
 func testNSyllables(t *testing.T, fpath string, n int) {
 	file, err := os.Open(fpath)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
+	util.CheckError(err)
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -38,9 +35,8 @@ func testNSyllables(t *testing.T, fpath string, n int) {
 		assert.Equal(t, n, Syllables(word), word)
 	}
 
-	if err := scanner.Err(); err != nil {
-		panic(err)
-	}
+	util.CheckError(scanner.Err())
+	util.CheckError(file.Close())
 }
 
 func BenchmarkSyllables(b *testing.B) {
