@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jdkato/prose/internal/model"
 	"github.com/jdkato/prose/internal/util"
 )
 
@@ -95,11 +96,11 @@ func newAveragedPerceptron() *averagedPerceptron {
 	ap.totals = make(map[string]int)
 	ap.stamps = make(map[string]int)
 
-	err = json.Unmarshal(util.GetAsset("classes.json"), &ap.classes)
+	err = json.Unmarshal(model.GetAsset("classes.json"), &ap.classes)
 	util.CheckError(err)
-	err = json.Unmarshal(util.GetAsset("tags.json"), &ap.tagMap)
+	err = json.Unmarshal(model.GetAsset("tags.json"), &ap.tagMap)
 	util.CheckError(err)
-	err = json.Unmarshal(util.GetAsset("weights.json"), &ap.weights)
+	err = json.Unmarshal(model.GetAsset("weights.json"), &ap.weights)
 	util.CheckError(err)
 
 	return &ap

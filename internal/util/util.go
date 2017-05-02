@@ -4,8 +4,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
-
-	"github.com/jdkato/prose/internal/model"
 )
 
 // ReadDataFile reads data from a file, panicking on any errors.
@@ -62,13 +60,6 @@ func IsLetter(c byte) bool {
 // IsAlnum determines if a character is a letter or a digit.
 func IsAlnum(c byte) bool {
 	return (c >= '0' && c <= '9') || IsLetter(c)
-}
-
-// GetAsset returns the named Asset.
-func GetAsset(name string) []byte {
-	b, err := model.Asset("internal/model/" + name)
-	CheckError(err)
-	return b
 }
 
 // StringInSlice determines if `slice` contains the string `a`.
