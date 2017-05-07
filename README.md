@@ -3,7 +3,9 @@
 [![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose)
 [![Build status](https://ci.appveyor.com/api/projects/status/24bepq85nnnk4scr/branch/master?svg=true)](https://ci.appveyor.com/project/jdkato/prose/branch/master)  [![GoDoc](https://godoc.org/github.com/jdkato/prose?status.svg)](https://godoc.org/github.com/jdkato/prose) [![Coverage Status](https://coveralls.io/repos/github/jdkato/prose/badge.svg?branch=master)](https://coveralls.io/github/jdkato/prose?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose)](https://goreportcard.com/report/github.com/jdkato/prose) [![Code Climate](https://codeclimate.com/github/jdkato/prose/badges/gpa.svg)](https://codeclimate.com/github/jdkato/prose) [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
-`prose` is Go library for text processing that supports tokenization, part of speech tagging, and various other prose-related functions.
+`prose` is Go library for text processing that supports tokenization, part of speech tagging, named entity extraction, and various other prose-related functions.
+
+See the [documentation](https://godoc.org/github.com/jdkato/prose) for more information.
 
 ## Tokenizing
 
@@ -74,8 +76,9 @@ import (
 
 func main() {
     text := "the last of the mohicans"
+    tc := transform.NewTitleConverter(transform.APStyle)
     fmt.Println(strings.Title(text))   // The Last Of The Mohicans
-    fmt.Println(transform.Title(text)) // The Last of the Mohicans
+    fmt.Println(tc.Title(text)) // The Last of the Mohicans
 }
 ```
 
@@ -94,6 +97,6 @@ import (
 
 func main() {
     doc := summarize.NewDocument("This is some interesting text.")
-    fmt.Println(doc.SMOG())
+    fmt.Println(doc.SMOG(), doc.FleschKincaid())
 }
 ```
