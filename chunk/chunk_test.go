@@ -54,8 +54,6 @@ It was also reported on BBC Radio 4 and BBC Radio 5 Live.
 		"BBC Radio 5 Live",
 	}
 
-	t.Log(text)
-
 	words := tokenize.TextToWords(text)
 	tagger := tag.NewPerceptronTagger()
 	tagged := tagger.Tag(words)
