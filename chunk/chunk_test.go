@@ -67,7 +67,7 @@ It was also reported on BBC Radio 4 and BBC Radio 5 Live.
 			}
 			res += tt.Text
 		}
-		t.Log(res)
+
 		if r >= len(expected) {
 			t.Error("ERROR unexpected result: " + res)
 		} else {
