@@ -2,7 +2,7 @@
     {
         "text": "Vale is a natural language linter that supports plain text, markup (Markdown, reStructuredText, AsciiDoc, and HTML), and source code comments. Vale doesn't attempt to offer a one-size-fits-all collection of rules—instead, it strives to make customization as easy as possible.",
         "sentences": 2,
-        "words": 40,
+        "words": 43,
         "characters": 222
     },
     {
@@ -10,5 +10,11 @@
         "sentences": 5,
         "words": 119,
         "characters": 639
+    },
+    {
+        "text": "He teaches science (He previously worked for 5 years as an engineer.) at the local University.",
+        "sentences": 1,
+        "words": 16,
+        "characters": 75
     }
 ]
