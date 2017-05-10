@@ -16,7 +16,7 @@ See the [documentation](https://godoc.org/github.com/jdkato/prose) for more info
 * [License](#license)
 
 
-### Tokenizing ([Godoc](https://godoc.org/github.com/jdkato/prose/tokenize))
+### Tokenizing ([GoDoc](https://godoc.org/github.com/jdkato/prose/tokenize))
 
 ```console
 $ go get github.com/jdkato/prose/tokenize
@@ -43,7 +43,7 @@ func main() {
 }
 ```
 
-### Tagging ([Godoc](https://godoc.org/github.com/jdkato/prose/tag))
+### Tagging ([GoDoc](https://godoc.org/github.com/jdkato/prose/tag))
 
 ```console
 $ go get github.com/jdkato/prose/tag
@@ -77,7 +77,7 @@ func main() {
 }
 ```
 
-### Transforming ([Godoc](https://godoc.org/github.com/jdkato/prose/transform))
+### Transforming ([GoDoc](https://godoc.org/github.com/jdkato/prose/transform))
 
 ```console
 $ go get github.com/jdkato/prose/transform
@@ -105,7 +105,7 @@ func main() {
 }
 ```
 
-### Summarizing ([Godoc](https://godoc.org/github.com/jdkato/prose/summarize))
+### Summarizing ([GoDoc](https://godoc.org/github.com/jdkato/prose/summarize))
 
 ```console
 $ go get github.com/jdkato/prose/summarize
@@ -128,7 +128,7 @@ func main() {
 }
 ```
 
-### Chunking ([Godoc](https://godoc.org/github.com/jdkato/prose/chunk))
+### Chunking ([GoDoc](https://godoc.org/github.com/jdkato/prose/chunk))
 
 ```console
 $ go get github.com/jdkato/prose/chunk
