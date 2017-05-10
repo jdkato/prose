@@ -9,7 +9,7 @@ See the [documentation](https://godoc.org/github.com/jdkato/prose) for more info
 ### Contents
 
 * [Tokenizing](#tokenizing-godoc)
-* [Tagging (<a href="https://godoc.org/github.com/jdkato/prose/tag">Godoc</a>)](#tagging-godoc)
+* [Tagging](#tagging-godoc)
 * [Transforming](#transforming-godoc)
 * [Summarizing](#summarizing-godoc)
 * [Chunking](#chunking-godoc)
