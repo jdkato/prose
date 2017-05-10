@@ -8,11 +8,11 @@ See the [documentation](https://godoc.org/github.com/jdkato/prose) for more info
 
 ### Contents
 
-* [Tokenizing (<a href="https://godoc.org/github.com/jdkato/prose/tokenize">Godoc</a>)](#tokenizing-godoc)
+* [Tokenizing](#tokenizing-godoc)
 * [Tagging (<a href="https://godoc.org/github.com/jdkato/prose/tag">Godoc</a>)](#tagging-godoc)
-* [Transforming (<a href="https://godoc.org/github.com/jdkato/prose/transform">Godoc</a>)](#transforming-godoc)
-* [Summarizing (<a href="https://godoc.org/github.com/jdkato/prose/summarize">Godoc</a>)](#summarizing-godoc)
-* [Chunking (<a href="https://godoc.org/github.com/jdkato/prose/chunk">Godoc</a>)](#chunking-godoc)
+* [Transforming](#transforming-godoc)
+* [Summarizing](#summarizing-godoc)
+* [Chunking](#chunking-godoc)
 * [License](#license)
 
 
