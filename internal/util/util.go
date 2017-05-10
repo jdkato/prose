@@ -1,3 +1,6 @@
+/*
+Package util contains internals used across the other prose packages.
+*/
 package util
 
 import (

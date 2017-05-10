@@ -1,3 +1,6 @@
+/*
+Package model contains internals used by prose/tag.
+*/
 package model
 
 import "github.com/jdkato/prose/internal/util"
