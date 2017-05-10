@@ -10,10 +10,6 @@ import (
 
 // ProseTokenizer is the interface implemented by an object that takes a string
 // and returns a slice of substrings.
-//
-// Implementations include:
-// * TreebankWordTokenizer
-// * RegexpTokenizer
 type ProseTokenizer interface {
 	Tokenize(text string) []string
 }
