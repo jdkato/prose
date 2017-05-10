@@ -32,19 +32,40 @@ func quadsString(tagged []tag.Token) string {
 	return tagQuads
 }
 
-// TreebankNamedEntities matches proper names, including prior adjectives, possibly including numbers, and
-// possibly including a linkage by preposition or subordinating conjunctions (for example "Bank of England").
+// TreebankNamedEntities matches proper names, including prior adjectives,
+// possibly including numbers, and possibly including a linkage by preposition
+// or subordinating conjunctions (for example "Bank of England").
 var TreebankNamedEntities = regexp.MustCompile(
-	`((JJ._)*(CD__)*(NNP.)+(CD__|NNP.)*)+` + // at least one proper noun, maybe preceded by an adjective and/or number
-		`((IN__)*(JJ._)*(CD__)*(NNP.)+(CD__|NNP.)*)*`) // then zero or more subordinated noun phrases
+	// at least one proper noun, maybe preceded by an adjective and/or number
+	`((JJ._)*(CD__)*(NNP.)+(CD__|NNP.)*)+` +
+		// then zero or more subordinated noun phrases
+		`((IN__)*(JJ._)*(CD__)*(NNP.)+(CD__|NNP.)*)*`)
 
-// Locate the chunks of interest according to the regexp.
-func Locate(tagged []tag.Token, rx *regexp.Regexp) [][]int {
+// Chunk returns a slice containing the chunks of interest according to the
+// regexp.
+func Chunk(tagged []tag.Token, rx *regexp.Regexp) []string {
+	rs := locate(tagged, TreebankNamedEntities)
+	chunks := []string{}
+	for _, loc := range rs {
+		res := ""
+		for t, tt := range tagged[loc[0]:loc[1]] {
+			if t != 0 {
+				res += " "
+			}
+			res += tt.Text
+		}
+		chunks = append(chunks, res)
+	}
+	return chunks
+}
+
+func locate(tagged []tag.Token, rx *regexp.Regexp) [][]int {
 	rx.Longest() // make sure we find the longest possible sequences
 	rs := rx.FindAllStringIndex(quadsString(tagged), -1)
 	for i, ii := range rs {
 		for j := range ii {
-			rs[i][j] /= 4 // quadsString makes every offset 4x what it should be
+			// quadsString makes every offset 4x what it should be
+			rs[i][j] /= 4
 		}
 	}
 	return rs

@@ -57,22 +57,13 @@ It was also reported on BBC Radio 4 and BBC Radio 5 Live.
 	words := tokenize.TextToWords(text)
 	tagger := tag.NewPerceptronTagger()
 	tagged := tagger.Tag(words)
-	rs := Locate(tagged, TreebankNamedEntities)
 
-	for r, loc := range rs {
-		res := ""
-		for t, tt := range tagged[loc[0]:loc[1]] {
-			if t != 0 {
-				res += " "
-			}
-			res += tt.Text
-		}
-
-		if r >= len(expected) {
-			t.Error("ERROR unexpected result: " + res)
+	for i, chunk := range Chunk(tagged, TreebankNamedEntities) {
+		if i >= len(expected) {
+			t.Error("ERROR unexpected result: " + chunk)
 		} else {
-			if res != expected[r] {
-				t.Error("ERROR", res, "!=", expected[r])
+			if chunk != expected[i] {
+				t.Error("ERROR", chunk, "!=", expected[i])
 			}
 		}
 	}
