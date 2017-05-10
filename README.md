@@ -1,10 +1,18 @@
 # prose [![Travis CI](https://img.shields.io/travis/jdkato/prose.svg?style=flat-square)](https://travis-ci.org/jdkato/prose) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jdkato/prose/master.svg?style=flat-square)](https://ci.appveyor.com/project/jdkato/prose/branch/master) [![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/jdkato/prose) [![Coveralls branch](https://img.shields.io/coveralls/jdkato/prose/master.svg?style=flat-square)](https://coveralls.io/github/jdkato/prose?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose?style=flat-square)](https://goreportcard.com/report/github.com/jdkato/prose) [![Code Climate](https://img.shields.io/codeclimate/github/jdkato/prose.svg?style=flat-square)](https://codeclimate.com/github/jdkato/prose) [![license](https://img.shields.io/github/license/jdkato/prose.svg?style=flat-square)](https://github.com/jdkato/prose/blob/master/LICENSE)
 
-`prose` is Go library for text processing that supports tokenization, part of speech tagging, named entity extraction, and various other prose-related functions.
+`prose` is Go library for text (primarily English, at the moment) processing that supports tokenization, part of speech tagging, named entity extraction, and various other prose-related functions. The library's functionality is split into single-focused subpackages designed for modular use.
 
 See the [documentation](https://godoc.org/github.com/jdkato/prose) for more information.
 
-## Tokenizing
+## Usage
+
+### Tokenizing ([Godoc](https://godoc.org/github.com/jdkato/prose/tokenize))
+
+```console
+$ go get github.com/jdkato/prose/tokenize
+```
+
+Word, sentence, and regexp tokenizers are available. Every tokenizer implements the [same interface](https://godoc.org/github.com/jdkato/prose/tokenize#ProseTokenizer), which makes it easy to customize tokenization in other parts of the library.
 
 ```go
 package main
@@ -25,9 +33,18 @@ func main() {
 }
 ```
 
-`TreebankWordTokenizer` is a port of the [sed script](https://github.com/andre-martins/TurboParser/blob/master/scripts/tokenizer.sed) written by Robert McIntyre.
+### Tagging ([Godoc](https://godoc.org/github.com/jdkato/prose/tag))
 
-## Tagging
+```console
+$ go get github.com/jdkato/prose/tag
+```
+
+The `tag` package includes a port of Textblob's ["fast and accurate" POS tagger](https://github.com/sloria/textblob-aptagger). Below is a comparison of its performance against [NLTK](http://www.nltk.org/)'s implementation of the same tagger (see [`scripts/test_model.py`](https://github.com/jdkato/aptag/blob/master/scripts/test_model.py)):
+
+| Library | Accuracy | Time (sec) |
+|:--------|---------:|-----------:|
+| NLTK    |    0.893 |       7.55 |
+| `prose` |    0.961 |      3.056 |
 
 ```go
 package main
@@ -50,16 +67,15 @@ func main() {
 }
 ```
 
-`PerceptronTagger` is a port of Textblob's "fast and accurate" [POS tagger](https://github.com/sloria/textblob-aptagger). It performs quite well on NLTK's `treebank` corpus:
+### Transforming ([Godoc](https://godoc.org/github.com/jdkato/prose/transform))
 
-| Library | Accuracy | Time (sec) |
-|:--------|---------:|-----------:|
-| NLTK    |    0.893 |       7.55 |
-| `prose` |    0.961 |      3.056 |
+```console
+$ go get github.com/jdkato/prose/transform
+```
 
-(see [`scripts/test_model.py`](https://github.com/jdkato/aptag/blob/master/scripts/test_model.py).)
+The `tranform` package currently only has one function: converting strings to title case. Unlike `strings.Title`, `tranform` adheres to common guidelines&mdash;including styles for both the [AP Stylebook](https://www.apstylebook.com/) and [The Chicago Manual of Style](http://www.chicagomanualofstyle.org/home.html). Additionally, you can easily add your own custom style by defining an [`IgnoreFunc`](https://godoc.org/github.com/jdkato/prose/transform#IgnoreFunc) callback.
 
-## Transforming
+Inspiration and test data taken from [python-titlecase](https://github.com/ppannuto/python-titlecase) and [to-title-case](https://github.com/gouch/to-title-case).
 
 ```go
 package main
@@ -79,9 +95,13 @@ func main() {
 }
 ```
 
-`Title` converts a string to title case, while attempting to adhere to common guidelines. Inspiration and test data taken from [python-titlecase](https://github.com/ppannuto/python-titlecase) and [to-title-case](https://github.com/gouch/to-title-case).
+### Summarizing ([Godoc](https://godoc.org/github.com/jdkato/prose/summarize))
 
-## Summarizing
+```console
+$ go get github.com/jdkato/prose/summarize
+```
+
+The `summarize` package includes functions for computing standard readability and usage statistics. It's among the most accurate implementations available due to its reliance on legitimate tokenizers (whereas others, like [readability-score](https://github.com/DaveChild/Text-Statistics/blob/master/src/DaveChild/TextStatistics/Text.php#L308), rely on naive regular expressions).
 
 ```go
 package main
@@ -97,3 +117,11 @@ func main() {
     fmt.Println(doc.SMOG(), doc.FleschKincaid())
 }
 ```
+
+### Chunking ([Godoc](https://godoc.org/github.com/jdkato/prose/chunk))
+
+```console
+$ go get github.com/jdkato/prose/chunk
+```
+
+## License
