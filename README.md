@@ -159,3 +159,10 @@ func main() {
 ```
 
 ## License
+
+If not otherwise specified (see below), the source files are distributed under MIT License found in the [LICENSE](https://github.com/jdkato/prose/blob/master/LICENSE) file. 
+
+Additionally, the following files contain their own license information:
+
+- [`tag/aptag.go`](https://github.com/jdkato/prose/blob/master/tag/aptag.go): MIT © Matthew Honnibal.
+- [`tokenize/punkt.go`](https://github.com/jdkato/prose/blob/master/tokenize/punkt.go): MIT © Eric Bower.
