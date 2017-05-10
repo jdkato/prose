@@ -134,4 +134,28 @@ func main() {
 $ go get github.com/jdkato/prose/chunk
 ```
 
+The `chunk` package implements named-entity extraction using a regular expression indicating what chunks you're looking for and pre-tagged input.
+
+```go
+package main
+
+import (
+    "fmt"
+
+    "github.com/jdkato/prose/chunk"
+    "github.com/jdkato/prose/tag"
+    "github.com/jdkato/prose/tokenize"
+)
+
+func main() {
+    words := tokenize.TextToWords("Go is a open source programming language created at Google.")
+    regex := chunk.TreebankNamedEntities
+
+    tagger := tag.NewPerceptronTagger()
+    for _, entity := range chunk.Chunk(tagger.Tag(words), regex) {
+        fmt.Println(entity) // [Go Google]
+    }
+}
+```
+
 ## License
