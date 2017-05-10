@@ -48,7 +48,7 @@ var TreebankNamedEntities = regexp.MustCompile(
 // need access the to the in-text locations of each chunk.
 func Chunk(tagged []tag.Token, rx *regexp.Regexp) []string {
 	chunks := []string{}
-	for _, loc := range Locate(tagged, TreebankNamedEntities) {
+	for _, loc := range Locate(tagged, rx) {
 		res := ""
 		for t, tt := range tagged[loc[0]:loc[1]] {
 			if t != 0 {
