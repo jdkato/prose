@@ -84,7 +84,7 @@ func (pt *PerceptronTagger) Tag(words []string) []Token {
 }
 
 // Train an Averaged Perceptron model based on sentences.
-func (pt *PerceptronTagger) Train(sentences Tuple, iterations int) {
+func (pt *PerceptronTagger) Train(sentences TupleSlice, iterations int) {
 	var guess string
 	var found bool
 
@@ -116,9 +116,9 @@ func (pt *PerceptronTagger) Train(sentences Tuple, iterations int) {
 	pt.Model.averageWeights()
 }
 
-func (pt *PerceptronTagger) makeTagMap(examples Tuple) {
+func (pt *PerceptronTagger) makeTagMap(sentences TupleSlice) {
 	counts := make(map[string]map[string]int)
-	for _, tuple := range examples {
+	for _, tuple := range sentences {
 		words, tags := tuple[0], tuple[1]
 		for i, word := range words {
 			tag := tags[i]

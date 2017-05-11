@@ -11,18 +11,18 @@ type Token struct {
 	Tag  string
 }
 
-// Tuple is a list of tuples in the form (words, tags).
-type Tuple [][][]string
+// TupleSlice is a slice of tuples in the form (words, tags).
+type TupleSlice [][][]string
 
 // Len returns the length of a Tuple.
-func (t Tuple) Len() int { return len(t) }
+func (t TupleSlice) Len() int { return len(t) }
 
 // Swap switches the ith and jth elements in a Tuple.
-func (t Tuple) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t TupleSlice) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 
-// ReadTagged converts pre-tagged input into a Tuple suitable for training.
-func ReadTagged(text, sep string) Tuple {
-	t := Tuple{}
+// ReadTagged converts pre-tagged input into a TupleSlice suitable for training.
+func ReadTagged(text, sep string) TupleSlice {
+	t := TupleSlice{}
 	for _, sent := range strings.Split(text, "\n") {
 		tokens := []string{}
 		tags := []string{}
