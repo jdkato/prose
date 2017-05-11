@@ -25,6 +25,12 @@ func ExampleNewTreebankWordTokenizer() {
 	// Output: [They 'll save and invest more .]
 }
 
+func ExampleNewBlanklineTokenizer() {
+	t := NewBlanklineTokenizer()
+	fmt.Println(t.Tokenize("They'll save and invest more.\n\nThanks!"))
+	// Output: [They'll save and invest more. Thanks!]
+}
+
 func TestTextToWords(t *testing.T) {
 	text := "Vale is a natural language linter that supports plain text, markup (Markdown, reStructuredText, AsciiDoc, and HTML), and source code comments. Vale doesn't attempt to offer a one-size-fits-all collection of rules—instead, it strives to make customization as easy as possible."
 	expected := []string{
