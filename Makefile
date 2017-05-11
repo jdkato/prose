@@ -1,11 +1,7 @@
 BASE_DIR=$(shell echo $$GOPATH)/src/github.com/jdkato/prose
 BUILD_DIR=./builds
-COMMIT= `git rev-parse --short HEAD 2>/dev/null`
 
-VERSION_FILE=$(BASE_DIR)/VERSION
-VERSION=$(shell cat $(VERSION_FILE))
-
-LDFLAGS=-ldflags "-s -w -X main.Version=$(VERSION)"
+LDFLAGS=-ldflags "-s -w -X"
 
 .PHONY: clean test lint ci cross install bump model setup
 
@@ -61,14 +57,6 @@ setup:
 	go get -u github.com/jteeuwen/go-bindata/...
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
 	gometalinter --install
-
-bump:
-	MAJOR=$(word 1, $(subst ., , $(CURRENT_VERSION)))
-	MINOR=$(word 2, $(subst ., , $(CURRENT_VERSION)))
-	PATCH=$(word 3, $(subst ., , $(CURRENT_VERSION)))
-	VER ?= $(MAJOR).$(MINOR).$(shell echo $$(($(PATCH)+1)))
-
-	echo $(VER) > $(VERSION_FILE)
 
 model:
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
