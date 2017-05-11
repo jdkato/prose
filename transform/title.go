@@ -34,10 +34,7 @@ var (
 )
 
 // NewTitleConverter returns a new TitleConverter set to enforce the specified
-// style. For example,
-//
-//    tc := transform.NewTitleConverter(transform.APStyle) // AP style
-//    title := tc.Title("the last of the mohicans")
+// style.
 func NewTitleConverter(style IgnoreFunc) *TitleConverter {
 	return &TitleConverter{ignore: style}
 }
