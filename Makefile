@@ -1,7 +1,7 @@
 BASE_DIR=$(shell echo $$GOPATH)/src/github.com/jdkato/prose
 BUILD_DIR=./builds
 
-LDFLAGS=-ldflags "-s -w -X"
+LDFLAGS=-ldflags "-s -w"
 
 .PHONY: clean test lint ci cross install bump model setup
 
