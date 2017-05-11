@@ -14,7 +14,7 @@ build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 bench:
-	go test -bench=. ./tokenize ./transform ./summarize
+	go test -bench=. ./tokenize ./transform ./summarize ./tag ./chunk
 
 test-tokenize:
 	go test -v ./tokenize
@@ -28,7 +28,10 @@ test-summarize:
 test-chunk:
 	go test -v ./chunk
 
-test: test-tokenize test-transform test-summarize test-chunk
+test-tag:
+	go test -v ./tag
+
+test: test-tokenize test-transform test-summarize test-chunk test-tag
 
 ci: test lint
 
