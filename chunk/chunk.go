@@ -37,9 +37,7 @@ func quadsString(tagged []tag.Token) string {
 // possibly including numbers and a linkage by preposition or subordinating
 // conjunctions (for example "Bank of England").
 var TreebankNamedEntities = regexp.MustCompile(
-	// at least one proper noun, maybe preceded by an adjective and/or number
 	`((CD__)*(NNP.)+(CD__|NNP.)*)+` +
-		// then zero or more subordinated noun phrases
 		`((IN__)*(CD__)*(NNP.)+(CD__|NNP.)*)*`)
 
 // Chunk returns a slice containing the chunks of interest according to the
