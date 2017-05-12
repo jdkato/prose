@@ -51,10 +51,10 @@ $ go get github.com/jdkato/prose/tag
 
 The `tag` package includes a port of Textblob's ["fast and accurate" POS tagger](https://github.com/sloria/textblob-aptagger). Below is a comparison of its performance against [NLTK](http://www.nltk.org/)'s implementation of the same tagger (see [`scripts/test_model.py`](https://github.com/jdkato/aptag/blob/master/scripts/test_model.py)):
 
-| Library | Accuracy | Time (sec) |
-|:--------|---------:|-----------:|
-| NLTK    |    0.893 |       7.55 |
-| `prose` |    0.961 |      3.056 |
+| Library | Accuracy | 5-Run Average (sec) |
+|:--------|---------:|--------------------:|
+| NLTK    |    0.893 |               7.224 |
+| `prose` |    0.961 |               2.538 |
 
 ```go
 package main

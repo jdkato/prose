@@ -21,7 +21,6 @@
 package tag
 
 import (
-	"encoding/json"
 	"regexp"
 	"strconv"
 	"strings"
@@ -122,7 +121,9 @@ func (pt *PerceptronTagger) makeTagMap(sentences TupleSlice) {
 		words, tags := tuple[0], tuple[1]
 		for i, word := range words {
 			tag := tags[i]
-			counts[word] = make(map[string]int)
+			if counts[word] == nil {
+				counts[word] = make(map[string]int)
+			}
 			counts[word][tag]++
 			pt.Model.addClass(tag)
 		}
@@ -151,18 +152,18 @@ type AveragedPerceptron struct {
 // NewAveragedPerceptron creates a new AveragedPerceptron model.
 func NewAveragedPerceptron() *AveragedPerceptron {
 	var ap AveragedPerceptron
-	var err error
 
 	ap.Totals = make(map[string]float64)
 	ap.Stamps = make(map[string]float64)
 
-	err = json.Unmarshal(model.GetAsset("classes.json"), &ap.Classes)
-	util.CheckError(err)
-	err = json.Unmarshal(model.GetAsset("tags.json"), &ap.TagMap)
-	util.CheckError(err)
-	err = json.Unmarshal(model.GetAsset("weights.json"), &ap.Weights)
-	util.CheckError(err)
+	dec := model.GetAsset("classes.gob")
+	util.CheckError(dec.Decode(&ap.Classes))
 
+	dec = model.GetAsset("tags.gob")
+	util.CheckError(dec.Decode(&ap.TagMap))
+
+	dec = model.GetAsset("weights.gob")
+	util.CheckError(dec.Decode(&ap.Weights))
 	return &ap
 }
 
