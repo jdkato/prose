@@ -3,7 +3,6 @@ package summarize
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -47,7 +46,7 @@ func TestSyllables(t *testing.T) {
 	right += testNSyllables(t, p, 7)
 
 	ratio, _ := stats.Round(right/total, 2)
-	fmt.Printf("NSyllables: %f%% (%d / %d)\n", ratio, int(right), int(total))
+	assert.True(t, ratio >= 0.93, "Less than 93% accurate on NSyllables!")
 }
 
 func testNSyllables(t *testing.T, fpath string, n int) float64 {
@@ -61,7 +60,6 @@ func testNSyllables(t *testing.T, fpath string, n int) float64 {
 		if n == Syllables(word) {
 			right++
 		}
-		//assert.Equal(t, n, Syllables(word), word)
 	}
 
 	util.CheckError(scanner.Err())
