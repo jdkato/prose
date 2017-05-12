@@ -8,7 +8,7 @@ import (
 	"github.com/jdkato/prose/tokenize"
 )
 
-func ExampleTreebankNamedEntities() {
+func Example() {
 	txt := "Go is a open source programming language created at Google."
 
 	words := tokenize.TextToWords(txt)
