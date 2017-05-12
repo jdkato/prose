@@ -1,8 +1,12 @@
 # prose [![Travis CI](https://img.shields.io/travis/jdkato/prose.svg?style=flat-square)](https://travis-ci.org/jdkato/prose) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jdkato/prose/master.svg?style=flat-square)](https://ci.appveyor.com/project/jdkato/prose/branch/master) [![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/jdkato/prose) [![Coveralls branch](https://img.shields.io/coveralls/jdkato/prose/master.svg?style=flat-square)](https://coveralls.io/github/jdkato/prose?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose?style=flat-square)](https://goreportcard.com/report/github.com/jdkato/prose) [![Code Climate](https://img.shields.io/codeclimate/github/jdkato/prose.svg?style=flat-square)](https://codeclimate.com/github/jdkato/prose) [![license](https://img.shields.io/github/license/jdkato/prose.svg?style=flat-square)](https://github.com/jdkato/prose/blob/master/LICENSE)
 
-`prose` is Go library for text (primarily English at the moment) processing that supports tokenization, part-of-speech tagging, named-entity extraction, and more. The library's functionality is split into subpackages designed for modular use.
+`prose` is Go library for text (primarily English at the moment) processing that supports tokenization, part-of-speech tagging, named-entity extraction, and more. The library's functionality is split into subpackages designed for modular use. See the [documentation](https://godoc.org/github.com/jdkato/prose) for more information.
 
-See the [documentation](https://godoc.org/github.com/jdkato/prose) for more information.
+## Install
+
+```console
+$ go get github.com/jdkato/prose
+```
 
 ## Usage
 
@@ -17,10 +21,6 @@ See the [documentation](https://godoc.org/github.com/jdkato/prose) for more info
 
 
 ### Tokenizing ([GoDoc](https://godoc.org/github.com/jdkato/prose/tokenize))
-
-```console
-$ go get github.com/jdkato/prose/tokenize
-```
 
 Word, sentence, and regexp tokenizers are available. Every tokenizer implements the [same interface](https://godoc.org/github.com/jdkato/prose/tokenize#ProseTokenizer), which makes it easy to customize tokenization in other parts of the library.
 
@@ -44,10 +44,6 @@ func main() {
 ```
 
 ### Tagging ([GoDoc](https://godoc.org/github.com/jdkato/prose/tag))
-
-```console
-$ go get github.com/jdkato/prose/tag
-```
 
 The `tag` package includes a port of Textblob's ["fast and accurate" POS tagger](https://github.com/sloria/textblob-aptagger). Below is a comparison of its performance against [NLTK](http://www.nltk.org/)'s implementation of the same tagger (see [`scripts/test_model.py`](https://github.com/jdkato/aptag/blob/master/scripts/test_model.py)):
 
@@ -79,10 +75,6 @@ func main() {
 
 ### Transforming ([GoDoc](https://godoc.org/github.com/jdkato/prose/transform))
 
-```console
-$ go get github.com/jdkato/prose/transform
-```
-
 The `tranform` package currently only has one function: converting strings to title case. Unlike `strings.Title`, `tranform` adheres to common guidelines&mdash;including styles for both the [AP Stylebook](https://www.apstylebook.com/) and [The Chicago Manual of Style](http://www.chicagomanualofstyle.org/home.html). Additionally, you can easily add your own custom style by defining an [`IgnoreFunc`](https://godoc.org/github.com/jdkato/prose/transform#IgnoreFunc) callback.
 
 Inspiration and test data taken from [python-titlecase](https://github.com/ppannuto/python-titlecase) and [to-title-case](https://github.com/gouch/to-title-case).
@@ -107,10 +99,6 @@ func main() {
 
 ### Summarizing ([GoDoc](https://godoc.org/github.com/jdkato/prose/summarize))
 
-```console
-$ go get github.com/jdkato/prose/summarize
-```
-
 The `summarize` package includes functions for computing standard readability and usage statistics. It's among the most accurate implementations available due to its reliance on legitimate tokenizers (whereas others, like [readability-score](https://github.com/DaveChild/Text-Statistics/blob/master/src/DaveChild/TextStatistics/Text.php#L308), rely on naive regular expressions).
 
 ```go
@@ -129,10 +117,6 @@ func main() {
 ```
 
 ### Chunking ([GoDoc](https://godoc.org/github.com/jdkato/prose/chunk))
-
-```console
-$ go get github.com/jdkato/prose/chunk
-```
 
 The `chunk` package implements named-entity extraction using a regular expression indicating what chunks you're looking for and pre-tagged input.
 
@@ -166,3 +150,4 @@ Additionally, the following files contain their own license information:
 
 - [`tag/aptag.go`](https://github.com/jdkato/prose/blob/master/tag/aptag.go): MIT © Matthew Honnibal.
 - [`tokenize/punkt.go`](https://github.com/jdkato/prose/blob/master/tokenize/punkt.go): MIT © Eric Bower.
+
