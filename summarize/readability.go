@@ -23,7 +23,7 @@ func (d *Document) FleschReadingEase() float64 {
 }
 
 // GunningFog computes the Gunning Fog index score
-// (https://en.wikipedia.org/wiki/Gunning_fog_index.
+// (https://en.wikipedia.org/wiki/Gunning_fog_index).
 func (d *Document) GunningFog() float64 {
 	x := d.NumWords / d.NumSentences
 	y := d.NumComplexWords / d.NumWords

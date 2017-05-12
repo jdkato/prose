@@ -65,7 +65,7 @@ type Assessment struct {
 	MeanGradeLevel   float64
 	StdDevGradeLevel float64
 
-	// assessments Not returning an estimated grade level
+	// assessments returning non-grade numerical scores
 	DaleChall   float64
 	ReadingEase float64
 }
