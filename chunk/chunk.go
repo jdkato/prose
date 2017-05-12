@@ -8,7 +8,8 @@ import (
 	"github.com/jdkato/prose/tag"
 )
 
-// quadString creates a string containing all of the tags, each padded to 4 characters wide.
+// quadString creates a string containing all of the tags, each padded to 4
+// characters wide.
 func quadsString(tagged []tag.Token) string {
 	tagQuads := ""
 	for _, tok := range tagged {
@@ -32,11 +33,14 @@ func quadsString(tagged []tag.Token) string {
 	return tagQuads
 }
 
-// TreebankNamedEntities matches proper names, excluding prior adjectives, possibly including numbers, and
-// possibly including a linkage by preposition or subordinating conjunctions (for example "Bank of England").
+// TreebankNamedEntities matches proper names, excluding prior adjectives,
+// possibly including numbers and a linkage by preposition or subordinating
+// conjunctions (for example "Bank of England").
 var TreebankNamedEntities = regexp.MustCompile(
-	`((CD__)*(NNP.)+(CD__|NNP.)*)+` + // at least one proper noun, maybe preceded by an adjective and/or number
-		`((IN__)*(CD__)*(NNP.)+(CD__|NNP.)*)*`) // then zero or more subordinated noun phrases
+	// at least one proper noun, maybe preceded by an adjective and/or number
+	`((CD__)*(NNP.)+(CD__|NNP.)*)+` +
+		// then zero or more subordinated noun phrases
+		`((IN__)*(CD__)*(NNP.)+(CD__|NNP.)*)*`)
 
 // Chunk returns a slice containing the chunks of interest according to the
 // regexp.
