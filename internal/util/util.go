@@ -6,8 +6,15 @@ package util
 import (
 	"io/ioutil"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
+
+// GSub Returns a copy of text with the all occurrences of pattern substituted
+// with replacement.
+func GSub(text, pattern, replacement string) string {
+	return regexp.MustCompile(pattern).ReplaceAllString(text, replacement)
+}
 
 // ReadDataFile reads data from a file, panicking on any errors.
 func ReadDataFile(path string) []byte {
@@ -80,6 +87,17 @@ func StringInSlice(a string, slice []string) bool {
 func HasAnySuffix(a string, slice []string) bool {
 	for _, b := range slice {
 		if strings.HasSuffix(a, b) {
+			return true
+		}
+	}
+	return false
+}
+
+// ContainsAny determines if the string a contains any fo the strings contained
+// in the slice b.
+func ContainsAny(a string, b []string) bool {
+	for _, s := range b {
+		if strings.Contains(a, s) {
 			return true
 		}
 	}
