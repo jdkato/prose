@@ -150,4 +150,4 @@ Additionally, the following files contain their own license information:
 
 - [`tag/aptag.go`](https://github.com/jdkato/prose/blob/master/tag/aptag.go): MIT © Matthew Honnibal.
 - [`tokenize/punkt.go`](https://github.com/jdkato/prose/blob/master/tokenize/punkt.go): MIT © Eric Bower.
-
+- [`tokenize/pragmatic.go`](https://github.com/jdkato/prose/blob/master/tokenize/pragmatic.go): MIT © Kevin S. Dias.
