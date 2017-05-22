@@ -1,10 +1,26 @@
 package tokenize
 
 import (
+	"encoding/json"
+	"path/filepath"
 	"testing"
+
+	"github.com/jdkato/prose/internal/util"
 )
 
 var tokenizer = NewPunktSentenceTokenizer()
+
+func BenchmarkPunkt(b *testing.B) {
+	tests := make([]goldenRule, 0)
+	cases := util.ReadDataFile(filepath.Join(testdata, "golden_rules_en.json"))
+
+	util.CheckError(json.Unmarshal(cases, &tests))
+	for n := 0; n < b.N; n++ {
+		for _, test := range tests {
+			tokenizer.Tokenize(test.Input)
+		}
+	}
+}
 
 func TestEnglishSmartQuotes(t *testing.T) {
 	actualText := "Here is a quote, ”a smart one.” Will this break properly?"

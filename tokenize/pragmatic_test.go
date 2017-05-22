@@ -19,6 +19,24 @@ func TestPragmaticRulesEn(t *testing.T) { testLang("en", t) }
 func TestPragmaticRulesFr(t *testing.T) { testLang("fr", t) }
 func TestPragmaticRulesEs(t *testing.T) { testLang("es", t) }
 
+func BenchmarkPragmaticRulesEn(b *testing.B) { benchmarkLang("en", b) }
+
+func benchmarkLang(lang string, b *testing.B) {
+	tests := make([]goldenRule, 0)
+	f := fmt.Sprintf("golden_rules_%s.json", lang)
+	cases := util.ReadDataFile(filepath.Join(testdata, f))
+
+	tok, err := NewPragmaticSegmenter(lang)
+	util.CheckError(err)
+
+	util.CheckError(json.Unmarshal(cases, &tests))
+	for n := 0; n < b.N; n++ {
+		for _, test := range tests {
+			tok.Tokenize(test.Input)
+		}
+	}
+}
+
 func testLang(lang string, t *testing.T) {
 	tests := make([]goldenRule, 0)
 	f := fmt.Sprintf("golden_rules_%s.json", lang)
