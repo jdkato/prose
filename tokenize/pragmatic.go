@@ -40,7 +40,11 @@ type PragmaticSegmenter struct {
 }
 
 // NewPragmaticSegmenter creates a new PragmaticSegmenter according to the
-// specified language.
+// specified language. If the given language is not supported, an error will be
+// returned.
+//
+// Languages are specified by their two-character ISO 639-1 code. The supported
+// languages are "en" (English), "es" (Spanish), "fr" (French) ... (WIP)
 func NewPragmaticSegmenter(lang string) (*PragmaticSegmenter, error) {
 	if p, ok := langToProcessor[lang]; ok {
 		return &PragmaticSegmenter{processor: p}, nil
