@@ -61,21 +61,21 @@ func (p *PragmaticSegmenter) Tokenize(text string) []string {
 
 // A rule associates a regular expression with a replacement string.
 type rule struct {
-	Pattern     *regexp.Regexp
-	Replacement string
+	pattern     *regexp.Regexp
+	replacement string
 }
 
-// Sub replaces all occurrences of Pattern with Replacement.
+// sub replaces all occurrences of Pattern with Replacement.
 func (r *rule) sub(text string) string {
-	if !r.Pattern.MatchString(text) {
+	if !r.pattern.MatchString(text) {
 		return text
 	}
 
-	f := r.Pattern.FindStringSubmatchIndex
+	f := r.pattern.FindStringSubmatchIndex
 	for loc := f(text); len(loc) > 0; loc = f(text) {
 		for idx, mat := range loc {
 			if mat != -1 && idx > 0 && idx%2 == 0 {
-				text = text[:mat] + r.Replacement + text[loc[idx+1]:]
+				text = text[:mat] + r.replacement + text[loc[idx+1]:]
 			}
 		}
 	}
@@ -85,15 +85,15 @@ func (r *rule) sub(text string) string {
 
 // numbers
 var periodBeforeNumberRule = rule{
-	Pattern: regexp.MustCompile(`(\.)\d`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`(\.)\d`), replacement: "∯"}
 var numberAfterPeriodBeforeLetterRule = rule{
-	Pattern: regexp.MustCompile(`\d(\.)\S`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`\d(\.)\S`), replacement: "∯"}
 var newLineNumberPeriodSpaceLetterRule = rule{
-	Pattern: regexp.MustCompile(`[\n\r]\d(\.)(?:[\s\S]|\))`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`[\n\r]\d(\.)(?:[\s\S]|\))`), replacement: "∯"}
 var startLineNumberPeriodRule = rule{
-	Pattern: regexp.MustCompile(`^\d(\.)(?:[\s\S]|\))`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`^\d(\.)(?:[\s\S]|\))`), replacement: "∯"}
 var startLineTwoDigitNumberPeriodRule = rule{
-	Pattern: regexp.MustCompile(`^\d\d(\.)(?:[\s\S]|\))`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`^\d\d(\.)(?:[\s\S]|\))`), replacement: "∯"}
 var allNumberRules = []rule{
 	periodBeforeNumberRule, numberAfterPeriodBeforeLetterRule,
 	newLineNumberPeriodSpaceLetterRule, startLineNumberPeriodRule,
@@ -103,8 +103,8 @@ var allNumberRules = []rule{
 // common
 
 var cleanRules = []rule{
-	{Pattern: regexp.MustCompile(`[^\n]\s(\n)\S`), Replacement: ""},
-	{Pattern: regexp.MustCompile(`(\n)[a-z]`), Replacement: " "},
+	{pattern: regexp.MustCompile(`[^\n]\s(\n)\S`), replacement: ""},
+	{pattern: regexp.MustCompile(`(\n)[a-z]`), replacement: " "},
 }
 var exclamationWordsRE = regexp.MustCompile(
 	`\s(?:!Xũ|!Kung|ǃʼOǃKung|!Xuun|!Kung-Ekoka|ǃHu|` +
@@ -123,9 +123,9 @@ var splitSpaceQuotationAtEndOfSentenceRE = regexp.MustCompile(
 	`[!?\.-][\"\'\x{201d}\x{201c}](\s{1})[A-Z]`) // lookahead
 var continuousPunctuationRE = regexp.MustCompile(`\S(!|\?){3,}(?:\s|\z|$)`)
 var possessiveAbbreviationRule = rule{
-	Pattern: regexp.MustCompile(`(\.)'s\s|(\.)'s$|(\.)'s\z`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`(\.)'s\s|(\.)'s$|(\.)'s\z`), replacement: "∯"}
 var kommanditgesellschaftRule = rule{
-	Pattern: regexp.MustCompile(`Co(\.)\sKG`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`Co(\.)\sKG`), replacement: "∯"}
 var multiPeriodAbbrevRE = regexp.MustCompile(`(?i)\b[a-z](?:\.[a-z])+[.]`)
 
 // var parensBetweenDoubleQuotesRE = regexp.MustCompile(`["”]\s\(.*\)\s["“]`)
@@ -134,34 +134,34 @@ var multiPeriodAbbrevRE = regexp.MustCompile(`(?i)\b[a-z](?:\.[a-z])+[.]`)
 
 // AM/PM
 var upperCasePmRule = rule{
-	Pattern: regexp.MustCompile(`P∯M(∯)\s[A-Z]`), Replacement: "."}
+	pattern: regexp.MustCompile(`P∯M(∯)\s[A-Z]`), replacement: "."}
 var upperCaseAmRule = rule{
-	Pattern: regexp.MustCompile(`A∯M(∯)\s[A-Z]`), Replacement: "."}
+	pattern: regexp.MustCompile(`A∯M(∯)\s[A-Z]`), replacement: "."}
 var lowerCasePmRule = rule{
-	Pattern: regexp.MustCompile(`p∯m(∯)\s[A-Z]`), Replacement: "."}
+	pattern: regexp.MustCompile(`p∯m(∯)\s[A-Z]`), replacement: "."}
 var lowerCaseAmRule = rule{
-	Pattern: regexp.MustCompile(`a∯m(∯)\s[A-Z]`), Replacement: "."}
+	pattern: regexp.MustCompile(`a∯m(∯)\s[A-Z]`), replacement: "."}
 var allAmPmRules = []rule{
 	upperCasePmRule, upperCaseAmRule, lowerCasePmRule, lowerCaseAmRule}
 
 // Searches for periods within an abbreviation and replaces the periods.
 var singleUpperCaseLetterAtStartOfLineRule = rule{
-	Pattern: regexp.MustCompile(`^[A-Z](\.)\s`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`^[A-Z](\.)\s`), replacement: "∯"}
 var singleUpperCaseLetterRule = rule{
-	Pattern: regexp.MustCompile(`\s[A-Z](\.)\s`), Replacement: "∯"}
+	pattern: regexp.MustCompile(`\s[A-Z](\.)\s`), replacement: "∯"}
 var allSingleUpperCaseLetterRules = []rule{
 	singleUpperCaseLetterAtStartOfLineRule, singleUpperCaseLetterRule}
 
 // Searches for ellipses within a string and replaces the periods.
 var threeConsecutiveRule = rule{
-	Pattern: regexp.MustCompile(`[^.](\.\.\.)\s+[A-Z]`), Replacement: "☏."}
+	pattern: regexp.MustCompile(`[^.](\.\.\.)\s+[A-Z]`), replacement: "☏."}
 var fourConsecutiveRule = rule{
-	Pattern: regexp.MustCompile(`\S(\.{3})\.\s[A-Z]`), Replacement: "ƪ"}
+	pattern: regexp.MustCompile(`\S(\.{3})\.\s[A-Z]`), replacement: "ƪ"}
 var threeSpaceRule = rule{
-	Pattern: regexp.MustCompile(`((?:\s\.){3}\s)`), Replacement: "♟"}
+	pattern: regexp.MustCompile(`((?:\s\.){3}\s)`), replacement: "♟"}
 var fourSpaceRule = rule{
-	Pattern: regexp.MustCompile(`[a-z]((?:\.\s){3}\.(?:\z|$|\n))`), Replacement: "♝"}
-var otherThreePeriodRule = rule{Pattern: regexp.MustCompile(`(\.\.\.)`), Replacement: "ƪ"}
+	pattern: regexp.MustCompile(`[a-z]((?:\.\s){3}\.(?:\z|$|\n))`), replacement: "♝"}
+var otherThreePeriodRule = rule{pattern: regexp.MustCompile(`(\.\.\.)`), replacement: "ƪ"}
 var allEllipsesRules = []rule{
 	threeConsecutiveRule, fourConsecutiveRule, threeSpaceRule, fourSpaceRule,
 	otherThreePeriodRule}
@@ -284,7 +284,7 @@ func newAbbreviationReplacer(lang string) *abbreviationReplacer {
 	if regex != "" {
 		bounds := regexp.MustCompile(strings.TrimRight(regex, "|"))
 		return &abbreviationReplacer{definition: def,
-			boundaries: &rule{Pattern: bounds, Replacement: "."}}
+			boundaries: &rule{pattern: bounds, replacement: "."}}
 	}
 	return &abbreviationReplacer{definition: def, boundaries: nil}
 }
@@ -354,8 +354,8 @@ func (r *abbreviationReplacer) replacePrepositive(text, abbr string) string {
 	abbr = strings.TrimSpace(abbr)
 	q1 := fmt.Sprintf(`\s%s(\.)\s|^%s(\.)\s`, abbr, abbr)
 	q2 := fmt.Sprintf(`\s%s(\.):\d+|^%s(\.):\d+`, abbr, abbr)
-	r1 := rule{Pattern: regexp.MustCompile(q1), Replacement: "∯"}
-	r2 := rule{Pattern: regexp.MustCompile(q2), Replacement: "∯"}
+	r1 := rule{pattern: regexp.MustCompile(q1), replacement: "∯"}
+	r2 := rule{pattern: regexp.MustCompile(q2), replacement: "∯"}
 	return r2.sub(r1.sub(text))
 }
 
@@ -363,8 +363,8 @@ func (r *abbreviationReplacer) replaceNumber(text, abbr string) string {
 	abbr = strings.TrimSpace(abbr)
 	q1 := fmt.Sprintf(`\s%s(\.)\s\d|^%s(\.)\s\d`, abbr, abbr)
 	q2 := fmt.Sprintf(`\s%s(\.)\s+\(|^%s(\.)\s+\(`, abbr, abbr)
-	r1 := rule{Pattern: regexp.MustCompile(q1), Replacement: "∯"}
-	r2 := rule{Pattern: regexp.MustCompile(q2), Replacement: "∯"}
+	r1 := rule{pattern: regexp.MustCompile(q1), replacement: "∯"}
+	r2 := rule{pattern: regexp.MustCompile(q2), replacement: "∯"}
 	return r2.sub(r1.sub(text))
 }
 
@@ -372,8 +372,8 @@ func (r *abbreviationReplacer) replacePeriod(text, abbr string) string {
 	abbr = strings.TrimSpace(abbr)
 	q1 := fmt.Sprintf(`\s%s(\.)(?:(?:(?:\.|\:|-|\?)|(?:\s(?:[a-z]|I\s|I'm|I'll|\d))))|^%s(\.)(?:(?:(?:\.|\:|\?)|(?:\s(?:[a-z]|I\s|I'm|I'll|\d))))`, abbr, abbr)
 	q2 := fmt.Sprintf(`\s%s(\.),|^%s(\.),`, abbr, abbr)
-	r1 := rule{Pattern: regexp.MustCompile(q1), Replacement: "∯"}
-	r2 := rule{Pattern: regexp.MustCompile(q2), Replacement: "∯"}
+	r1 := rule{pattern: regexp.MustCompile(q1), replacement: "∯"}
+	r2 := rule{pattern: regexp.MustCompile(q2), replacement: "∯"}
 	return r2.sub(r1.sub(text))
 }
 
@@ -413,11 +413,11 @@ type commonDefinition struct{}
 
 func (d *commonDefinition) subEllipsis() []rule {
 	return []rule{
-		{Pattern: regexp.MustCompile(`(ƪ)`), Replacement: "..."},
-		{Pattern: regexp.MustCompile(`(♟)`), Replacement: " . . . "},
-		{Pattern: regexp.MustCompile(`(♝)`), Replacement: ". . . ."},
-		{Pattern: regexp.MustCompile(`(☏)`), Replacement: ".."},
-		{Pattern: regexp.MustCompile(`(∮)`), Replacement: "."},
+		{pattern: regexp.MustCompile(`(ƪ)`), replacement: "..."},
+		{pattern: regexp.MustCompile(`(♟)`), replacement: " . . . "},
+		{pattern: regexp.MustCompile(`(♝)`), replacement: ". . . ."},
+		{pattern: regexp.MustCompile(`(☏)`), replacement: ".."},
+		{pattern: regexp.MustCompile(`(∮)`), replacement: "."},
 	}
 }
 
@@ -459,56 +459,56 @@ func (d *commonDefinition) abbreviations() map[string][]string {
 func (d *commonDefinition) punctRules() map[string]*rule {
 	return map[string]*rule{
 		"withMultiplePeriodsAndEmail": {
-			Pattern: regexp.MustCompile(`\w(\.)\w`), Replacement: "∮"},
-		"geoLocation": {Pattern: regexp.MustCompile(`[a-zA-z]°(\.)\s*\d+`),
-			Replacement: "∯"},
+			pattern: regexp.MustCompile(`\w(\.)\w`), replacement: "∮"},
+		"geoLocation": {pattern: regexp.MustCompile(`[a-zA-z]°(\.)\s*\d+`),
+			replacement: "∯"},
 		"questionMarkInQuotation": {
-			Pattern: regexp.MustCompile(`(\?)(?:\'|\")`), Replacement: "&ᓷ&"},
+			pattern: regexp.MustCompile(`(\?)(?:\'|\")`), replacement: "&ᓷ&"},
 		"singleNewLine": {
-			Pattern: regexp.MustCompile(`(\s{3,})`), Replacement: " "},
+			pattern: regexp.MustCompile(`(\s{3,})`), replacement: " "},
 		"extraWhiteSpace": {
-			Pattern: regexp.MustCompile(`(\n)`), Replacement: "ȹ"},
+			pattern: regexp.MustCompile(`(\n)`), replacement: "ȹ"},
 		"subSingleQuote": {
-			Pattern: regexp.MustCompile(`(&⎋&)`), Replacement: "'"},
+			pattern: regexp.MustCompile(`(&⎋&)`), replacement: "'"},
 	}
 }
 
 func (d *commonDefinition) subRules() []rule {
 	return []rule{
-		{Pattern: regexp.MustCompile(`(∯)`), Replacement: "."},
-		{Pattern: regexp.MustCompile(`(♬)`), Replacement: "،"},
-		{Pattern: regexp.MustCompile(`(♭)`), Replacement: ":"},
-		{Pattern: regexp.MustCompile(`(&ᓰ&)`), Replacement: "。"},
-		{Pattern: regexp.MustCompile(`(&ᓱ&)`), Replacement: "．"},
-		{Pattern: regexp.MustCompile(`(&ᓳ&)`), Replacement: "！"},
-		{Pattern: regexp.MustCompile(`(&ᓴ&)`), Replacement: "!"},
-		{Pattern: regexp.MustCompile(`(&ᓷ&)`), Replacement: "?"},
-		{Pattern: regexp.MustCompile(`(&ᓸ&)`), Replacement: "？"},
-		{Pattern: regexp.MustCompile(`(☉)`), Replacement: "?!"},
-		{Pattern: regexp.MustCompile(`(☇)`), Replacement: "??"},
-		{Pattern: regexp.MustCompile(`(☈)`), Replacement: "!?"},
-		{Pattern: regexp.MustCompile(`(☄)`), Replacement: "!!"},
-		{Pattern: regexp.MustCompile(`(&✂&)`), Replacement: "("},
-		{Pattern: regexp.MustCompile(`(&⌬&)`), Replacement: ")"},
-		{Pattern: regexp.MustCompile(`(ȸ)`), Replacement: ""},
-		{Pattern: regexp.MustCompile(`(ȹ)`), Replacement: "\n"},
+		{pattern: regexp.MustCompile(`(∯)`), replacement: "."},
+		{pattern: regexp.MustCompile(`(♬)`), replacement: "،"},
+		{pattern: regexp.MustCompile(`(♭)`), replacement: ":"},
+		{pattern: regexp.MustCompile(`(&ᓰ&)`), replacement: "。"},
+		{pattern: regexp.MustCompile(`(&ᓱ&)`), replacement: "．"},
+		{pattern: regexp.MustCompile(`(&ᓳ&)`), replacement: "！"},
+		{pattern: regexp.MustCompile(`(&ᓴ&)`), replacement: "!"},
+		{pattern: regexp.MustCompile(`(&ᓷ&)`), replacement: "?"},
+		{pattern: regexp.MustCompile(`(&ᓸ&)`), replacement: "？"},
+		{pattern: regexp.MustCompile(`(☉)`), replacement: "?!"},
+		{pattern: regexp.MustCompile(`(☇)`), replacement: "??"},
+		{pattern: regexp.MustCompile(`(☈)`), replacement: "!?"},
+		{pattern: regexp.MustCompile(`(☄)`), replacement: "!!"},
+		{pattern: regexp.MustCompile(`(&✂&)`), replacement: "("},
+		{pattern: regexp.MustCompile(`(&⌬&)`), replacement: ")"},
+		{pattern: regexp.MustCompile(`(ȸ)`), replacement: ""},
+		{pattern: regexp.MustCompile(`(ȹ)`), replacement: "\n"},
 	}
 }
 
 func (d *commonDefinition) doublePunctRules() []rule {
 	return []rule{
-		{Pattern: regexp.MustCompile(`(\?!)`), Replacement: "☉"},
-		{Pattern: regexp.MustCompile(`(!\?)`), Replacement: "☈"},
-		{Pattern: regexp.MustCompile(`(\?\?)`), Replacement: "☇"},
-		{Pattern: regexp.MustCompile(`(!!)`), Replacement: "☄"},
+		{pattern: regexp.MustCompile(`(\?!)`), replacement: "☉"},
+		{pattern: regexp.MustCompile(`(!\?)`), replacement: "☈"},
+		{pattern: regexp.MustCompile(`(\?\?)`), replacement: "☇"},
+		{pattern: regexp.MustCompile(`(!!)`), replacement: "☄"},
 	}
 }
 
 func (d *commonDefinition) exclamationRules() []rule {
 	return []rule{
-		{Pattern: regexp.MustCompile(`(!)(?:\'|\")`), Replacement: "&ᓴ&"},
-		{Pattern: regexp.MustCompile(`(!)(?:\,\s[a-z])`), Replacement: "&ᓴ&"},
-		{Pattern: regexp.MustCompile(`(!)(?:\s[a-z])`), Replacement: "&ᓴ&"},
+		{pattern: regexp.MustCompile(`(!)(?:\'|\")`), replacement: "&ᓴ&"},
+		{pattern: regexp.MustCompile(`(!)(?:\,\s[a-z])`), replacement: "&ᓴ&"},
+		{pattern: regexp.MustCompile(`(!)(?:\s[a-z])`), replacement: "&ᓴ&"},
 	}
 }
 
