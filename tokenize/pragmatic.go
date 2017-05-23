@@ -250,13 +250,38 @@ func (r *punctuationReplacer) sub(content, a, b string) string {
 
 type abbreviationReplacer struct {
 	definition languageDefinition
+	boundaries *rule
 }
 
 func newAbbreviationReplacer(lang string) *abbreviationReplacer {
-	if def, ok := langToDefinition[lang]; ok {
-		return &abbreviationReplacer{definition: def}
+	var def languageDefinition
+	if d, ok := langToDefinition[lang]; ok {
+		def = d
+	} else {
+		def = new(commonDefinition)
 	}
-	return &abbreviationReplacer{definition: new(commonDefinition)}
+	regex := ""
+	for _, word := range def.starters() {
+		esc := regexp.QuoteMeta(word)
+		regex += fmt.Sprintf(`U∯S(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`U\.S(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`U∯K(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`U\.K(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`E∯U(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`E\.U(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`U∯S∯A(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`U\.S\.A(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`I(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`i\.v(∯)\s%s\s|`, esc)
+		regex += fmt.Sprintf(`I\.V(∯)\s%s\s|`, esc)
+	}
+
+	if regex != "" {
+		bounds := regexp.MustCompile(strings.TrimRight(regex, "|"))
+		return &abbreviationReplacer{definition: def,
+			boundaries: &rule{Pattern: bounds, Replacement: "."}}
+	}
+	return &abbreviationReplacer{definition: def, boundaries: nil}
 }
 
 func (r *abbreviationReplacer) replace(text string) string {
@@ -342,18 +367,8 @@ func (r *abbreviationReplacer) replacePeriod(text, abbr string) string {
 }
 
 func (r *abbreviationReplacer) replaceBoundary(text string) string {
-	for _, word := range r.definition.starters() {
-		esc := regexp.QuoteMeta(word)
-		text = util.GSub(text, fmt.Sprintf(`(U∯S)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(U\.S)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(U∯K)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(U\.K)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(E∯U)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(E\.U)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(U∯S∯A)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(U\.S\.A)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(I)∯(\s%s\s)`, esc), "$1.$2")
-		text = util.GSub(text, fmt.Sprintf(`(?i)(i\.v)∯(\s%s\s)`, esc), "$1.$2")
+	if r.boundaries != nil {
+		return r.boundaries.sub(text)
 	}
 	return text
 }

@@ -6,15 +6,8 @@ package util
 import (
 	"io/ioutil"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
-
-// GSub Returns a copy of text with the all occurrences of pattern substituted
-// with replacement.
-func GSub(text, pattern, replacement string) string {
-	return regexp.MustCompile(pattern).ReplaceAllString(text, replacement)
-}
 
 // ReadDataFile reads data from a file, panicking on any errors.
 func ReadDataFile(path string) []byte {
