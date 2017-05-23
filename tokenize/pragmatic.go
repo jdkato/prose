@@ -67,6 +67,10 @@ type rule struct {
 
 // Sub replaces all occurrences of Pattern with Replacement.
 func (r *rule) sub(text string) string {
+	if !r.Pattern.MatchString(text) {
+		return text
+	}
+
 	f := r.Pattern.FindStringSubmatchIndex
 	for loc := f(text); len(loc) > 0; loc = f(text) {
 		for idx, mat := range loc {
@@ -75,6 +79,7 @@ func (r *rule) sub(text string) string {
 			}
 		}
 	}
+
 	return text
 }
 
