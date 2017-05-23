@@ -300,17 +300,23 @@ func (r *abbreviationReplacer) replace(text string) string {
 }
 
 func (r *abbreviationReplacer) search(query string, list []string) string {
-	text := query
 	downcased := strings.ToLower(query)
 	for _, abbr := range list {
-		esc := regexp.QuoteMeta(abbr)
 		if !strings.Contains(downcased, strings.TrimSpace(abbr)) {
 			continue
 		}
+
+		text := query
+		esc := regexp.QuoteMeta(abbr)
 		match := regexp.MustCompile(`(?i)(?:^|\s|\r|\n)` + esc)
+		matches := match.FindAllStringSubmatch(text, -1)
+		if len(matches) == 0 {
+			continue
+		}
+
 		nextWordStart := fmt.Sprintf(`%s (.{1})`, esc)
 		chars := regexp.MustCompile(nextWordStart).FindAllString(query, -1)
-		for i, am := range match.FindAllStringSubmatch(text, -1) {
+		for i, am := range matches {
 			query = r.scan(query, am[0], i, chars)
 		}
 	}
