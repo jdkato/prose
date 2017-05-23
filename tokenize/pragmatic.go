@@ -35,6 +35,9 @@ import (
 /* Public API */
 
 // PragmaticSegmenter is a multilingual, rule-based sentence boundary detector.
+//
+// This is a port of the Ruby library by Kevin S. Dias
+// (https://github.com/diasks2/pragmatic_segmenter).
 type PragmaticSegmenter struct {
 	processor languageProcessor
 }
