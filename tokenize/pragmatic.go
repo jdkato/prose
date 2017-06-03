@@ -87,6 +87,7 @@ func (r *rule) sub(text string) string {
 }
 
 // numbers
+
 var periodBeforeNumberRule = rule{
 	pattern: regexp.MustCompile(`(\.)\d`), replacement: "∯"}
 var numberAfterPeriodBeforeLetterRule = rule{
@@ -207,6 +208,16 @@ func applyRules(text string, rules []rule) string {
 	return text
 }
 
+// substitute replaces the substring sub with the string repl.
+func substitute(src, sub, repl string) string {
+	idx := strings.Index(src, sub)
+	for idx >= 0 {
+		src = src[:idx] + repl + src[idx+len(sub):]
+		idx = strings.Index(src, sub)
+	}
+	return src
+}
+
 // escape
 var escapeRegexReservedCharacters = strings.NewReplacer(
 	`(`, `\(`, `)`, `\)`, `[`, `\[`, `]`, `\]`, `-`, `\-`,
@@ -249,7 +260,7 @@ func (r *punctuationReplacer) replacePunctuation(matches []string) string {
 }
 
 func (r *punctuationReplacer) sub(content, a, b string) string {
-	repl := strings.Replace(content, a, b, -1)
+	repl := substitute(content, a, b)
 	r.text = strings.Replace(r.text, content, repl, -1)
 	return repl
 }
@@ -257,12 +268,17 @@ func (r *punctuationReplacer) sub(content, a, b string) string {
 /* abbreviation_replacer */
 
 type abbreviationReplacer struct {
-	definition languageDefinition
-	boundaries *rule
+	definition       languageDefinition
+	boundaries       *rule
+	prepositiveCache map[string][]rule
+	numberCache      map[string][]rule
+	periodCache      map[string][]rule
 }
 
 func newAbbreviationReplacer(lang string) *abbreviationReplacer {
 	var def languageDefinition
+	var bounds *rule
+
 	if d, ok := langToDefinition[lang]; ok {
 		def = d
 	} else {
@@ -285,11 +301,14 @@ func newAbbreviationReplacer(lang string) *abbreviationReplacer {
 	}
 
 	if regex != "" {
-		bounds := regexp.MustCompile(strings.TrimRight(regex, "|"))
-		return &abbreviationReplacer{definition: def,
-			boundaries: &rule{pattern: bounds, replacement: "."}}
+		r := regexp.MustCompile(strings.TrimRight(regex, "|"))
+		bounds = &rule{pattern: r, replacement: "."}
 	}
-	return &abbreviationReplacer{definition: def, boundaries: nil}
+
+	return &abbreviationReplacer{definition: def, boundaries: bounds,
+		prepositiveCache: make(map[string][]rule),
+		numberCache:      make(map[string][]rule),
+		periodCache:      make(map[string][]rule)}
 }
 
 func (r *abbreviationReplacer) replace(text string) string {
@@ -354,29 +373,41 @@ func (r *abbreviationReplacer) scan(text, am string, idx int, chars []string) st
 }
 
 func (r *abbreviationReplacer) replacePrepositive(text, abbr string) string {
-	abbr = strings.TrimSpace(abbr)
-	q1 := fmt.Sprintf(`\s%s(\.)\s|^%s(\.)\s`, abbr, abbr)
-	q2 := fmt.Sprintf(`\s%s(\.):\d+|^%s(\.):\d+`, abbr, abbr)
+	abbr = strings.ToLower(strings.TrimSpace(abbr))
+	if rules, ok := r.prepositiveCache[abbr]; ok {
+		return applyRules(text, rules)
+	}
+	q1 := fmt.Sprintf(`(?i)\s%s(\.)\s|^%s(\.)\s`, abbr, abbr)
+	q2 := fmt.Sprintf(`(?i)\s%s(\.):\d+|^%s(\.):\d+`, abbr, abbr)
 	r1 := rule{pattern: regexp.MustCompile(q1), replacement: "∯"}
 	r2 := rule{pattern: regexp.MustCompile(q2), replacement: "∯"}
+	r.prepositiveCache[abbr] = []rule{r1, r2}
 	return r2.sub(r1.sub(text))
 }
 
 func (r *abbreviationReplacer) replaceNumber(text, abbr string) string {
-	abbr = strings.TrimSpace(abbr)
-	q1 := fmt.Sprintf(`\s%s(\.)\s\d|^%s(\.)\s\d`, abbr, abbr)
-	q2 := fmt.Sprintf(`\s%s(\.)\s+\(|^%s(\.)\s+\(`, abbr, abbr)
+	abbr = strings.ToLower(strings.TrimSpace(abbr))
+	if rules, ok := r.numberCache[abbr]; ok {
+		return applyRules(text, rules)
+	}
+	q1 := fmt.Sprintf(`(?i)\s%s(\.)\s\d|^%s(\.)\s\d`, abbr, abbr)
+	q2 := fmt.Sprintf(`(?i)\s%s(\.)\s+\(|^%s(\.)\s+\(`, abbr, abbr)
 	r1 := rule{pattern: regexp.MustCompile(q1), replacement: "∯"}
 	r2 := rule{pattern: regexp.MustCompile(q2), replacement: "∯"}
+	r.numberCache[abbr] = []rule{r1, r2}
 	return r2.sub(r1.sub(text))
 }
 
 func (r *abbreviationReplacer) replacePeriod(text, abbr string) string {
 	abbr = strings.TrimSpace(abbr)
+	if rules, ok := r.periodCache[abbr]; ok {
+		return applyRules(text, rules)
+	}
 	q1 := fmt.Sprintf(`\s%s(\.)(?:(?:(?:\.|\:|-|\?)|(?:\s(?:[a-z]|I\s|I'm|I'll|\d))))|^%s(\.)(?:(?:(?:\.|\:|\?)|(?:\s(?:[a-z]|I\s|I'm|I'll|\d))))`, abbr, abbr)
 	q2 := fmt.Sprintf(`\s%s(\.),|^%s(\.),`, abbr, abbr)
 	r1 := rule{pattern: regexp.MustCompile(q1), replacement: "∯"}
 	r2 := rule{pattern: regexp.MustCompile(q2), replacement: "∯"}
+	r.periodCache[abbr] = []rule{r1, r2}
 	return r2.sub(r1.sub(text))
 }
 
@@ -389,7 +420,7 @@ func (r *abbreviationReplacer) replaceBoundary(text string) string {
 
 func (r *abbreviationReplacer) replaceMultiPeriods(text string) string {
 	for _, r := range multiPeriodAbbrevRE.FindAllString(text, -1) {
-		text = strings.Replace(text, r, strings.Replace(r, ".", "∯", -1), -1)
+		text = substitute(text, r, substitute(r, ".", "∯"))
 	}
 	return text
 }
@@ -624,7 +655,7 @@ func newProcessor(lang string) *processor {
 }
 
 func (p *processor) cleanQuotations(text string) string {
-	return strings.Replace(text, "`", "'", -1)
+	return substitute(text, "`", "'")
 }
 
 func (p *processor) process(text string) []string {
@@ -632,7 +663,7 @@ func (p *processor) process(text string) []string {
 	text = applyRules(text, allNumberRules)
 
 	text = continuousPunctuationRE.ReplaceAllStringFunc(text, func(s string) string {
-		return strings.Replace(strings.Replace(s, "!", "&ᓴ&", -1), "?", "&ᓷ&", -1)
+		return substitute(substitute(s, "!", "&ᓴ&"), "?", "&ᓷ&")
 	})
 
 	pRules := p.abbrReplacer.definition.punctRules()
