@@ -273,6 +273,7 @@ type abbreviationReplacer struct {
 	prepositiveCache map[string][]rule
 	numberCache      map[string][]rule
 	periodCache      map[string][]rule
+	searchCache      map[string][]*regexp.Regexp
 }
 
 func newAbbreviationReplacer(lang string) *abbreviationReplacer {
@@ -308,7 +309,8 @@ func newAbbreviationReplacer(lang string) *abbreviationReplacer {
 	return &abbreviationReplacer{definition: def, boundaries: bounds,
 		prepositiveCache: make(map[string][]rule),
 		numberCache:      make(map[string][]rule),
-		periodCache:      make(map[string][]rule)}
+		periodCache:      make(map[string][]rule),
+		searchCache:      make(map[string][]*regexp.Regexp)}
 }
 
 func (r *abbreviationReplacer) replace(text string) string {
@@ -327,6 +329,8 @@ func (r *abbreviationReplacer) replace(text string) string {
 }
 
 func (r *abbreviationReplacer) search(query string, list []string) string {
+	var match, next *regexp.Regexp
+
 	downcased := strings.ToLower(query)
 	for _, abbr := range list {
 		if !strings.Contains(downcased, strings.TrimSpace(abbr)) {
@@ -335,16 +339,20 @@ func (r *abbreviationReplacer) search(query string, list []string) string {
 
 		text := query
 		esc := regexp.QuoteMeta(abbr)
-		match := regexp.MustCompile(`(?i)(?:^|\s|\r|\n)` + esc)
-		matches := match.FindAllStringSubmatch(text, -1)
-		if len(matches) == 0 {
-			continue
+		if data, ok := r.searchCache[esc]; ok {
+			match, next = data[0], data[1]
+		} else {
+			match = regexp.MustCompile(`(?i)(?:^|\s|\r|\n)` + esc)
+			next = regexp.MustCompile(fmt.Sprintf(`%s (.{1})`, esc))
+			r.searchCache[esc] = []*regexp.Regexp{match, next}
 		}
 
-		nextWordStart := fmt.Sprintf(`%s (.{1})`, esc)
-		chars := regexp.MustCompile(nextWordStart).FindAllString(query, -1)
-		for i, am := range matches {
-			query = r.scan(query, am[0], i, chars)
+		found := match.FindAllStringSubmatch(text, -1)
+		if len(found) > 0 {
+			chars := next.FindAllString(query, -1)
+			for i, am := range found {
+				query = r.scan(query, am[0], i, chars)
+			}
 		}
 	}
 	return query
