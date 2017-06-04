@@ -5,7 +5,7 @@
 ## Install
 
 ```console
-$ go get github.com/jdkato/prose
+$ go get github.com/jdkato/prose/...
 ```
 
 ## Usage
