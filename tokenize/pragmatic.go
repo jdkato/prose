@@ -74,11 +74,14 @@ func (r *rule) sub(text string) string {
 		return text
 	}
 
-	f := r.pattern.FindStringSubmatchIndex
-	for loc := f(text); len(loc) > 0; loc = f(text) {
-		for idx, mat := range loc {
+	orig := len(text)
+	diff := 0
+	for _, submat := range r.pattern.FindAllStringSubmatchIndex(text, -1) {
+		for idx, mat := range submat {
 			if mat != -1 && idx > 0 && idx%2 == 0 {
-				text = text[:mat] + r.replacement + text[loc[idx+1]:]
+				loc := []int{mat - diff, submat[idx+1] - diff}
+				text = text[:loc[0]] + r.replacement + text[loc[1]:]
+				diff = orig - len(text)
 			}
 		}
 	}
