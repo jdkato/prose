@@ -80,7 +80,7 @@ func NewPerceptronTagger() *PerceptronTagger {
 
 // Weights returns the model's weights in the form
 //
-// 	  {
+//    {
 //      "i-1 suffix ity": {
 //        "MD": -0.816,
 //        "VB": -0.695,
@@ -88,17 +88,13 @@ func NewPerceptronTagger() *PerceptronTagger {
 //       }
 //       ...
 //     }
-//
-// which can be serialized for reuse.
 func (pt *PerceptronTagger) Weights() map[string]map[string]float64 {
 	return pt.model.weights
 }
 
 // Classes returns the model's classes in the form
 //
-// 	  ["EX", "NNPS", "WP$", ...]
-//
-// which can be serialized for reuse.
+//    ["EX", "NNPS", "WP$", ...]
 func (pt *PerceptronTagger) Classes() []string {
 	return pt.model.classes
 }
@@ -110,8 +106,6 @@ func (pt *PerceptronTagger) Classes() []string {
 //      "facilities": "NNS",
 //      ...
 //    }
-//
-// which can be serialized for reuse.
 func (pt *PerceptronTagger) TagMap() map[string]string {
 	return pt.model.tagMap
 }
