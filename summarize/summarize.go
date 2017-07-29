@@ -33,10 +33,6 @@ type Sentence struct {
 //
 //    d := Document{Content: ..., WordTokenizer: ..., SentenceTokenizer: ...}
 //    d.Initialize()
-//
-// TODO: There should be a way to efficiently add or remove text from a the
-// content of a Document (e.g., we should be able to build it incrementally).
-// Perhaps we should look into using a rope as our underlying data structure?
 type Document struct {
 	Content         string         // Actual text
 	NumCharacters   float64        // Number of Characters
