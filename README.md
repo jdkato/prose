@@ -45,7 +45,7 @@ func main() {
 
 ### Tagging ([GoDoc](https://godoc.org/github.com/jdkato/prose/tag))
 
-The `tag` package includes a port of Textblob's ["fast and accurate" POS tagger](https://github.com/sloria/textblob-aptagger). Below is a comparison of its performance against [NLTK](http://www.nltk.org/)'s implementation of the same tagger on the Treeback corpus:
+The `tag` package includes a port of Textblob's ["fast and accurate" POS tagger](https://github.com/sloria/textblob-aptagger). Below is a comparison of its performance against [NLTK](http://www.nltk.org/)'s implementation of the same tagger on the Treebank corpus:
 
 | Library | Accuracy | 5-Run Average (sec) |
 |:--------|---------:|--------------------:|
