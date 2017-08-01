@@ -2,6 +2,7 @@ package summarize
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -29,7 +30,7 @@ type testCase struct {
 	ReadingEase float64
 }
 
-func TestSummarize(t *testing.T) {
+func TestSummarizePrep(t *testing.T) {
 	tests := make([]testCase, 0)
 	cases := util.ReadDataFile(filepath.Join(testdata, "summarize.json"))
 
@@ -40,4 +41,18 @@ func TestSummarize(t *testing.T) {
 		assert.Equal(t, test.Words, d.NumWords)
 		assert.Equal(t, test.Characters, d.NumCharacters)
 	}
+}
+
+func TestSummarize(t *testing.T) {
+	data := util.ReadDataFile(filepath.Join(testdata, "article.txt"))
+	d := NewDocument(string(data))
+
+	text := ""
+	for _, paragraph := range d.Summary(7) {
+		for _, s := range paragraph.Sentences {
+			text += (s.Text + " ")
+		}
+		text += "\n\n"
+	}
+	fmt.Print(text)
 }

@@ -103,6 +103,8 @@ func main() {
 
 The `summarize` package includes functions for computing standard readability and usage statistics. It's among the most accurate implementations available due to its reliance on legitimate tokenizers (whereas others, like [readability-score](https://github.com/DaveChild/Text-Statistics/blob/master/src/DaveChild/TextStatistics/Text.php#L308), rely on naive regular expressions).
 
+It also includes a TL;DR algorithm for condensing text into a user-indicated number of paragraphs.
+
 ```go
 package main
 
