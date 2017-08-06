@@ -17,8 +17,11 @@ func (d *Document) WordDensity() map[string]float64 {
 	return density
 }
 
-// Keywords returns the top-n most used words in the Document, omitting stop
-// words and normalizing case.
+// Keywords returns a Document's words in the form
+//
+//    map[word]count
+//
+// omitting stop words and normalizing case.
 func (d *Document) Keywords() map[string]int {
 	scores := map[string]int{}
 	for word, freq := range d.WordFrequency {
