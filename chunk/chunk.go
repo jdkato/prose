@@ -14,8 +14,8 @@ func quadsString(tagged []tag.Token) string {
 	tagQuads := ""
 	for _, tok := range tagged {
 		padding := ""
-		tag := tok.Tag
-		switch len(tag) {
+		pos := tok.Tag
+		switch len(pos) {
 		case 0:
 			padding = "____" // should not exist
 		case 1:
@@ -26,9 +26,9 @@ func quadsString(tagged []tag.Token) string {
 			padding = "_"
 		case 4: // no padding required
 		default:
-			tag = tag[:4] // longer than 4 ... truncate!
+			pos = pos[:4] // longer than 4 ... truncate!
 		}
-		tagQuads += tag + padding
+		tagQuads += pos + padding
 	}
 	return tagQuads
 }
