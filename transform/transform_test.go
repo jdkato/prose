@@ -1,6 +1,11 @@
 package transform
 
-import "fmt"
+import (
+	"fmt"
+	"path/filepath"
+)
+
+var testdata = filepath.Join("..", "testdata")
 
 func ExampleNewTitleConverter() {
 	tc := NewTitleConverter(APStyle)

@@ -10,6 +10,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testdata = filepath.Join("..", "testdata")
+
+func check(expected, observed float64) bool {
+	return fmt.Sprintf("%0.2f", expected) == fmt.Sprintf("%0.2f", observed)
+}
+
 type testCase struct {
 	Text       string
 	Sentences  float64

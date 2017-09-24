@@ -1,11 +1,36 @@
 package tokenize
 
 import (
+	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"testing"
 
+	"github.com/jdkato/prose/internal/util"
 	"github.com/stretchr/testify/assert"
 )
+
+var testdata = filepath.Join("..", "testdata")
+
+func getWordData(file string) ([]string, [][]string) {
+	in := util.ReadDataFile(filepath.Join(testdata, "treebank_sents.json"))
+	out := util.ReadDataFile(filepath.Join(testdata, file))
+
+	input := []string{}
+	output := [][]string{}
+
+	util.CheckError(json.Unmarshal(in, &input))
+	util.CheckError(json.Unmarshal(out, &output))
+
+	return input, output
+}
+
+func getWordBenchData() []string {
+	in := util.ReadDataFile(filepath.Join(testdata, "treebank_sents.json"))
+	input := []string{}
+	util.CheckError(json.Unmarshal(in, &input))
+	return input
+}
 
 func ExampleNewWordBoundaryTokenizer() {
 	t := NewWordBoundaryTokenizer()

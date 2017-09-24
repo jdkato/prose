@@ -9,8 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testdata = filepath.Join("..", "testdata")
-
 type testCase struct {
 	Input  string
 	Expect string

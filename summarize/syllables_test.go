@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/jdkato/prose/internal/util"
-	"github.com/jdkato/syllables"
 	"github.com/montanaflynn/stats"
 	"github.com/stretchr/testify/assert"
 )
@@ -87,7 +86,7 @@ func BenchmarkSyllablesIn(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		for word := range tests {
-			syllables.In(word)
+			Syllables(word)
 		}
 	}
 }

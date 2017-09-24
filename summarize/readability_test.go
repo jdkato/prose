@@ -2,19 +2,12 @@ package summarize
 
 import (
 	"encoding/json"
-	"fmt"
 	"path/filepath"
 	"testing"
 
 	"github.com/jdkato/prose/internal/util"
 	"github.com/stretchr/testify/assert"
 )
-
-var testdata = filepath.Join("..", "testdata")
-
-func check(expected, observed float64) bool {
-	return fmt.Sprintf("%0.2f", expected) == fmt.Sprintf("%0.2f", observed)
-}
 
 func TestReadability(t *testing.T) {
 	tests := make([]testCase, 0)
