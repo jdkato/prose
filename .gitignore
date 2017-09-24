@@ -8,6 +8,7 @@ bin
 # Folders
 _obj
 _test
+tag/*.gob
 
 # Architecture specific extensions/prefixes
 *.[568vq]
