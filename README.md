@@ -136,7 +136,7 @@ import (
 )
 
 func main() {
-    words := tokenize.TextToWords("Go is a open source programming language created at Google.")
+    words := tokenize.TextToWords("Go is an open source programming language created at Google.")
     regex := chunk.TreebankNamedEntities
 
     tagger := tag.NewPerceptronTagger()
