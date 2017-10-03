@@ -11,7 +11,7 @@ import (
 
 var spaces = regexp.MustCompile(" +")
 
-func removeCase(s string, sep string) string {
+func removeCase(s string, sep string, t func(rune) rune) string {
 	out := ""
 	old := ' '
 	for i, c := range s {
@@ -21,7 +21,7 @@ func removeCase(s string, sep string) string {
 			out += " "
 		}
 		if alpha || c == ' ' {
-			out += string(unicode.ToLower(c))
+			out += string(t(c))
 		}
 		old = c
 	}
@@ -30,20 +30,53 @@ func removeCase(s string, sep string) string {
 
 // Simple returns a space-separated, lower-cased copy of the string s.
 func Simple(s string) string {
-	return removeCase(s, " ")
+	return removeCase(s, " ", unicode.ToLower)
 }
 
 // Dash returns a dash-separated, lower-cased copy of the string s.
 func Dash(s string) string {
-	return removeCase(s, "-")
+	return removeCase(s, "-", unicode.ToLower)
 }
 
 // Snake returns a underscore-separated, lower-cased copy of the string s.
 func Snake(s string) string {
-	return removeCase(s, "_")
+	return removeCase(s, "_", unicode.ToLower)
 }
 
-// Dot returns a underscore-separated, lower-cased copy of the string s.
+// Dot returns a period-separated, lower-cased copy of the string s.
 func Dot(s string) string {
-	return removeCase(s, ".")
+	return removeCase(s, ".", unicode.ToLower)
+}
+
+// Constant returns a underscore-separated, upper-cased copy of the string s.
+func Constant(s string) string {
+	return removeCase(s, "_", unicode.ToUpper)
+}
+
+// Pascal returns a Pascal-cased copy of the string s.
+func Pascal(s string) string {
+	out := ""
+	wasSpace := false
+	for i, c := range removeCase(s, " ", unicode.ToLower) {
+		if i == 0 || wasSpace {
+			c = unicode.ToUpper(c)
+		}
+		wasSpace = c == ' '
+		if !wasSpace {
+			out += string(c)
+		}
+	}
+	return out
+}
+
+// Camel returns a Camel-cased copy of the string s.
+func Camel(s string) string {
+	first := ' '
+	for _, c := range s {
+		if unicode.IsLetter(c) || unicode.IsNumber(c) {
+			first = c
+			break
+		}
+	}
+	return strings.TrimSpace(string(unicode.ToLower(first)) + Pascal(s)[1:])
 }
