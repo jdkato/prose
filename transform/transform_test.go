@@ -17,6 +17,7 @@ type testFormat struct {
 	None  string
 	Snake string
 	Param string
+	Dot   string
 }
 
 func TestTransform(t *testing.T) {
@@ -25,9 +26,10 @@ func TestTransform(t *testing.T) {
 
 	util.CheckError(json.Unmarshal(cases, &tests))
 	for _, test := range tests {
-		assert.Equal(t, test.None, SimpleCase(test.Input))
-		assert.Equal(t, test.Snake, SnakeCase(test.Input))
-		assert.Equal(t, test.Param, DashCase(test.Input))
+		assert.Equal(t, test.None, Simple(test.Input))
+		assert.Equal(t, test.Snake, Snake(test.Input))
+		assert.Equal(t, test.Param, Dash(test.Input))
+		assert.Equal(t, test.Dot, Dot(test.Input))
 	}
 }
 

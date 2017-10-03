@@ -28,17 +28,22 @@ func removeCase(s string, sep string) string {
 	return spaces.ReplaceAllString(strings.TrimSpace(out), sep)
 }
 
-// SimpleCase returns a space-separated, lower-cased copy of the string s.
-func SimpleCase(s string) string {
+// Simple returns a space-separated, lower-cased copy of the string s.
+func Simple(s string) string {
 	return removeCase(s, " ")
 }
 
-// DashCase returns a dash-separated, lower-cased copy of the string s.
-func DashCase(s string) string {
+// Dash returns a dash-separated, lower-cased copy of the string s.
+func Dash(s string) string {
 	return removeCase(s, "-")
 }
 
-// SnakeCase returns a underscore-separated, lower-cased copy of the string s.
-func SnakeCase(s string) string {
+// Snake returns a underscore-separated, lower-cased copy of the string s.
+func Snake(s string) string {
 	return removeCase(s, "_")
+}
+
+// Dot returns a underscore-separated, lower-cased copy of the string s.
+func Dot(s string) string {
+	return removeCase(s, ".")
 }

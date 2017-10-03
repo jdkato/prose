@@ -3,378 +3,441 @@
         "input": "follow step-by-step instructions",
         "none": "follow step by step instructions",
         "snake": "follow_step_by_step_instructions",
-        "param": "follow-step-by-step-instructions"
+        "param": "follow-step-by-step-instructions",
+        "dot": "follow.step.by.step.instructions"
     },
     {
         "input": "follow step-BY-step instructions",
         "none": "follow step by step instructions",
         "snake": "follow_step_by_step_instructions",
-        "param": "follow-step-by-step-instructions"
+        "param": "follow-step-by-step-instructions",
+        "dot": "follow.step.by.step.instructions"
     },
     {
         "input": "this sub-phrase is nice",
         "none": "this sub phrase is nice",
         "snake": "this_sub_phrase_is_nice",
-        "param": "this-sub-phrase-is-nice"
+        "param": "this-sub-phrase-is-nice",
+        "dot": "this.sub.phrase.is.nice"
     },
     {
         "input": "catchy title: a subtitle",
         "none": "catchy title a subtitle",
         "snake": "catchy_title_a_subtitle",
-        "param": "catchy-title-a-subtitle"
+        "param": "catchy-title-a-subtitle",
+        "dot": "catchy.title.a.subtitle"
     },
     {
         "input": "catchy title: \"a quoted subtitle\"",
         "none": "catchy title a quoted subtitle",
         "snake": "catchy_title_a_quoted_subtitle",
-        "param": "catchy-title-a-quoted-subtitle"
+        "param": "catchy-title-a-quoted-subtitle",
+        "dot": "catchy.title.a.quoted.subtitle"
     },
     {
         "input": "catchy title: “‘a twice quoted subtitle’”",
         "none": "catchy title a twice quoted subtitle",
         "snake": "catchy_title_a_twice_quoted_subtitle",
-        "param": "catchy-title-a-twice-quoted-subtitle"
+        "param": "catchy-title-a-twice-quoted-subtitle",
+        "dot": "catchy.title.a.twice.quoted.subtitle"
     },
     {
         "input": "\"a title inside double quotes\"",
         "none": "a title inside double quotes",
         "snake": "a_title_inside_double_quotes",
-        "param": "a-title-inside-double-quotes"
+        "param": "a-title-inside-double-quotes",
+        "dot": "a.title.inside.double.quotes"
     },
     {
         "input": "all words capitalized",
         "none": "all words capitalized",
         "snake": "all_words_capitalized",
-        "param": "all-words-capitalized"
+        "param": "all-words-capitalized",
+        "dot": "all.words.capitalized"
     },
     {
         "input": "small words are for by and of lowercase",
         "none": "small words are for by and of lowercase",
         "snake": "small_words_are_for_by_and_of_lowercase",
-        "param": "small-words-are-for-by-and-of-lowercase"
+        "param": "small-words-are-for-by-and-of-lowercase",
+        "dot": "small.words.are.for.by.and.of.lowercase"
     },
     {
         "input": "a small word starts",
         "none": "a small word starts",
         "snake": "a_small_word_starts",
-        "param": "a-small-word-starts"
+        "param": "a-small-word-starts",
+        "dot": "a.small.word.starts"
     },
     {
         "input": "a small word it ends on",
         "none": "a small word it ends on",
         "snake": "a_small_word_it_ends_on",
-        "param": "a-small-word-it-ends-on"
+        "param": "a-small-word-it-ends-on",
+        "dot": "a.small.word.it.ends.on"
     },
     {
         "input": "do questions work?",
         "none": "do questions work",
         "snake": "do_questions_work",
-        "param": "do-questions-work"
+        "param": "do-questions-work",
+        "dot": "do.questions.work"
     },
     {
         "input": "multiple sentences. more than one.",
         "none": "multiple sentences more than one",
         "snake": "multiple_sentences_more_than_one",
-        "param": "multiple-sentences-more-than-one"
+        "param": "multiple-sentences-more-than-one",
+        "dot": "multiple.sentences.more.than.one"
     },
     {
         "input": "Ends with small word of",
         "none": "ends with small word of",
         "snake": "ends_with_small_word_of",
-        "param": "ends-with-small-word-of"
+        "param": "ends-with-small-word-of",
+        "dot": "ends.with.small.word.of"
     },
     {
         "input": "double quoted \"inner\" word",
         "none": "double quoted inner word",
         "snake": "double_quoted_inner_word",
-        "param": "double-quoted-inner-word"
+        "param": "double-quoted-inner-word",
+        "dot": "double.quoted.inner.word"
     },
     {
         "input": "single quoted 'inner' word",
         "none": "single quoted inner word",
         "snake": "single_quoted_inner_word",
-        "param": "single-quoted-inner-word"
+        "param": "single-quoted-inner-word",
+        "dot": "single.quoted.inner.word"
     },
     {
         "input": "fancy double quoted “inner” word",
         "none": "fancy double quoted inner word",
         "snake": "fancy_double_quoted_inner_word",
-        "param": "fancy-double-quoted-inner-word"
+        "param": "fancy-double-quoted-inner-word",
+        "dot": "fancy.double.quoted.inner.word"
     },
     {
         "input": "fancy single quoted ‘inner’ word",
         "none": "fancy single quoted inner word",
         "snake": "fancy_single_quoted_inner_word",
-        "param": "fancy-single-quoted-inner-word"
+        "param": "fancy-single-quoted-inner-word",
+        "dot": "fancy.single.quoted.inner.word"
     },
     {
         "input": "this vs. that",
         "none": "this vs that",
         "snake": "this_vs_that",
-        "param": "this-vs-that"
+        "param": "this-vs-that",
+        "dot": "this.vs.that"
     },
     {
         "input": "this vs that",
         "none": "this vs that",
         "snake": "this_vs_that",
-        "param": "this-vs-that"
+        "param": "this-vs-that",
+        "dot": "this.vs.that"
     },
     {
         "input": "this v. that",
         "none": "this v that",
         "snake": "this_v_that",
-        "param": "this-v-that"
+        "param": "this-v-that",
+        "dot": "this.v.that"
     },
     {
         "input": "this v that",
         "none": "this v that",
         "snake": "this_v_that",
-        "param": "this-v-that"
+        "param": "this-v-that",
+        "dot": "this.v.that"
     },
     {
         "input": "catchy title: substance subtitle",
         "none": "catchy title substance subtitle",
         "snake": "catchy_title_substance_subtitle",
-        "param": "catchy-title-substance-subtitle"
+        "param": "catchy-title-substance-subtitle",
+        "dot": "catchy.title.substance.subtitle"
     },
     {
         "input": "have you read “The Lottery”?",
         "none": "have you read the lottery",
         "snake": "have_you_read_the_lottery",
-        "param": "have-you-read-the-lottery"
+        "param": "have-you-read-the-lottery",
+        "dot": "have.you.read.the.lottery"
     },
     {
         "input": "Drink this piña colada while you listen to ænima",
         "none": "drink this piña colada while you listen to ænima",
         "snake": "drink_this_piña_colada_while_you_listen_to_ænima",
-        "param": "drink-this-piña-colada-while-you-listen-to-ænima"
+        "param": "drink-this-piña-colada-while-you-listen-to-ænima",
+        "dot": "drink.this.piña.colada.while.you.listen.to.ænima"
     },
     {
         "input": "don't break",
         "none": "don t break",
         "snake": "don_t_break",
-        "param": "don-t-break"
+        "param": "don-t-break",
+        "dot": "don.t.break"
     },
     {
         "input": "we keep NASA capitalized",
         "none": "we keep nasa capitalized",
         "snake": "we_keep_nasa_capitalized",
-        "param": "we-keep-nasa-capitalized"
+        "param": "we-keep-nasa-capitalized",
+        "dot": "we.keep.nasa.capitalized"
     },
     {
         "input": "leave Q&A unscathed",
         "none": "leave q a unscathed",
         "snake": "leave_q_a_unscathed",
-        "param": "leave-q-a-unscathed"
+        "param": "leave-q-a-unscathed",
+        "dot": "leave.q.a.unscathed"
     },
     {
         "input": "your hair[cut] looks (nice)",
         "none": "your hair cut looks nice",
         "snake": "your_hair_cut_looks_nice",
-        "param": "your-hair-cut-looks-nice"
+        "param": "your-hair-cut-looks-nice",
+        "dot": "your.hair.cut.looks.nice"
     },
     {
         "input": "keep that colo(u)r",
         "none": "keep that colo u r",
         "snake": "keep_that_colo_u_r",
-        "param": "keep-that-colo-u-r"
+        "param": "keep-that-colo-u-r",
+        "dot": "keep.that.colo.u.r"
     },
     {
         "input": "capitalize hyphenated words on-demand",
         "none": "capitalize hyphenated words on demand",
         "snake": "capitalize_hyphenated_words_on_demand",
-        "param": "capitalize-hyphenated-words-on-demand"
+        "param": "capitalize-hyphenated-words-on-demand",
+        "dot": "capitalize.hyphenated.words.on.demand"
     },
     {
         "input": "take them on: special lower cases",
         "none": "take them on special lower cases",
         "snake": "take_them_on_special_lower_cases",
-        "param": "take-them-on-special-lower-cases"
+        "param": "take-them-on-special-lower-cases",
+        "dot": "take.them.on.special.lower.cases"
     },
     {
         "input": "Notes and observations regarding Apple’s announcements from ‘The Beat Goes On’ special event",
         "none": "notes and observations regarding apple s announcements from the beat goes on special event",
         "snake": "notes_and_observations_regarding_apple_s_announcements_from_the_beat_goes_on_special_event",
-        "param": "notes-and-observations-regarding-apple-s-announcements-from-the-beat-goes-on-special-event"
+        "param": "notes-and-observations-regarding-apple-s-announcements-from-the-beat-goes-on-special-event",
+        "dot": "notes.and.observations.regarding.apple.s.announcements.from.the.beat.goes.on.special.event"
     },
     {
         "input": "a title and/or string",
         "none": "a title and or string",
         "snake": "a_title_and_or_string",
-        "param": "a-title-and-or-string"
+        "param": "a-title-and-or-string",
+        "dot": "a.title.and.or.string"
     },
     {
         "input": "dance with me/let’s face the music and dance",
         "none": "dance with me let s face the music and dance",
         "snake": "dance_with_me_let_s_face_the_music_and_dance",
-        "param": "dance-with-me-let-s-face-the-music-and-dance"
+        "param": "dance-with-me-let-s-face-the-music-and-dance",
+        "dot": "dance.with.me.let.s.face.the.music.and.dance"
     },
     {
         "input": "34th 3rd 2nd",
         "none": "34th 3rd 2nd",
         "snake": "34th_3rd_2nd",
-        "param": "34th-3rd-2nd"
+        "param": "34th-3rd-2nd",
+        "dot": "34th.3rd.2nd"
     },
     {
         "input": "Q&A with steve jobs: 'that's what happens in technology'",
         "none": "q a with steve jobs that s what happens in technology",
         "snake": "q_a_with_steve_jobs_that_s_what_happens_in_technology",
-        "param": "q-a-with-steve-jobs-that-s-what-happens-in-technology"
+        "param": "q-a-with-steve-jobs-that-s-what-happens-in-technology",
+        "dot": "q.a.with.steve.jobs.that.s.what.happens.in.technology"
     },
     {
         "input": "What is AT&T's problem?",
         "none": "what is at t s problem",
         "snake": "what_is_at_t_s_problem",
-        "param": "what-is-at-t-s-problem"
+        "param": "what-is-at-t-s-problem",
+        "dot": "what.is.at.t.s.problem"
     },
     {
         "input": "Apple deal with AT&T falls through",
         "none": "apple deal with at t falls through",
         "snake": "apple_deal_with_at_t_falls_through",
-        "param": "apple-deal-with-at-t-falls-through"
+        "param": "apple-deal-with-at-t-falls-through",
+        "dot": "apple.deal.with.at.t.falls.through"
     },
     {
         "input": "The SEC's Apple probe: what you need to know",
         "none": "the sec s apple probe what you need to know",
         "snake": "the_sec_s_apple_probe_what_you_need_to_know",
-        "param": "the-sec-s-apple-probe-what-you-need-to-know"
+        "param": "the-sec-s-apple-probe-what-you-need-to-know",
+        "dot": "the.sec.s.apple.probe.what.you.need.to.know"
     },
     {
         "input": "The SEC's Apple probe: what you need to know",
         "none": "the sec s apple probe what you need to know",
         "snake": "the_sec_s_apple_probe_what_you_need_to_know",
-        "param": "the-sec-s-apple-probe-what-you-need-to-know"
+        "param": "the-sec-s-apple-probe-what-you-need-to-know",
+        "dot": "the.sec.s.apple.probe.what.you.need.to.know"
     },
     {
         "input": "'by the Way, small word at the start but within quotes.'",
         "none": "by the way small word at the start but within quotes",
         "snake": "by_the_way_small_word_at_the_start_but_within_quotes",
-        "param": "by-the-way-small-word-at-the-start-but-within-quotes"
+        "param": "by-the-way-small-word-at-the-start-but-within-quotes",
+        "dot": "by.the.way.small.word.at.the.start.but.within.quotes"
     },
     {
         "input": "Small word at end is nothing to be afraid of",
         "none": "small word at end is nothing to be afraid of",
         "snake": "small_word_at_end_is_nothing_to_be_afraid_of",
-        "param": "small-word-at-end-is-nothing-to-be-afraid-of"
+        "param": "small-word-at-end-is-nothing-to-be-afraid-of",
+        "dot": "small.word.at.end.is.nothing.to.be.afraid.of"
     },
     {
         "input": "Starting Sub-Phrase With a Small Word: a Trick, Perhaps?",
         "none": "starting sub phrase with a small word a trick perhaps",
         "snake": "starting_sub_phrase_with_a_small_word_a_trick_perhaps",
-        "param": "starting-sub-phrase-with-a-small-word-a-trick-perhaps"
+        "param": "starting-sub-phrase-with-a-small-word-a-trick-perhaps",
+        "dot": "starting.sub.phrase.with.a.small.word.a.trick.perhaps"
     },
     {
         "input": "Sub-Phrase With a Small Word in Quotes: 'a Trick, Perhaps?'",
         "none": "sub phrase with a small word in quotes a trick perhaps",
         "snake": "sub_phrase_with_a_small_word_in_quotes_a_trick_perhaps",
-        "param": "sub-phrase-with-a-small-word-in-quotes-a-trick-perhaps"
+        "param": "sub-phrase-with-a-small-word-in-quotes-a-trick-perhaps",
+        "dot": "sub.phrase.with.a.small.word.in.quotes.a.trick.perhaps"
     },
     {
         "input": "Starting a Hyphen Delimited Sub-Phrase With a Small Word - a Trick, Perhaps?",
         "none": "starting a hyphen delimited sub phrase with a small word a trick perhaps",
         "snake": "starting_a_hyphen_delimited_sub_phrase_with_a_small_word_a_trick_perhaps",
-        "param": "starting-a-hyphen-delimited-sub-phrase-with-a-small-word-a-trick-perhaps"
+        "param": "starting-a-hyphen-delimited-sub-phrase-with-a-small-word-a-trick-perhaps",
+        "dot": "starting.a.hyphen.delimited.sub.phrase.with.a.small.word.a.trick.perhaps"
     },
     {
         "input": "Hyphen Delimited Sub-Phrase With a Small Word in Quotes - 'a Trick, Perhaps?'",
         "none": "hyphen delimited sub phrase with a small word in quotes a trick perhaps",
         "snake": "hyphen_delimited_sub_phrase_with_a_small_word_in_quotes_a_trick_perhaps",
-        "param": "hyphen-delimited-sub-phrase-with-a-small-word-in-quotes-a-trick-perhaps"
+        "param": "hyphen-delimited-sub-phrase-with-a-small-word-in-quotes-a-trick-perhaps",
+        "dot": "hyphen.delimited.sub.phrase.with.a.small.word.in.quotes.a.trick.perhaps"
     },
     {
         "input": "Snakes on a Plane - The TV Edit - The Famous Line",
         "none": "snakes on a plane the tv edit the famous line",
         "snake": "snakes_on_a_plane_the_tv_edit_the_famous_line",
-        "param": "snakes-on-a-plane-the-tv-edit-the-famous-line"
+        "param": "snakes-on-a-plane-the-tv-edit-the-famous-line",
+        "dot": "snakes.on.a.plane.the.tv.edit.the.famous.line"
     },
     {
         "input": "Starting an Em Dash Delimited Sub-Phrase With a Small Word — a Trick, Perhaps?",
         "none": "starting an em dash delimited sub phrase with a small word a trick perhaps",
         "snake": "starting_an_em_dash_delimited_sub_phrase_with_a_small_word_a_trick_perhaps",
-        "param": "starting-an-em-dash-delimited-sub-phrase-with-a-small-word-a-trick-perhaps"
+        "param": "starting-an-em-dash-delimited-sub-phrase-with-a-small-word-a-trick-perhaps",
+        "dot": "starting.an.em.dash.delimited.sub.phrase.with.a.small.word.a.trick.perhaps"
     },
     {
         "input": "Em Dash Delimited Sub-Phrase With a Small Word in Quotes — 'a Trick, Perhaps?'",
         "none": "em dash delimited sub phrase with a small word in quotes a trick perhaps",
         "snake": "em_dash_delimited_sub_phrase_with_a_small_word_in_quotes_a_trick_perhaps",
-        "param": "em-dash-delimited-sub-phrase-with-a-small-word-in-quotes-a-trick-perhaps"
+        "param": "em-dash-delimited-sub-phrase-with-a-small-word-in-quotes-a-trick-perhaps",
+        "dot": "em.dash.delimited.sub.phrase.with.a.small.word.in.quotes.a.trick.perhaps"
     },
     {
         "input": "Snakes on a Plane — The TV Edit — The Famous Line",
         "none": "snakes on a plane the tv edit the famous line",
         "snake": "snakes_on_a_plane_the_tv_edit_the_famous_line",
-        "param": "snakes-on-a-plane-the-tv-edit-the-famous-line"
+        "param": "snakes-on-a-plane-the-tv-edit-the-famous-line",
+        "dot": "snakes.on.a.plane.the.tv.edit.the.famous.line"
     },
     {
         "input": "\"Nothing to Be Afraid of?\"",
         "none": "nothing to be afraid of",
         "snake": "nothing_to_be_afraid_of",
-        "param": "nothing-to-be-afraid-of"
+        "param": "nothing-to-be-afraid-of",
+        "dot": "nothing.to.be.afraid.of"
     },
     {
         "input": "a thing",
         "none": "a thing",
         "snake": "a_thing",
-        "param": "a-thing"
+        "param": "a-thing",
+        "dot": "a.thing"
     },
     {
         "input": "2lmc Spool: 'gruber on OmniFocus and vapo(u)rware'",
         "none": "2lmc spool gruber on omni focus and vapo u rware",
         "snake": "2lmc_spool_gruber_on_omni_focus_and_vapo_u_rware",
-        "param": "2lmc-spool-gruber-on-omni-focus-and-vapo-u-rware"
+        "param": "2lmc-spool-gruber-on-omni-focus-and-vapo-u-rware",
+        "dot": "2lmc.spool.gruber.on.omni.focus.and.vapo.u.rware"
     },
     {
         "input": "reading between the lines of steve jobs’s ‘thoughts on music’",
         "none": "reading between the lines of steve jobs s thoughts on music",
         "snake": "reading_between_the_lines_of_steve_jobs_s_thoughts_on_music",
-        "param": "reading-between-the-lines-of-steve-jobs-s-thoughts-on-music"
+        "param": "reading-between-the-lines-of-steve-jobs-s-thoughts-on-music",
+        "dot": "reading.between.the.lines.of.steve.jobs.s.thoughts.on.music"
     },
     {
         "input": "seriously, ‘repair permissions’ is voodoo",
         "none": "seriously repair permissions is voodoo",
         "snake": "seriously_repair_permissions_is_voodoo",
-        "param": "seriously-repair-permissions-is-voodoo"
+        "param": "seriously-repair-permissions-is-voodoo",
+        "dot": "seriously.repair.permissions.is.voodoo"
     },
     {
         "input": "generalissimo francisco franco: still dead; kieren McCarthy: still a jackass",
         "none": "generalissimo francisco franco still dead kieren mc carthy still a jackass",
         "snake": "generalissimo_francisco_franco_still_dead_kieren_mc_carthy_still_a_jackass",
-        "param": "generalissimo-francisco-franco-still-dead-kieren-mc-carthy-still-a-jackass"
+        "param": "generalissimo-francisco-franco-still-dead-kieren-mc-carthy-still-a-jackass",
+        "dot": "generalissimo.francisco.franco.still.dead.kieren.mc.carthy.still.a.jackass"
     },
     {
         "input": "O'Reilly should be untouched",
         "none": "o reilly should be untouched",
         "snake": "o_reilly_should_be_untouched",
-        "param": "o-reilly-should-be-untouched"
+        "param": "o-reilly-should-be-untouched",
+        "dot": "o.reilly.should.be.untouched"
     },
     {
         "input": "Mr McTavish went to MacDonalds",
         "none": "mr mc tavish went to mac donalds",
         "snake": "mr_mc_tavish_went_to_mac_donalds",
-        "param": "mr-mc-tavish-went-to-mac-donalds"
+        "param": "mr-mc-tavish-went-to-mac-donalds",
+        "dot": "mr.mc.tavish.went.to.mac.donalds"
     },
     {
         "input": "this shouldn't\nget mangled",
         "none": "this shouldn t get mangled",
         "snake": "this_shouldn_t_get_mangled",
-        "param": "this-shouldn-t-get-mangled"
+        "param": "this-shouldn-t-get-mangled",
+        "dot": "this.shouldn.t.get.mangled"
     },
     {
         "input": "mac mc MAC MC machine",
         "none": "mac mc mac mc machine",
         "snake": "mac_mc_mac_mc_machine",
-        "param": "mac-mc-mac-mc-machine"
+        "param": "mac-mc-mac-mc-machine",
+        "dot": "mac.mc.mac.mc.machine"
     },
     {
         "input": "foo bar 5th st",
         "none": "foo bar 5th st",
         "snake": "foo_bar_5th_st",
-        "param": "foo-bar-5th-st"
+        "param": "foo-bar-5th-st",
+        "dot": "foo.bar.5th.st"
     },
     {
         "input": "hmm ... this is interesting...",
         "none": "hmm this is interesting",
         "snake": "hmm_this_is_interesting",
-        "param": "hmm-this-is-interesting"
+        "param": "hmm-this-is-interesting",
+        "dot": "hmm.this.is.interesting"
     }
 ]
