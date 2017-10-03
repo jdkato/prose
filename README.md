@@ -8,6 +8,8 @@
 $ go get github.com/jdkato/prose/...
 ```
 
+> **NOTE**: When using some vendoring tools, such as `govendor`, you may need to include the `github.com/jdkato/prose/internal/` package in addition to the core package(s). See [#14](https://github.com/jdkato/prose/issues/14) for more information.
+
 ## Usage
 
 ### Contents
@@ -77,7 +79,9 @@ func main() {
 
 ### Transforming ([GoDoc](https://godoc.org/github.com/jdkato/prose/transform))
 
-The `tranform` package currently only has one function: converting strings to title case. Unlike `strings.Title`, `tranform` adheres to common guidelines&mdash;including styles for both the [AP Stylebook](https://www.apstylebook.com/) and [The Chicago Manual of Style](http://www.chicagomanualofstyle.org/home.html). Additionally, you can easily add your own custom style by defining an [`IgnoreFunc`](https://godoc.org/github.com/jdkato/prose/transform#IgnoreFunc) callback.
+The `tranform` package implements a number of functions for changing the case of strings, including `Title`, `Snake`, `Pascal`, and `Camel`. 
+
+Additionally, unlike `strings.Title`, `tranform.Title` adheres to common guidelines&mdash;including styles for both the [AP Stylebook](https://www.apstylebook.com/) and [The Chicago Manual of Style](http://www.chicagomanualofstyle.org/home.html). You can also add your own custom style by defining an [`IgnoreFunc`](https://godoc.org/github.com/jdkato/prose/transform#IgnoreFunc) callback.
 
 Inspiration and test data taken from [python-titlecase](https://github.com/ppannuto/python-titlecase) and [to-title-case](https://github.com/gouch/to-title-case).
 
