@@ -44,3 +44,38 @@ func ExampleNewTitleConverter() {
 	fmt.Println(tc.Title("the last of the mohicans"))
 	// Output: The Last of the Mohicans
 }
+
+func ExampleSimple() {
+	fmt.Println(Simple("test string"))
+	// Output: test string
+}
+
+func ExampleDash() {
+	fmt.Println(Dash("test string"))
+	// Output: test-string
+}
+
+func ExampleSnake() {
+	fmt.Println(Snake("test string"))
+	// Output: test_string
+}
+
+func ExampleDot() {
+	fmt.Println(Dot("test string"))
+	// Output: test.string
+}
+
+func ExampleConstant() {
+	fmt.Println(Constant("test string"))
+	// Output: TEST_STRING
+}
+
+func ExamplePascal() {
+	fmt.Println(Pascal("test string"))
+	// Output: TestString
+}
+
+func ExampleCamel() {
+	fmt.Println(Camel("test string"))
+	// Output: testString
+}
