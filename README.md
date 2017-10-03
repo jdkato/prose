@@ -1,6 +1,8 @@
 # prose [![Travis CI](https://img.shields.io/travis/jdkato/prose.svg?style=flat-square)](https://travis-ci.org/jdkato/prose) [![AppVeyor branch](https://img.shields.io/appveyor/ci/jdkato/prose/master.svg?style=flat-square)](https://ci.appveyor.com/project/jdkato/prose/branch/master) [![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://godoc.org/github.com/jdkato/prose) [![Coveralls branch](https://img.shields.io/coveralls/jdkato/prose/master.svg?style=flat-square)](https://coveralls.io/github/jdkato/prose?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose?style=flat-square)](https://goreportcard.com/report/github.com/jdkato/prose) [![awesome](https://img.shields.io/badge/awesome-%E2%9C%93-ff69b4.svg?style=flat-square)](https://github.com/avelino/awesome-go#natural-language-processing)
 
-`prose` is Go library for text (primarily English at the moment) processing that supports tokenization, part-of-speech tagging, named-entity extraction, and more. The library's functionality is split into subpackages designed for modular use. See the [documentation](https://godoc.org/github.com/jdkato/prose) for more information.
+`prose` is Go library for text (primarily English at the moment) processing that supports tokenization, part-of-speech tagging, named-entity extraction, and more. The library's functionality is split into subpackages designed for modular use. 
+
+See the [GoDoc documentation](https://godoc.org/github.com/jdkato/prose) for more information.
 
 ## Install
 
