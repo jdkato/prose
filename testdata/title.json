@@ -108,28 +108,28 @@
         "expect": "We Keep NASA Capitalized"
     },
     {
-        "input":"leave Q&A unscathed",
-        "expect":"Leave Q&A Unscathed"
+        "input": "leave Q&A unscathed",
+        "expect": "Leave Q&A Unscathed"
     },
     {
-        "input":"your hair[cut] looks (nice)",
-        "expect":"Your Hair[cut] Looks (Nice)"
+        "input": "your hair[cut] looks (nice)",
+        "expect": "Your Hair[cut] Looks (Nice)"
     },
     {
-        "input":"keep that colo(u)r",
-        "expect":"Keep That Colo(u)r"
+        "input": "keep that colo(u)r",
+        "expect": "Keep That Colo(u)r"
     },
     {
-        "input":"capitalize hyphenated words on-demand",
-        "expect":"Capitalize Hyphenated Words On-Demand"
+        "input": "capitalize hyphenated words on-demand",
+        "expect": "Capitalize Hyphenated Words On-Demand"
     },
     {
-        "input":"take them on: special lower cases",
-        "expect":"Take Them On: Special Lower Cases"
+        "input": "take them on: special lower cases",
+        "expect": "Take Them On: Special Lower Cases"
     },
     {
-        "input":"Notes and observations regarding Apple’s announcements from ‘The Beat Goes On’ special event",
-        "expect":"Notes and Observations Regarding Apple’s Announcements From ‘The Beat Goes On’ Special Event"
+        "input": "Notes and observations regarding Apple’s announcements from ‘The Beat Goes On’ special event",
+        "expect": "Notes and Observations Regarding Apple’s Announcements From ‘The Beat Goes On’ Special Event"
     },
     {
         "input": "a title and/or string",
@@ -250,5 +250,13 @@
     {
         "input": "hmm ... this is interesting...",
         "expect": "Hmm ... This Is Interesting..."
+    },
+    {
+        "input": "a “[“New Entity”],” an [Institution] and [Institution].",
+        "expect": "A “[“New Entity”],” an [Institution] and [Institution]."
+    },
+    {
+        "input": "This Agreement, dated [DATE] (the “Effective Date”) for Design Services (the “Agreement”) is between [DESIGNER NAME], of [DESIGNER COMPANY](“Designer”), and [CLIENT NAME], of [CLIENT COMPANY] (“Client”) (together known as the “Parties”), for the performance of said Design Services and the production of Deliverables, as described in Schedule A, attached hereto and incorporated herein by reference.",
+        "expect": "This Agreement, Dated [DATE] (The “Effective Date”) for Design Services (The “Agreement”) Is Between [DESIGNER NAME], of [DESIGNER COMPANY](“Designer”), and [CLIENT NAME], of [CLIENT COMPANY] (“Client”) (Together Known as the “Parties”), for the Performance of Said Design Services and the Production of Deliverables, as Described in Schedule A, Attached Hereto and Incorporated Herein by Reference."
     }
 ]
