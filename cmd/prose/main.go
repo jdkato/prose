@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
-	"github.com/jdkato/prose/tag"
+	"github.com/jdkato/prose"
 	"github.com/urfave/cli"
 )
 
@@ -51,8 +50,14 @@ func main() {
 			}
 		}
 		if len(text) > 0 {
-			tagger := tag.NewPerceptronTagger()
-			tags := tagger.Tag(strings.Split(string(text), " "))
+			doc, _ := prose.NewDocument(
+				string(text),
+				prose.WithSegmentation(false),
+				prose.WithExtraction(false))
+			tags := []string{}
+			for _, tok := range doc.Tokens() {
+				tags = append(tags, tok.Tag)
+			}
 			b, jerr := json.Marshal(tags)
 			if jerr != nil {
 				return jerr
