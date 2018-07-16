@@ -62,8 +62,8 @@ func ModelFromDisk(path string) *Model {
 		tagger:    newPerceptronTagger()}
 }
 
-// Marshal saves a Model to the user-provided location.
-func (m *Model) Marshal(path string) error {
+// Write saves a Model to the user-provided location.
+func (m *Model) Write(path string) error {
 	err := os.MkdirAll(path, os.ModePerm)
 	// m.Tagger.model.Marshal(path)
 	checkError(m.extracter.model.marshal(path))

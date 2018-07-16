@@ -1,6 +1,7 @@
 package prose
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -13,7 +14,10 @@ func TestModelFromDisk(t *testing.T) {
 	assert.Equal(t, model.Name, "PRODUCT")
 
 	temp := filepath.Join(testdata, "temp")
-	model.Marshal(temp)
+	_ = os.RemoveAll(temp)
+
+	model.Write(temp)
 	model = ModelFromDisk(temp)
+
 	assert.Equal(t, model.Name, "temp")
 }
