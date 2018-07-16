@@ -152,7 +152,7 @@ import (
     "fmt"
     "strings"
 
-    "github.com/jdkato/prose"
+    "gopkg.in/jdkato/prose.v2"
 )
 
 func main() {
