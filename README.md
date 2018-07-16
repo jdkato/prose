@@ -2,7 +2,7 @@
 
 `prose` is a natural language processing library (English only, at the moment) in *pure Go*. It supports tokenization, segmentation, part-of-speech tagging, and named-entity extraction.
 
-You can can find a more detailed summary on the library's performance here: [Introducing `prose` v2.0.0: Bringing NLP *to Go*]().
+You can can find a more detailed summary on the library's performance here: [Introducing `prose` v2.0.0: Bringing NLP *to Go*](https://medium.com/@errata.ai/introducing-prose-v2-0-0-bringing-nlp-to-go-a1f0c121e4a5).
 
 ## Installation
 
@@ -252,4 +252,4 @@ func main() {
 }
 ```
 
-However, in an attempt to make this feature more useful, we've made it straightforward to train your own models for specific use cases. See [Prodigy + `prose`: Radically efficient machine teaching *in Go*]() for a tutorial.
+However, in an attempt to make this feature more useful, we've made it straightforward to train your own models for specific use cases. See [Prodigy + `prose`: Radically efficient machine teaching *in Go*](https://medium.com/@errata.ai/prodigy-prose-radically-efficient-machine-teaching-in-go-93389bf2d772) for a tutorial.
