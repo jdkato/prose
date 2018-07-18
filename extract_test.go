@@ -3,7 +3,6 @@ package prose
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"path/filepath"
@@ -47,7 +46,7 @@ func split(data []prodigyOuput) ([]EntityContext, []prodigyOuput) {
 
 	train, test := []EntityContext{}, []prodigyOuput{}
 	for i, entry := range data {
-		if i <= cutoff {
+		if i < cutoff {
 			train = append(train, EntityContext{
 				Text:   entry.Text,
 				Spans:  entry.Spans,
@@ -69,8 +68,7 @@ func TestNERProdigy(t *testing.T) {
 	}
 
 	train, test := split(readProdigy(file))
-	fmt.Printf("Train: %d; Test: %d\n", len(train), len(test))
-	correct := 0
+	correct := 0.0
 
 	model := ModelFromData("PRODUCT", UsingEntities(train))
 	for _, entry := range test {
@@ -88,7 +86,5 @@ func TestNERProdigy(t *testing.T) {
 			}
 		}
 	}
-	p := float64(correct) / 360
-	fmt.Printf("Correct (%%): %f\n", p)
-	assert.True(t, p >= 0.819444) // baseline
+	assert.True(t, correct/float64(len(test)) >= 0.819444) // baseline
 }

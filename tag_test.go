@@ -1,8 +1,10 @@
 package prose
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -48,6 +50,36 @@ func TestTagSimple(t *testing.T) {
 	assert.Equal(t, tags, []string{
 		"NNP", "NNP", ",", "CD", "NNS", "JJ", ",", "MD", "VB", "DT", "NN",
 		"IN", "DT", "JJ", "NN", "NNP", "CD", "."})
+}
+
+func TestTagTreebank(t *testing.T) {
+	tagger := newPerceptronTagger()
+	tokens, expected := []Token{}, []string{}
+
+	tags := readDataFile(filepath.Join(testdata, "treebank_tags.json"))
+	checkError(json.Unmarshal(tags, &expected))
+
+	treebank := readDataFile(filepath.Join(testdata, "treebank_tokens.json"))
+	checkError(json.Unmarshal(treebank, &tokens))
+
+	correct := 0.0
+	for i, tok := range tagger.tag(tokens) {
+		if expected[i] == tok.Tag {
+			correct++
+		}
+	}
+	assert.True(t, correct/float64(len(expected)) >= 0.957477) // baseline
+}
+
+func BenchmarkTag(b *testing.B) {
+	tagger := newPerceptronTagger()
+	tokens := []Token{}
+
+	treebank := readDataFile(filepath.Join(testdata, "treebank_tokens.json"))
+	checkError(json.Unmarshal(treebank, &tokens))
+	for n := 0; n < b.N; n++ {
+		_ = tagger.tag(tokens)
+	}
 }
 
 /* TODO: POS training API
