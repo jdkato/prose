@@ -6,6 +6,5 @@ before_install:
   - go get github.com/mattn/goveralls
 install:
   - make setup
-  - make build
 script:
   - bash scripts/cover.sh

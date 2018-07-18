@@ -10,6 +10,5 @@ install:
   - set PATH=%GOPATH%\bin;c:\go\bin;C:\Ruby22\bin;%cd%\bin;%PATH%
 build_script:
   - cmd: make setup
-  - cmd: make build-win
 test_script:
   - cmd: make ci
