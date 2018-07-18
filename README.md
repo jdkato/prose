@@ -84,7 +84,7 @@ doc, err := prose.NewDocument(
 
 ### Tokenizing
 
-`prose` includes a tokenizer capable of hanlding modern text, including the non-word character spans shown below.
+`prose` includes a tokenizer capable of handling modern text, including the non-word character spans shown below.
 
 | Type            | Example                           |
 |-----------------|-----------------------------------|
