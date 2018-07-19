@@ -14,7 +14,7 @@ build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 bench:
-	go test -bench=.
+	go test -bench=. -run=^$$ -benchmem
 
 test:
 	go test -v

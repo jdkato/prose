@@ -53,9 +53,9 @@ func TestTokenizationSimple(t *testing.T) {
 		"plain", "text", ",", "markup", "(", "Markdown", ",", "reStructuredText",
 		",", "AsciiDoc", ",", "and", "HTML", ")", ",", "and", "source",
 		"code", "comments", ".", "Vale", "does", "n't", "attempt", "to",
-		"offer", "a", "one", "-", "size", "-", "fits", "-", "all",
-		"collection", "of", "rules—instead", ",", "it", "strives", "to",
-		"make", "customization", "as", "easy", "as", "possible", "."}
+		"offer", "a", "one-size-fits-all", "collection", "of", "rules—instead",
+		",", "it", "strives", "to", "make", "customization", "as", "easy", "as",
+		"possible", "."}
 	assert.Equal(t, expected, getTokenText(doc))
 }
 
@@ -73,17 +73,13 @@ func TestTokenizationWeb(t *testing.T) {
             and children who showed postnatal catch-up growth (i.e. those who showed gains in
             weight or length between 0-2 yr by >0.67 SD score) had higher IGF-I levels than other
 			children (P=0.02; http://univ.edu.es/study.html) [20-22].`
-	expected := []string{
-		"Independent", "of", "current", "body", "composition", ",", "IGF", "-",
-		"I", "levels", "at", "5", "yr", "were", "significantly", "associated",
-		"with", "rate", "of", "weight", "gain", "between", "0-2", "yr", "(",
-		"beta", "=", "0.19", ";", "P", "<", "0.0005", ")", ";", "and",
-		"children", "who", "showed", "postnatal", "catch", "-", "up", "growth",
-		"(", "i.e.", "those", "who", "showed", "gains", "in", "weight", "or",
-		"length", "between", "0-2", "yr", "by", ">", "0.67", "SD", "score",
-		")", "had", "higher", "IGF", "-", "I", "levels", "than", "other", "children",
-		"(", "P", "=", "0.02", ";", "http://univ.edu.es/study.html", ")", "[",
-		"20-22", "]", "."}
+	expected := []string{"Independent", "of", "current", "body", "composition", ",", "IGF-I",
+		"levels", "at", "5", "yr", "were", "significantly", "associated", "with", "rate", "of",
+		"weight", "gain", "between", "0-2", "yr", "(", "beta=0.19", ";", "P&lt;0.0005", ")", ";",
+		"and", "children", "who", "showed", "postnatal", "catch-up", "growth", "(", "i.e.", "those",
+		"who", "showed", "gains", "in", "weight", "or", "length", "between", "0-2", "yr", "by",
+		">0.67", "SD", "score", ")", "had", "higher", "IGF-I", "levels", "than", "other", "children",
+		"(", "P=0.02", ";", "http://univ.edu.es/study.html", ")", "[", "20-22", "]", "."}
 	doc, _ := makeDoc(web)
 	assert.Equal(t, expected, getTokenText(doc))
 }
@@ -107,35 +103,25 @@ func TestTokenizationWebParagraph(t *testing.T) {
             weight or length between 0-2 yr by >0.67 SD score) had higher IGF-I levels than other
 			children (P=0.02; http://univ.edu.es/study.html) [20-22].`
 
-	expected := []string{
-		"Independent", "of", "current", "body", "composition", ",", "IGF", "-",
-		"I", "levels", "at", "5", "yr", "were", "significantly", "associated",
-		"with", "rate", "of", "weight", "gain", "between", "0-2", "yr", "(",
-		"beta", "=", "0.19", ";", "P", "<", "0.0005", ")", ";", "and",
-		"children", "who", "showed", "postnatal", "catch", "-", "up", "growth",
-		"(", "i.e.", "those", "who", "showed", "gains", "in", "weight", "or",
-		"length", "between", "0-2", "yr", "by", ">", "0.67", "SD", "score",
-		")", "had", "higher", "IGF", "-", "I", "levels", "than", "other", "children",
-		"(", "P", "=", "0.02", ";", "http://univ.edu.es/study.html", ")", "[",
-		"20-22", "]", ".", "Independent", "of", "current", "body", "composition", ",", "IGF", "-",
-		"I", "levels", "at", "5", "yr", "were", "significantly", "associated",
-		"with", "rate", "of", "weight", "gain", "between", "0-2", "yr", "(",
-		"beta", "=", "0.19", ";", "P", "<", "0.0005", ")", ";", "and",
-		"children", "who", "showed", "postnatal", "catch", "-", "up", "growth",
-		"(", "i.e.", "those", "who", "showed", "gains", "in", "weight", "or",
-		"length", "between", "0-2", "yr", "by", ">", "0.67", "SD", "score",
-		")", "had", "higher", "IGF", "-", "I", "levels", "than", "other", "children",
-		"(", "P", "=", "0.02", ";", "http://univ.edu.es/study.html", ")", "[",
-		"20-22", "]", ".", "Independent", "of", "current", "body", "composition", ",", "IGF", "-",
-		"I", "levels", "at", "5", "yr", "were", "significantly", "associated",
-		"with", "rate", "of", "weight", "gain", "between", "0-2", "yr", "(",
-		"beta", "=", "0.19", ";", "P", "<", "0.0005", ")", ";", "and",
-		"children", "who", "showed", "postnatal", "catch", "-", "up", "growth",
-		"(", "i.e.", "those", "who", "showed", "gains", "in", "weight", "or",
-		"length", "between", "0-2", "yr", "by", ">", "0.67", "SD", "score",
-		")", "had", "higher", "IGF", "-", "I", "levels", "than", "other", "children",
-		"(", "P", "=", "0.02", ";", "http://univ.edu.es/study.html", ")", "[",
-		"20-22", "]", "."}
+	expected := []string{"Independent", "of", "current", "body", "composition", ",", "IGF-I",
+		"levels", "at", "5", "yr", "were", "significantly", "associated", "with", "rate", "of",
+		"weight", "gain", "between", "0-2", "yr", "(", "beta=0.19", ";", "P&lt;0.0005", ")", ";",
+		"and", "children", "who", "showed", "postnatal", "catch-up", "growth", "(", "i.e.", "those",
+		"who", "showed", "gains", "in", "weight", "or", "length", "between", "0-2", "yr", "by",
+		">0.67", "SD", "score", ")", "had", "higher", "IGF-I", "levels", "than", "other", "children",
+		"(", "P=0.02", ";", "http://univ.edu.es/study.html", ")", "[", "20-22", "]", ".", "Independent", "of", "current", "body", "composition", ",", "IGF-I",
+		"levels", "at", "5", "yr", "were", "significantly", "associated", "with", "rate", "of",
+		"weight", "gain", "between", "0-2", "yr", "(", "beta=0.19", ";", "P&lt;0.0005", ")", ";",
+		"and", "children", "who", "showed", "postnatal", "catch-up", "growth", "(", "i.e.", "those",
+		"who", "showed", "gains", "in", "weight", "or", "length", "between", "0-2", "yr", "by",
+		">0.67", "SD", "score", ")", "had", "higher", "IGF-I", "levels", "than", "other", "children",
+		"(", "P=0.02", ";", "http://univ.edu.es/study.html", ")", "[", "20-22", "]", ".", "Independent", "of", "current", "body", "composition", ",", "IGF-I",
+		"levels", "at", "5", "yr", "were", "significantly", "associated", "with", "rate", "of",
+		"weight", "gain", "between", "0-2", "yr", "(", "beta=0.19", ";", "P&lt;0.0005", ")", ";",
+		"and", "children", "who", "showed", "postnatal", "catch-up", "growth", "(", "i.e.", "those",
+		"who", "showed", "gains", "in", "weight", "or", "length", "between", "0-2", "yr", "by",
+		">0.67", "SD", "score", ")", "had", "higher", "IGF-I", "levels", "than", "other", "children",
+		"(", "P=0.02", ";", "http://univ.edu.es/study.html", ")", "[", "20-22", "]", "."}
 
 	doc, _ := makeDoc(web)
 	assert.Equal(t, expected, getTokenText(doc))
@@ -144,6 +130,12 @@ func TestTokenizationWebParagraph(t *testing.T) {
 func TestTokenizationTwitter(t *testing.T) {
 	doc, _ := makeDoc("@twitter, what time does it start :-)")
 	expected := []string{"@twitter", ",", "what", "time", "does", "it", "start", ":-)"}
+	assert.Equal(t, expected, getTokenText(doc))
+
+	doc, _ = makeDoc("Mr. James plays basketball in the N.B.A. -- do you?")
+	expected = []string{
+		"Mr.", "James", "plays", "basketball", "in", "the", "N.B.A.", "--",
+		"do", "you", "?"}
 	assert.Equal(t, expected, getTokenText(doc))
 }
 

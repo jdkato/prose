@@ -234,7 +234,7 @@ func assignLabels(tokens []Token, entity EntityContext) []string {
 }
 
 func makeCorpus(data []EntityContext, tagger *perceptronTagger) featureSet {
-	tokenizer := newTreebankWordTokenizer()
+	tokenizer := newIterTokenizer()
 	corpus := featureSet{}
 	for _, entry := range data {
 		tokens := tagger.tag(tokenizer.tokenize(entry.Text))

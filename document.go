@@ -1,9 +1,5 @@
 package prose
 
-import (
-	"strings"
-)
-
 // A DocOpt represents a setting that changes the document creation process.
 //
 // For example, it might disable named-entity extraction:
@@ -111,20 +107,8 @@ func NewDocument(text string, opts ...DocOpt) (*Document, error) {
 		doc.sentences = segmenter.segment(text)
 	}
 	if base.Tokenize || base.Tag || base.Extract {
-		tokenizer := newTreebankWordTokenizer()
-		if base.Segment {
-			for _, sent := range doc.sentences {
-				doc.tokens = append(
-					doc.tokens,
-					tokenizer.tokenize(sent.Text)...)
-			}
-		} else {
-			for _, line := range strings.Split(doc.Text, "\n") {
-				doc.tokens = append(
-					doc.tokens,
-					tokenizer.tokenize(line)...)
-			}
-		}
+		tokenizer := newIterTokenizer()
+		doc.tokens = append(doc.tokens, tokenizer.tokenize(text)...)
 	}
 	if base.Tag || base.Extract {
 		doc.tokens = doc.Model.tagger.tag(doc.tokens)

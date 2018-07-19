@@ -1,179 +1,152 @@
 package prose
 
 import (
-	"html"
 	"regexp"
-	"strconv"
 	"strings"
-
-	"github.com/mingrammer/commonregex"
-	"github.com/willf/pad"
 )
 
-// TreebankWordTokenizer splits a sentence into words.
-//
-// This implementation is a port of the Sed script written by Robert McIntyre,
-// which is available at https://gist.github.com/jdkato/fc8b8c4266dba22d45ac85042ae53b1e.
-type treebankWordTokenizer struct {
+// iterTokenizer splits a sentence into words.
+type iterTokenizer struct {
 }
 
-// newTreebankWordTokenizer is a TreebankWordTokenizer constructor.
-func newTreebankWordTokenizer() *treebankWordTokenizer {
-	return new(treebankWordTokenizer)
+// newIterTokenizer is a iterTokenizer constructor.
+func newIterTokenizer() *iterTokenizer {
+	return new(iterTokenizer)
 }
 
+func splitWhitespace(r rune) bool {
+	return r == ' ' || r == '\n' || r == '\t' || r == '\r'
+}
+
+func addToken(s string, toks []Token) []Token {
+	if s != "" {
+		toks = append(toks, Token{Text: s})
+	}
+	return toks
+}
+
+// tokenize splits a sentence into a slice of words.
+func (t *iterTokenizer) tokenize(text string) []Token {
+	tokens := []Token{}
+
+	clean := sanitizer.Replace(text)
+	for _, token := range strings.FieldsFunc(clean, splitWhitespace) {
+		lower := strings.ToLower(token)
+		if _, found := emoticons[token]; found {
+			// We've found an emoticon -- so, we add it as a token without any
+			// further processing.
+			tokens = append(tokens, Token{Text: token})
+		} else {
+			for hasAnyPrefix(token, prefixes) {
+				// Remove prefixes -- e.g., $100 -> [$, 100].
+				tokens = addToken(string(token[0]), tokens)
+				token = token[1:]
+			}
+
+			if idx := hasAnyIndex(lower, []string{"'ll", "'s", "'re", "'m"}); idx > -1 {
+				// Handle "they'll", "I'll", etc.
+				//
+				// they'll -> [they, 'll].
+				tokens = addToken(token[:idx], tokens)
+				token = token[idx:]
+			} else if idx := hasAnyIndex(lower, []string{"n't"}); idx > -1 {
+				// Handle "Don't", "won't", etc.
+				//
+				// don't -> [do, n't].
+				tokens = addToken(token[:idx], tokens)
+				token = token[idx:]
+			}
+
+			if internalRE.MatchString(token) {
+				// We've found an instance of non-terminating punctuation --
+				// e.g., "N.B.A." or "Mr."
+				tokens = addToken(token, tokens)
+			} else {
+				tokens = addToken(strings.TrimRight(token, suffcset), tokens)
+				found := []string{}
+				for hasAnySuffix(token, suffixes) {
+					// Remove suffixes -- e.g., Well) -> [Well, )].
+					found = append([]string{string(token[len(token)-1])}, found...)
+					token = token[:len(token)-1]
+				}
+				for _, token := range found {
+					tokens = addToken(token, tokens)
+				}
+
+			}
+		}
+	}
+
+	return tokens
+}
+
+var internalRE = regexp.MustCompile(`(?:[A-Za-z]\.){2,}$|^[A-Z][a-z]{1,3}\.$`)
 var sanitizer = strings.NewReplacer(
 	"\u201c", `"`,
 	"\u201d", `"`,
 	"\u2018", "'",
 	"\u2019", "'",
-	"&rsquo;", "'",
-	"\r\n", "\n",
-	"\r", "\n")
-
-var misTok = regexp.MustCompile(`\b[a-z]{3,}\.$`)
-
-var startingQuotes = map[string]*regexp.Regexp{
-	"$1 `` ": regexp.MustCompile(`'([ (\[{<])"`),
-	"``":     regexp.MustCompile(`^(")`),
-	" ``":    regexp.MustCompile(`( ")`),
+	"&rsquo;", "'")
+var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "'"}
+var prefixes = []string{"$", "(", `"`, "["}
+var suffcset = strings.Join(suffixes, "")
+var emoticons = map[string]int{
+	"(-8":         1,
+	"(-;":         1,
+	"(-_-)":       1,
+	"(._.)":       1,
+	"(:":          1,
+	"(=":          1,
+	"(o:":         1,
+	"(¬_¬)":       1,
+	"(ಠ_ಠ)":       1,
+	"(╯°□°）╯︵┻━┻": 1,
+	"-__-":     1,
+	"8-)":      1,
+	"8-D":      1,
+	"8D":       1,
+	":(":       1,
+	":((":      1,
+	":(((":     1,
+	":()":      1,
+	":)))":     1,
+	":-)":      1,
+	":-))":     1,
+	":-)))":    1,
+	":-*":      1,
+	":-/":      1,
+	":-X":      1,
+	":-]":      1,
+	":-o":      1,
+	":-p":      1,
+	":-x":      1,
+	":-|":      1,
+	":-}":      1,
+	":0":       1,
+	":3":       1,
+	":P":       1,
+	":]":       1,
+	":`(":      1,
+	":`)":      1,
+	":`-(":     1,
+	":o":       1,
+	":o)":      1,
+	"=(":       1,
+	"=)":       1,
+	"=D":       1,
+	"=|":       1,
+	"@_@":      1,
+	"O.o":      1,
+	"O_o":      1,
+	"V_V":      1,
+	"XDD":      1,
+	"[-:":      1,
+	"^___^":    1,
+	"o_0":      1,
+	"o_O":      1,
+	"o_o":      1,
+	"v_v":      1,
+	"xD":       1,
+	"xDD":      1,
+	"¯\\(ツ)/¯": 1,
 }
-var startingQuotes2 = map[string]*regexp.Regexp{
-	" $1 ": regexp.MustCompile("(``)"),
-}
-var punctuation = map[string]*regexp.Regexp{
-	// NOTE: `-` was added ad-hoc -- see tag.go:183
-	" $1 $2":   regexp.MustCompile(`([=:,-])([^\d])`),
-	" ... ":    regexp.MustCompile(`\.\.\.`),
-	"$1 $2$3 ": regexp.MustCompile(`([^\.])(\.)([\]\)}>"\']*)\s*$`),
-	"$1 ' ":    regexp.MustCompile(`([^'])' `),
-}
-var punctuation2 = []*regexp.Regexp{
-	regexp.MustCompile(`([:,])$`),
-	regexp.MustCompile(`([;#$%&?!])`),
-}
-var brackets = map[string]*regexp.Regexp{
-	" $1 ": regexp.MustCompile(`([\]\[\(\)\{\}\<\>])`),
-	" -- ": regexp.MustCompile(`--`),
-}
-var endingQuotes = map[string]*regexp.Regexp{
-	" '' ": regexp.MustCompile(`"`),
-}
-var endingQuotes2 = []*regexp.Regexp{
-	regexp.MustCompile(`'(\S)(\'\')'`),
-	regexp.MustCompile(`([^' ])('[sS]|'[mM]|'[dD]|') `),
-	regexp.MustCompile(`([^' ])('ll|'LL|'re|'RE|'ve|'VE|n't|N'T) `),
-}
-var contractions = []*regexp.Regexp{
-	regexp.MustCompile(`(?i)\b(can)(not)\b`),
-	regexp.MustCompile(`(?i)\b(d)('ye)\b`),
-	regexp.MustCompile(`(?i)\b(gim)(me)\b`),
-	regexp.MustCompile(`(?i)\b(gon)(na)\b`),
-	regexp.MustCompile(`(?i)\b(got)(ta)\b`),
-	regexp.MustCompile(`(?i)\b(lem)(me)\b`),
-	regexp.MustCompile(`(?i)\b(mor)('n)\b`),
-	regexp.MustCompile(`(?i)\b(wan)(na) `),
-	regexp.MustCompile(`(?i) ('t)(is)\b`),
-	regexp.MustCompile(`(?i) ('t)(was)\b`),
-}
-var newlines = regexp.MustCompile(`(?:\n|\n\r|\r)`)
-var spaces = regexp.MustCompile(`(?: {2,})`)
-
-func prep(text string) (string, *strings.Replacer) {
-	replacements := []string{}
-	for i, link := range commonregex.Links(text) {
-		key := pad.Right("URI"+strconv.Itoa(i), len(link), "X")
-		if !stringInSlice(link, replacements) {
-			text = strings.Replace(text, link, key, -1)
-		}
-		replacements = append(replacements, []string{key, link}...)
-	}
-	for i, emote := range emoticonRE.FindAllString(text, -1) {
-		key := pad.Right("E"+strconv.Itoa(i), len(emote), "X")
-		if !stringInSlice(emote, replacements) {
-			text = strings.Replace(text, emote, key, -1)
-		}
-		replacements = append(replacements, []string{key, emote}...)
-	}
-	clean := html.UnescapeString(sanitizer.Replace(text))
-	return clean, strings.NewReplacer(replacements...)
-}
-
-// tokenize splits a sentence into a slice of words.
-//
-// This tokenizer performs the following steps: (1) split on contractions (e.g.,
-// "don't" -> [do n't]), (2) split on non-terminating punctuation, (3) split on
-// single quotes when followed by whitespace, and (4) split on periods that
-// appear at the end of lines.
-func (t treebankWordTokenizer) tokenize(text string) []Token {
-	clean, replacements := prep(text)
-
-	for substitution, r := range startingQuotes {
-		clean = r.ReplaceAllString(clean, substitution)
-	}
-
-	for substitution, r := range startingQuotes2 {
-		clean = r.ReplaceAllString(clean, substitution)
-	}
-
-	for substitution, r := range punctuation {
-		clean = r.ReplaceAllString(clean, substitution)
-	}
-
-	for _, r := range punctuation2 {
-		clean = r.ReplaceAllString(clean, " $1 ")
-	}
-
-	for substitution, r := range brackets {
-		clean = r.ReplaceAllString(clean, substitution)
-	}
-
-	clean = " " + clean + " "
-
-	for substitution, r := range endingQuotes {
-		clean = r.ReplaceAllString(clean, substitution)
-	}
-
-	for _, r := range endingQuotes2 {
-		clean = r.ReplaceAllString(clean, "$1 $2 ")
-	}
-
-	for _, r := range contractions {
-		clean = r.ReplaceAllString(clean, " $1 $2 ")
-	}
-
-	clean = newlines.ReplaceAllString(clean, " ")
-	clean = strings.TrimSpace(spaces.ReplaceAllString(clean, " "))
-	clean = replacements.Replace(clean)
-
-	tokens := []Token{}
-	for _, tok := range strings.SplitAfter(clean, " ") {
-		tok = strings.TrimSpace(tok)
-		if tok == "" {
-			continue
-		} else if misTok.MatchString(tok) {
-			tokens = append(tokens, Token{Text: strings.Trim(tok, ".")})
-			tokens = append(tokens, Token{Text: "."})
-		} else {
-			tokens = append(tokens, Token{Text: strings.TrimSpace(tok)})
-		}
-	}
-	return tokens
-}
-
-var emoticons = []string{
-	`:>`, `._.`, `[-:`, `:X`, `(-_-)`, `(^_^)`, `:-}`, `ಠ_ಠ`, `¯\\(ツ)/¯`, `;)`,
-	`O.o`, `:-(`, `(╯°□°）╯︵┻━┻`, `:*`, `(-8`, `^__^`, `8-D`, `O.O`, `(-;`,
-	`:-D`, `=D`, `v.v`, `:o)`, `=/`, `-__-`, `;D`, `@_@`, `8)`, `:o`, `</3`,
-	`:-x`, `O_O`, `:-))`, `(-:`, `(._.)`, `V.V`, `:-|`, `0.o`, `:->`, `:p`,
-	`8-)`, `:-0`, `xDD`, `>.>`, `:()`, `:1`, `<33`, `)-:`, `:-p`, `0.0`,
-	":`-(", `<3`, `><(((*>`, `[:`, `:-*`, `-_-`, `=)`, `;_;`, `:((`, `ಠ︵ಠ`,
-	`:P`, `:(`, `>:(`, `o.o`, `xD`, `):`, `(=`, `:}`, `:3`, `;-D`, `(¬_¬)`,
-	`:-(((`, `(ಠ_ಠ)`, `:)`, `:0`, `:-((`, `v_v`, `:-)`, `o_o`, `:))`, `(:`,
-	`0_0`, `:)))`, `0_o`, `o_O`, `o.O`, `:(((`, `(*_*)`, `O_o`, ":`-)", `:]`,
-	`;-)`, `^___^`, `(>_<)`, `(o:`, `:-P`, `:-)))`, `:D`, `o_0`, `<333`, `XDD`,
-	`=3`, `:-o`, `:-3`, `=(`, `:O`, ":`)", `o.0`, `:-X`, `:|`, `:-]`, `>:o`,
-	`V_V`, `(;`, `8D`, `XD`, `:-/`, `^_^`, ":`(", `:-O`, `<.<`, `:/`, `>.<`,
-	`:x`, `=|`}
-
-var emoticonRE = regexp.MustCompile(`:>|\._\.|\[-:|:X|\(-_-\)|\(\^_\^\)|:-\}|ಠ_ಠ|¯\\\\\(ツ\)/¯|;\)|O\.o|:-\(|\(╯°□°）╯︵┻━┻|:\*|\(-8|\^__\^|8-D|O\.O|\(-;|:-D|=D|v\.v|:o\)|=/|-__-|;D|@_@|8\)|:o|</3|:-x|O_O|:-\)\)|\(-:|\(\._\.\)|V\.V|:-\||0\.o|:->|:p|8-\)|:-0|xDD|>\.>|:\(\)|:1|<33|\)-:|:-p|0\.0|<3|><\(\(\(\*>|\[:|:-\*|-_-|=\)|;_;|:\(\(|ಠ︵ಠ|:P|:\(|>:\(|o\.o|xD|\):|\(=|:\}|:3|;-D|\(¬_¬\)|:-\(\(\(|\(ಠ_ಠ\)|:\)|:0|:-\(\(|v_v|:-\)|o_o|:\)\)|\(:|0_0|:\)\)\)|0_o|o_O|o\.O|:\(\(\(|\(\*_\*\)|O_o|:\]|;-\)|\^___\^|\(>_<\)|\(o:|:-P|:-\)\)\)|:D|o_0|<333|XDD|=3|:-o|:-3|=\(|:O|o\.0|:-X|:\||:-\]|>:o|V_V|\(;|8D|XD|:-/|\^_\^|:-O|<\.<|:/|>\.<|:x|=\|`)

@@ -185,7 +185,7 @@ func (pt *perceptronTagger) tag(tokens []Token) []Token {
 	for i, word := range clean {
 		if word == "-" {
 			tag = "-"
-		} else if stringInSlice(word, emoticons) {
+		} else if _, ok := emoticons[word]; ok {
 			tag = "SYM"
 		} else if commonregex.LinkRegex.MatchString(word) ||
 			commonregex.EmailRegex.MatchString(word) ||

@@ -47,9 +47,9 @@ func TestTagSimple(t *testing.T) {
 	for _, tok := range doc.Tokens() {
 		tags = append(tags, tok.Tag)
 	}
-	assert.Equal(t, tags, []string{
+	assert.Equal(t, []string{
 		"NNP", "NNP", ",", "CD", "NNS", "JJ", ",", "MD", "VB", "DT", "NN",
-		"IN", "DT", "JJ", "NN", "NNP", "CD", "."})
+		"IN", "DT", "JJ", "NN", "NNP", "CD", "."}, tags)
 }
 
 func TestTagTreebank(t *testing.T) {
