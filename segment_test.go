@@ -50,7 +50,7 @@ func TestEnglishSmartQuotes(t *testing.T) {
 
 	expected := []string{
 		"Here is a quote, ”a smart one.”",
-		" Will this break properly?",
+		"Will this break properly?",
 	}
 
 	if len(actual) != len(expected) {
@@ -71,7 +71,7 @@ func TestEnglishCustomAbbrev(t *testing.T) {
 
 	expected := []string{
 		"One custom abbreviation is F.B.I.",
-		"  The abbreviation, F.B.I. should properly break.",
+		"The abbreviation, F.B.I. should properly break.",
 	}
 
 	if len(actual) != len(expected) {
@@ -90,7 +90,7 @@ func TestEnglishCustomAbbrev(t *testing.T) {
 
 	expected = []string{
 		"An abbreviation near the end of a G.D. sentence.",
-		"  J.G. Wentworth was cool.",
+		"J.G. Wentworth was cool.",
 	}
 
 	if len(actual) != len(expected) {
@@ -111,8 +111,8 @@ func TestEnglishSupervisedAbbrev(t *testing.T) {
 
 	expected := []string{
 		"I am a Sgt. in the army.",
-		"  I am a No. 1 student.",
-		"  The Gov. of Michigan is a dick.",
+		"I am a No. 1 student.",
+		"The Gov. of Michigan is a dick.",
 	}
 
 	if len(actual) != len(expected) {
@@ -133,7 +133,7 @@ func TestEnglishSemicolon(t *testing.T) {
 
 	expected := []string{
 		"I am here; you are over there.",
-		"  Will the tokenizer output two complete sentences?",
+		"Will the tokenizer output two complete sentences?",
 	}
 
 	if len(actual) != len(expected) {
@@ -180,7 +180,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "Hello World. My name is Jonas."
 	expected = []string{
 		"Hello World.",
-		" My name is Jonas.",
+		"My name is Jonas.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -188,7 +188,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "What is your name? My name is Jonas."
 	expected = []string{
 		"What is your name?",
-		" My name is Jonas.",
+		"My name is Jonas.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -196,7 +196,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "There it is! I found it."
 	expected = []string{
 		"There it is!",
-		" I found it.",
+		"I found it.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -232,7 +232,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "Let's ask Jane and co. They should know."
 	expected = []string{
 		"Let's ask Jane and co.",
-		" They should know.",
+		"They should know.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -240,7 +240,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "They closed the deal with Pitt, Briggs & Co. It closed yesterday."
 	expected = []string{
 		"They closed the deal with Pitt, Briggs & Co.",
-		" It closed yesterday.",
+		"It closed yesterday.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -325,7 +325,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "She has $100.00. It is in her bag."
 	expected = []string{
 		"She has $100.00.",
-		" It is in her bag.",
+		"It is in her bag.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -340,7 +340,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "Her email is Jane.Doe@example.com. I sent her an email."
 	expected = []string{
 		"Her email is Jane.Doe@example.com.",
-		" I sent her an email.",
+		"I sent her an email.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -348,7 +348,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "The site is: https://www.example.50.com/new-site/awesome_content.html. Please check it out."
 	expected = []string{
 		"The site is: https://www.example.50.com/new-site/awesome_content.html.",
-		" Please check it out.",
+		"Please check it out.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -370,7 +370,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "She turned to him, \"This is great.\" She held the book out to show him."
 	expected = []string{
 		"She turned to him, \"This is great.\"",
-		" She held the book out to show him.",
+		"She held the book out to show him.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -378,7 +378,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "Hello!! Long time no see."
 	expected = []string{
 		"Hello!!",
-		" Long time no see.",
+		"Long time no see.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -386,7 +386,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "Hello?? Who is there?"
 	expected = []string{
 		"Hello??",
-		" Who is there?",
+		"Who is there?",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -394,7 +394,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "Hello!? Is that you?"
 	expected = []string{
 		"Hello!?",
-		" Is that you?",
+		"Is that you?",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -402,7 +402,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "Hello?! Is that you?"
 	expected = []string{
 		"Hello?!",
-		" Is that you?",
+		"Is that you?",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -440,7 +440,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "We make a good team, you and I. Did you see Albert I. Jones yesterday?"
 	expected = []string{
 		"We make a good team, you and I.",
-		" Did you see Albert I. Jones yesterday?",
+		"Did you see Albert I. Jones yesterday?",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -462,7 +462,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "If words are left off at the end of a sentence, and that is all that is omitted, indicate the omission with ellipsis marks (preceded and followed by a space) and then indicate the end of the sentence with a period . . . . Next sentence."
 	expected = []string{
 		"If words are left off at the end of a sentence, and that is all that is omitted, indicate the omission with ellipsis marks (preceded and followed by a space) and then indicate the end of the sentence with a period . . . .",
-		" Next sentence.",
+		"Next sentence.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -470,7 +470,7 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "I never meant that.... She left the store."
 	expected = []string{
 		"I never meant that....",
-		" She left the store.",
+		"She left the store.",
 	}
 	compareSentences(t, actualText, expected, test)
 
@@ -485,7 +485,18 @@ func TestGoldenRules(t *testing.T) {
 	actualText = "One further habit which was somewhat weakened . . . was that of combining words into self-interpreting compounds. . . . The practice was not abandoned. . . ."
 	expected = []string{
 		"One further habit which was somewhat weakened . . . was that of combining words into self-interpreting compounds. . . .",
-		" The practice was not abandoned. . . .",
+		"The practice was not abandoned. . . .",
 	}
 	compareSentences(t, actualText, expected, test)
+
+	/* FIXME:
+	test = "52. No whitespace in between sentences"
+	actualText = "Hello world.Today is Tuesday.Mr. Smith went to the store and bought 1,000.That is a lot."
+	expected = []string{
+		"Hello world.",
+		"Today is Tuesday.",
+		"Mr. Smith went to the store and bought 1,000.",
+		"That is a lot.",
+	}
+	compareSentences(t, actualText, expected, test)*/
 }
