@@ -135,7 +135,7 @@ func main() {
 | Name                | Language | License   | GRS (English)  | GRS (Other) | Speed†   |
 |---------------------|----------|-----------|----------------|-------------|----------|
 | Pragmatic Segmenter | Ruby     | MIT       | 98.08% (51/52) | 100.00%     | 3.84 s   |
-| prose               | Go       | MIT       | 75.00% (39/52) | N/A         | 0.96 s   |
+| prose               | Go       | MIT       | 73.07% (38/52) | N/A         | 0.96 s   |
 | TactfulTokenizer    | Ruby     | GNU GPLv3 | 65.38% (34/52) | 48.57%      | 46.32 s  |
 | OpenNLP             | Java     | APLv2     | 59.62% (31/52) | 45.71%      | 1.27 s   |
 | Standford CoreNLP   | Java     | GNU GPLv3 | 59.62% (31/52) | 31.43%      | 0.92 s   |
