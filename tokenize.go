@@ -43,7 +43,8 @@ func (t *iterTokenizer) tokenize(text string) []Token {
 				token = token[1:]
 			}
 
-			if idx := hasAnyIndex(lower, []string{"'ll", "'s", "'re", "'m"}); idx > -1 {
+			if idx := hasAnyIndex(lower,
+				[]string{"'ll", "'s", "'re", "'m", "'ve", "'d"}); idx > -1 {
 				// Handle "they'll", "I'll", etc.
 				//
 				// they'll -> [they, 'll].
