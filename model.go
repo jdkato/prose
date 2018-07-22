@@ -114,7 +114,7 @@ func defaultModel(tagging, classifying bool) *Model {
 	var tagger *perceptronTagger
 	var classifier *entityExtracter
 
-	if tagging {
+	if tagging || classifying {
 		tagger = newPerceptronTagger()
 	}
 	if classifying {
