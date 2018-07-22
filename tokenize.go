@@ -128,7 +128,6 @@ var sanitizer = strings.NewReplacer(
 	"&rsquo;", "'")
 var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "'"}
 var prefixes = []string{"$", "(", `"`, "["}
-var suffcset = strings.Join(suffixes, "")
 var emoticons = map[string]int{
 	"(-8":         1,
 	"(-;":         1,
