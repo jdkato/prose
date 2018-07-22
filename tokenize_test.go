@@ -132,9 +132,9 @@ func TestTokenizationTwitter(t *testing.T) {
 	expected := []string{"@twitter", ",", "what", "time", "does", "it", "start", ":-)"}
 	assert.Equal(t, expected, getTokenText(doc))
 
-	doc, _ = makeDoc("Mr. James plays basketball in the N.B.A. -- do you?")
+	doc, _ = makeDoc("Mr. James plays basketball in the N.B.A., do you?")
 	expected = []string{
-		"Mr.", "James", "plays", "basketball", "in", "the", "N.B.A.", "--",
+		"Mr.", "James", "plays", "basketball", "in", "the", "N.B.A.", ",",
 		"do", "you", "?"}
 	assert.Equal(t, expected, getTokenText(doc))
 }
