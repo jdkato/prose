@@ -209,7 +209,7 @@ func extractFeatures(tokens []*Token, history []string) []feature {
 	return features
 }
 
-func assignLabels(tokens []*Token, entity EntityContext) []string {
+func assignLabels(tokens []*Token, entity *EntityContext) []string {
 	history := []string{}
 	for range tokens {
 		history = append(history, "O")
@@ -236,7 +236,8 @@ func assignLabels(tokens []*Token, entity EntityContext) []string {
 func makeCorpus(data []EntityContext, tagger *perceptronTagger) featureSet {
 	tokenizer := newIterTokenizer()
 	corpus := featureSet{}
-	for _, entry := range data {
+	for i := range data {
+		entry := &data[i]
 		tokens := tagger.tag(tokenizer.tokenize(entry.Text))
 		history := assignLabels(tokens, entry)
 		for _, element := range extractFeatures(tokens, history) {
