@@ -45,14 +45,14 @@ func split(data []prodigyOuput) ([]EntityContext, []prodigyOuput) {
 	cutoff := int(float64(len(data)) * 0.8)
 
 	train, test := []EntityContext{}, []prodigyOuput{}
-	for i, entry := range data {
+	for i := range data {
 		if i < cutoff {
 			train = append(train, EntityContext{
-				Text:   entry.Text,
-				Spans:  entry.Spans,
-				Accept: entry.Answer == "accept"})
+				Text:   data[i].Text,
+				Spans:  data[i].Spans,
+				Accept: data[i].Answer == "accept"})
 		} else {
-			test = append(test, entry)
+			test = append(test, data[i])
 		}
 	}
 
