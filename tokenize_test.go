@@ -146,3 +146,11 @@ func BenchmarkTokenization(b *testing.B) {
 		makeDoc(text)
 	}
 }
+
+func BenchmarkTokenizationSimple(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		for _, s := range getWordBenchData() {
+			makeDoc(s)
+		}
+	}
+}
