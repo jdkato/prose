@@ -166,23 +166,18 @@ func newTrainedPerceptronTagger(model *averagedPerceptron) *perceptronTagger {
 }*/
 
 // tag takes a slice of words and returns a slice of tagged tokens.
-func (pt *perceptronTagger) tag(tokens []Token) []Token {
-	var clean []string
-	var tagged []Token
+func (pt *perceptronTagger) tag(tokens []*Token) []*Token {
 	var tag string
 	var found bool
 
 	p1, p2 := "-START-", "-START2-"
 	context := []string{p1, p2}
 	for _, t := range tokens {
-		if t.Text == "" {
-			continue
-		}
 		context = append(context, normalize(t.Text))
-		clean = append(clean, t.Text)
 	}
 	context = append(context, []string{"-END-", "-END2-"}...)
-	for i, word := range clean {
+	for i := 0; i < len(tokens); i++ {
+		word := tokens[i].Text
 		if word == "-" {
 			tag = "-"
 		} else if _, ok := emoticons[word]; ok {
@@ -198,12 +193,12 @@ func (pt *perceptronTagger) tag(tokens []Token) []Token {
 		} else if tag, found = pt.model.tagMap[word]; !found {
 			tag = pt.model.predict(featurize(i, context, word, p1, p2))
 		}
-		tagged = append(tagged, Token{Text: word, Tag: tag})
+		tokens[i].Tag = tag
 		p2 = p1
 		p1 = tag
 	}
 
-	return tagged
+	return tokens
 }
 
 func (pt *perceptronTagger) makeTagMap(sentences TupleSlice) {

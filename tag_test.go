@@ -54,7 +54,7 @@ func TestTagSimple(t *testing.T) {
 
 func TestTagTreebank(t *testing.T) {
 	tagger := newPerceptronTagger()
-	tokens, expected := []Token{}, []string{}
+	tokens, expected := []*Token{}, []string{}
 
 	tags := readDataFile(filepath.Join(testdata, "treebank_tags.json"))
 	checkError(json.Unmarshal(tags, &expected))
@@ -73,7 +73,7 @@ func TestTagTreebank(t *testing.T) {
 
 func BenchmarkTag(b *testing.B) {
 	tagger := newPerceptronTagger()
-	tokens := []Token{}
+	tokens := []*Token{}
 
 	treebank := readDataFile(filepath.Join(testdata, "treebank_tokens.json"))
 	checkError(json.Unmarshal(treebank, &tokens))

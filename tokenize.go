@@ -16,9 +16,9 @@ func newIterTokenizer() *iterTokenizer {
 	return new(iterTokenizer)
 }
 
-func addToken(s string, toks []Token) []Token {
+func addToken(s string, toks []*Token) []*Token {
 	if strings.TrimSpace(s) != "" {
-		toks = append(toks, Token{Text: s})
+		toks = append(toks, &Token{Text: s})
 	}
 	return toks
 }
@@ -28,16 +28,16 @@ func isSpecial(token string) bool {
 	return found || internalRE.MatchString(token)
 }
 
-func doSplit(token string) []Token {
-	tokens := []Token{}
-	suffs := []Token{}
+func doSplit(token string) []*Token {
+	tokens := []*Token{}
+	suffs := []*Token{}
 
 	last := 0
 	for token != "" && utf8.RuneCountInString(token) != last {
 		if isSpecial(token) {
 			// We've found a special case (e.g., an emoticon) -- so, we add it as a token without
 			// any further processing.
-			tokens = append(tokens, Token{Text: token})
+			tokens = addToken(token, tokens)
 			break
 		}
 		last = utf8.RuneCountInString(token)
@@ -60,7 +60,7 @@ func doSplit(token string) []Token {
 			token = token[idx:]
 		} else if hasAnySuffix(token, suffixes) {
 			// Remove suffixes -- e.g., Well) -> [Well, )].
-			suffs = append([]Token{
+			suffs = append([]*Token{
 				{Text: string(token[len(token)-1])}},
 				suffs...)
 			token = token[:len(token)-1]
@@ -73,8 +73,8 @@ func doSplit(token string) []Token {
 }
 
 // tokenize splits a sentence into a slice of words.
-func (t *iterTokenizer) tokenize(text string) []Token {
-	tokens := []Token{}
+func (t *iterTokenizer) tokenize(text string) []*Token {
+	tokens := []*Token{}
 
 	clean, white := sanitizer.Replace(text), false
 	length := utf8.RuneCountInString(clean) + 1
@@ -83,7 +83,7 @@ func (t *iterTokenizer) tokenize(text string) []Token {
 	}
 
 	start, index := 0, 0
-	cache := map[string][]Token{}
+	cache := map[string][]*Token{}
 	for index <= length {
 		uc, size := utf8.DecodeRuneInString(clean[index:])
 		if size == 0 {

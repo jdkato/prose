@@ -120,11 +120,11 @@ func newTrainedEntityExtracter(model *binaryMaxentClassifier) *entityExtracter {
 }
 
 // chunk finds named-entity "chunks" from the given, pre-labeled tokens.
-func (e *entityExtracter) chunk(tokens []Token) []Entity {
+func (e *entityExtracter) chunk(tokens []*Token) []Entity {
 	entities := []Entity{}
 	end := ""
 
-	parts := []Token{}
+	parts := []*Token{}
 	idx := 0
 
 	for _, tok := range tokens {
@@ -143,7 +143,7 @@ func (e *entityExtracter) chunk(tokens []Token) []Entity {
 			entities = append(entities, coalesce(parts))
 
 			end = ""
-			parts = []Token{}
+			parts = []*Token{}
 			idx = 0
 		}
 	}
@@ -198,7 +198,7 @@ func adjustPos(text string, start, end int) (int, int) {
 	return start - left, end - right
 }
 
-func extractFeatures(tokens []Token, history []string) []feature {
+func extractFeatures(tokens []*Token, history []string) []feature {
 	features := []feature{}
 	for i := range tokens {
 		features = append(features,
@@ -209,7 +209,7 @@ func extractFeatures(tokens []Token, history []string) []feature {
 	return features
 }
 
-func assignLabels(tokens []Token, entity EntityContext) []string {
+func assignLabels(tokens []*Token, entity EntityContext) []string {
 	history := []string{}
 	for range tokens {
 		history = append(history, "O")
@@ -312,11 +312,10 @@ func estCount(
 	return count
 }
 
-func (e *entityExtracter) classify(tokens []Token) []Token {
-	history := []string{}
-	labeled := []Token{}
-
-	for i, tok := range tokens {
+func (e *entityExtracter) classify(tokens []*Token) []*Token {
+	length := len(tokens)
+	history := make([]string, 0, length)
+	for i := 0; i < length; i++ {
 		scores := make(map[string]float64)
 		features := extract(i, tokens, history)
 		for _, label := range e.model.labels {
@@ -327,11 +326,10 @@ func (e *entityExtracter) classify(tokens []Token) []Token {
 			scores[label] = total
 		}
 		label := max(scores)
-		labeled = append(labeled, Token{tok.Tag, tok.Text, label})
+		tokens[i].Label = label
 		history = append(history, simplePOS(label))
 	}
-
-	return labeled
+	return tokens
 }
 
 func (e *entityExtracter) probClassify(features map[string]string) *mappedProbDist {
@@ -357,7 +355,7 @@ func parseEntities(ents []string) string {
 	return strings.Split(ents[0], "-")[1]
 }
 
-func coalesce(parts []Token) Entity {
+func coalesce(parts []*Token) Entity {
 	labels := []string{}
 	tokens := []string{}
 	for _, tok := range parts {
@@ -370,7 +368,7 @@ func coalesce(parts []Token) Entity {
 	}
 }
 
-func extract(i int, ctx []Token, history []string) map[string]string {
+func extract(i int, ctx []*Token, history []string) map[string]string {
 	feats := make(map[string]string)
 
 	word := ctx[i].Text

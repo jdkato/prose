@@ -59,12 +59,16 @@ type Document struct {
 	// TODO: Store offsets (begin, end) instead of `text` field.
 	entities  []Entity
 	sentences []Sentence
-	tokens    []Token
+	tokens    []*Token
 }
 
 // Tokens returns `doc`'s tokens.
 func (doc *Document) Tokens() []Token {
-	return doc.tokens
+	tokens := make([]Token, 0, len(doc.tokens))
+	for _, tok := range doc.tokens {
+		tokens = append(tokens, *tok)
+	}
+	return tokens
 }
 
 // Sentences returns `doc`'s sentences.
