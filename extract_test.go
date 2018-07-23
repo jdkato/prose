@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"math"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -57,6 +58,10 @@ func split(data []prodigyOuput) ([]EntityContext, []prodigyOuput) {
 	}
 
 	return train, test
+}
+
+func TestSumLogs(t *testing.T) {
+	assert.Equal(t, 3.0, sumLogs([]float64{math.Log2(3), math.Log2(5)}))
 }
 
 func TestNERProdigy(t *testing.T) {
