@@ -37,8 +37,8 @@ func BenchmarkPunkt(b *testing.B) {
 
 	checkError(json.Unmarshal(cases, &tests))
 	for n := 0; n < b.N; n++ {
-		for _, test := range tests {
-			makeSegmenter(test.Input)
+		for i := range tests {
+			makeSegmenter(tests[i].Input)
 		}
 	}
 }

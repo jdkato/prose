@@ -20,8 +20,9 @@ func makeDoc(text string) (*Document, error) {
 
 func getTokenText(doc *Document) []string {
 	observed := []string{}
-	for _, tok := range doc.Tokens() {
-		observed = append(observed, tok.Text)
+	tokens := doc.Tokens()
+	for i := range tokens {
+		observed = append(observed, tokens[i].Text)
 	}
 	return observed
 }
