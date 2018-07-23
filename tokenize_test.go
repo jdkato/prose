@@ -46,6 +46,11 @@ func getWordBenchData() []string {
 	return input
 }
 
+func TestTokenizationEmpty(t *testing.T) {
+	doc, _ := makeDoc("")
+	assert.Len(t, getTokenText(doc), 0)
+}
+
 func TestTokenizationSimple(t *testing.T) {
 	doc, _ := makeDoc("Vale is a natural language linter that supports plain text, markup (Markdown, reStructuredText, AsciiDoc, and HTML), and source code comments. Vale doesn't attempt to offer a one-size-fits-all collection of rules—instead, it strives to make customization as easy as possible.")
 	expected := []string{

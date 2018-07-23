@@ -78,9 +78,6 @@ func (t *iterTokenizer) tokenize(text string) []*Token {
 
 	clean, white := sanitizer.Replace(text), false
 	length := utf8.RuneCountInString(clean) + 1
-	if length <= 1 {
-		return tokens
-	}
 
 	start, index := 0, 0
 	cache := map[string][]*Token{}
