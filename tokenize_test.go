@@ -140,9 +140,9 @@ func TestTokenizationTwitter(t *testing.T) {
 }
 
 func BenchmarkTokenization(b *testing.B) {
+	in := readDataFile(filepath.Join(testdata, "sherlock.txt"))
+	text := string(in)
 	for n := 0; n < b.N; n++ {
-		for _, s := range getWordBenchData() {
-			makeDoc(s)
-		}
+		makeDoc(text)
 	}
 }
