@@ -42,9 +42,11 @@ func (m *mappedProbDist) max() string {
 
 func newMappedProbDist(dict map[string]float64, normalize bool) *mappedProbDist {
 	if normalize {
-		values := []float64{}
+		values := make([]float64, len(dict))
+		i := 0
 		for _, v := range dict {
-			values = append(values, v)
+			values[i] = v
+			i++
 		}
 		sum := sumLogs(values)
 		if sum <= math.Inf(-1) {
@@ -246,20 +248,19 @@ func adjustPos(text string, start, end int) (int, int) {
 }
 
 func extractFeatures(tokens []*Token, history []string) []feature {
-	features := []feature{}
+	features := make([]feature, len(tokens))
 	for i := range tokens {
-		features = append(features,
-			feature{
-				label:    history[i],
-				features: extract(i, tokens, history)})
+		features[i] = feature{
+			label:    history[i],
+			features: extract(i, tokens, history)}
 	}
 	return features
 }
 
 func assignLabels(tokens []*Token, entity *EntityContext) []string {
-	history := []string{}
-	for range tokens {
-		history = append(history, "O")
+	history := make([]string, len(tokens))
+	for i := range tokens {
+		history[i] = "O"
 	}
 
 	if entity.Accept {
@@ -404,11 +405,12 @@ func parseEntities(ents []string) string {
 }
 
 func coalesce(parts []*Token) Entity {
-	labels := []string{}
-	tokens := []string{}
-	for _, tok := range parts {
-		tokens = append(tokens, tok.Text)
-		labels = append(labels, tok.Label)
+	length := len(parts)
+	labels := make([]string, length)
+	tokens := make([]string, length)
+	for i, tok := range parts {
+		tokens[i] = tok.Text
+		labels[i] = tok.Label
 	}
 	return Entity{
 		Label: parseEntities(labels),

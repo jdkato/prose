@@ -41,16 +41,20 @@ func (t TupleSlice) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
 
 // ReadTagged converts pre-tagged input into a TupleSlice suitable for training.
 func ReadTagged(text, sep string) TupleSlice {
-	t := TupleSlice{}
-	for _, sent := range strings.Split(text, "\n") {
-		tokens := []string{}
-		tags := []string{}
-		for _, token := range strings.Split(sent, " ") {
+	lines := strings.Split(text, "\n")
+	length := len(lines)
+	t := make(TupleSlice, length)
+	for i, sent := range lines {
+		set := strings.Split(sent, " ")
+		length = len(set)
+		tokens := make([]string, length)
+		tags := make([]string, length)
+		for j, token := range set {
 			parts := strings.Split(token, sep)
-			tokens = append(tokens, parts[0])
-			tags = append(tags, parts[1])
+			tokens[j] = parts[0]
+			tags[j] = parts[1]
 		}
-		t = append(t, [][]string{tokens, tags})
+		t[i] = [][]string{tokens, tags}
 	}
 	return t
 }
@@ -171,11 +175,15 @@ func (pt *perceptronTagger) tag(tokens []*Token) []*Token {
 	var found bool
 
 	p1, p2 := "-START-", "-START2-"
-	context := []string{p1, p2}
-	for _, t := range tokens {
-		context = append(context, normalize(t.Text))
+	length := len(tokens) + 4
+	context := make([]string, length)
+	context[0] = p1
+	context[1] = p2
+	for i, t := range tokens {
+		context[i+2] = normalize(t.Text)
 	}
-	context = append(context, []string{"-END-", "-END2-"}...)
+	context[length-2] = "-END-"
+	context[length-1] = "-END2-"
 	for i := 0; i < len(tokens); i++ {
 		word := tokens[i].Text
 		if word == "-" {
