@@ -17,7 +17,10 @@ func newIterTokenizer() *iterTokenizer {
 }
 
 func addToken(s string, toks []*Token) []*Token {
-	if strings.TrimSpace(s) != "" {
+	f := func(c rune) bool {
+		return !unicode.IsSpace(c)
+	}
+	if strings.IndexFunc(s, f) != -1 {
 		toks = append(toks, &Token{Text: s})
 	}
 	return toks

@@ -1,6 +1,7 @@
 package prose
 
 import (
+	"bytes"
 	"encoding/gob"
 	"math"
 	"os"
@@ -407,14 +408,15 @@ func parseEntities(ents []string) string {
 func coalesce(parts []*Token) Entity {
 	length := len(parts)
 	labels := make([]string, length)
-	tokens := make([]string, length)
+	var buffer bytes.Buffer
 	for i, tok := range parts {
-		tokens[i] = tok.Text
+		buffer.WriteString(tok.Text)
+		buffer.WriteString(" ")
 		labels[i] = tok.Label
 	}
 	return Entity{
 		Label: parseEntities(labels),
-		Text:  strings.Join(tokens, " "),
+		Text:  buffer.String(),
 	}
 }
 
