@@ -1,9 +1,9 @@
 # prose [![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose) [![Build status](https://ci.appveyor.com/api/projects/status/24bepq85nnnk4scr/branch/v2?svg=true)](https://ci.appveyor.com/project/jdkato/prose/branch/v2) [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/gopkg.in/jdkato/prose.v2) [![Coverage Status](https://coveralls.io/repos/github/jdkato/prose/badge.svg?branch=v2)](https://coveralls.io/github/jdkato/prose?branch=v2) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose)](https://goreportcard.com/report/github.com/jdkato/prose) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#natural-language-processing)
 
 
-`prose` is a natural language processing library (English only, at the moment) in *pure Go*. It supports tokenization, segmentation, part-of-speech tagging, and named-entity extraction.
+`prose` is a natural language processing library (English only) in *pure Go*. It supports tokenization, segmentation, part-of-speech tagging, and named-entity extraction.
 
-You can can find a more detailed summary on the library's performance here: [Introducing `prose` v2.0.0: Bringing NLP *to Go*](https://medium.com/@errata.ai/introducing-prose-v2-0-0-bringing-nlp-to-go-a1f0c121e4a5).
+You can find a more detailed summary on the library's performance here: [Introducing `prose` v2.0.0: Bringing NLP *to Go*](https://medium.com/@errata.ai/introducing-prose-v2-0-0-bringing-nlp-to-go-a1f0c121e4a5).
 
 > **NOTE**: If you're looking for v1.0.0's README, you can still [find it here](https://github.com/jdkato/prose/blob/v1/README.md).
 
