@@ -130,7 +130,7 @@ func main() {
 
 ### Segmenting
 
-`prose` includes one of the most accurate sentence segmenters available, according to the [Golden Rules](https://github.com/diasks2/pragmatic_segmenter#comparison-of-segmentation-tools-libraries-and-algorithms) created by the developers of the `pragmatic_segmenter`.
+`prose` includes one of the most accurate sentence segmenters available according to the [Golden Rules](https://github.com/diasks2/pragmatic_segmenter#comparison-of-segmentation-tools-libraries-and-algorithms) created by the developers of the `pragmatic_segmenter`.
 
 | Name                | Language | License   | GRS (English)  | GRS (Other) | Speed†   |
 |---------------------|----------|-----------|----------------|-------------|----------|
