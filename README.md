@@ -75,7 +75,7 @@ tokenization -> POS tagging -> NE extraction
              segmentation
 ```
 
-Each step may be disabled (assuming later steps aren't required) by passing the appropriate [*functional option*](https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis). To disable named-entity extraction, for example, you'd do the following:
+Each step may be disabled (assuming later steps aren't required) by passing the appropriate [*functional option*](https://godoc.org/gopkg.in/jdkato/prose.v2#DocOpt). To disable named-entity extraction, for example, you'd do the following:
 
 ```go
 doc, err := prose.NewDocument(
