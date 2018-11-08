@@ -22,7 +22,6 @@ package tag
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/jdkato/prose/internal/model"
@@ -33,6 +32,7 @@ import (
 
 var none = regexp.MustCompile(`^(?:0|\*[\w?]\*|\*\-\d{1,3}|\*[A-Z]+\*\-\d{1,3}|\*)$`)
 var keep = regexp.MustCompile(`^\-[A-Z]{3}\-$`)
+var year = regexp.MustCompile(`^\d{4}$`)
 
 // AveragedPerceptron is a Averaged Perceptron classifier.
 type AveragedPerceptron struct {
@@ -52,7 +52,7 @@ func NewAveragedPerceptron(weights map[string]map[string]float64,
 		classes: classes, tagMap: tags, weights: weights}
 }
 
-// PerceptronTagger is a port of Textblob's "fast and accurate" POS tagger.
+// PerceptronTagger is a port of TextBlob's "fast and accurate" POS tagger.
 // See https://github.com/sloria/textblob-aptagger for details.
 type PerceptronTagger struct {
 	tagMap map[string]string
@@ -210,18 +210,17 @@ func (ap *AveragedPerceptron) predict(features map[string]float64) string {
 
 	scores := make(map[string]float64)
 	for feat, value := range features {
-		if weights, found = ap.weights[feat]; !found || value == 0 {
+		if value == 0 {
+			continue
+		}
+		if weights, found = ap.weights[feat]; !found {
 			continue
 		}
 		for label, weight := range weights {
-			if _, ok := scores[label]; ok {
-				scores[label] += value * weight
-			} else {
-				scores[label] = value * weight
-			}
+			scores[label] += value * weight
 		}
 	}
-	return max(scores)
+	return maxClass(scores)
 }
 
 func (ap *AveragedPerceptron) update(truth, guess string, feats map[string]float64) {
@@ -229,15 +228,14 @@ func (ap *AveragedPerceptron) update(truth, guess string, feats map[string]float
 	if truth == guess {
 		return
 	}
+	var weights map[string]float64
 	for f := range feats {
-		weights := make(map[string]float64)
-		if val, ok := ap.weights[f]; ok {
-			weights = val
-		} else {
+		if weights, ok := ap.weights[f]; !ok {
+			weights = make(map[string]float64)
 			ap.weights[f] = weights
 		}
-		ap.updateFeat(truth, f, get(truth, weights), 1.0)
-		ap.updateFeat(guess, f, get(guess, weights), -1.0)
+		ap.updateFeat(truth, f, weights[truth], 1.0)
+		ap.updateFeat(guess, f, weights[guess], -1.0)
 	}
 }
 
@@ -270,61 +268,44 @@ func (ap *AveragedPerceptron) averageWeights() {
 	}
 }
 
-func max(scores map[string]float64) string {
-	var class string
-	max := 0.0
-	for label, value := range scores {
-		if value > max {
-			max = value
-			class = label
-		}
-	}
-	return class
-}
-
 func featurize(i int, ctx []string, w, p1, p2 string) map[string]float64 {
 	feats := make(map[string]float64)
 	suf := util.Min(len(w), 3)
 	i = util.Min(len(ctx)-2, i+2)
 	iminus := util.Min(len(ctx[i-1]), 3)
 	iplus := util.Min(len(ctx[i+1]), 3)
-	feats = add([]string{"bias"}, feats)
-	feats = add([]string{"i suffix", w[len(w)-suf:]}, feats)
-	feats = add([]string{"i pref1", string(w[0])}, feats)
-	feats = add([]string{"i-1 tag", p1}, feats)
-	feats = add([]string{"i-2 tag", p2}, feats)
-	feats = add([]string{"i tag+i-2 tag", p1, p2}, feats)
-	feats = add([]string{"i word", ctx[i]}, feats)
-	feats = add([]string{"i-1 tag+i word", p1, ctx[i]}, feats)
-	feats = add([]string{"i-1 word", ctx[i-1]}, feats)
-	feats = add([]string{"i-1 suffix", ctx[i-1][len(ctx[i-1])-iminus:]}, feats)
-	feats = add([]string{"i-2 word", ctx[i-2]}, feats)
-	feats = add([]string{"i+1 word", ctx[i+1]}, feats)
-	feats = add([]string{"i+1 suffix", ctx[i+1][len(ctx[i+1])-iplus:]}, feats)
-	feats = add([]string{"i+2 word", ctx[i+2]}, feats)
+	add([]string{"bias"}, &feats)
+	add([]string{"i suffix", w[len(w)-suf:]}, &feats)
+	add([]string{"i pref1", string(w[0])}, &feats)
+	add([]string{"i-1 tag", p1}, &feats)
+	add([]string{"i-2 tag", p2}, &feats)
+	add([]string{"i tag+i-2 tag", p1, p2}, &feats)
+	add([]string{"i word", ctx[i]}, &feats)
+	add([]string{"i-1 tag+i word", p1, ctx[i]}, &feats)
+	add([]string{"i-1 word", ctx[i-1]}, &feats)
+	add([]string{"i-1 suffix", ctx[i-1][len(ctx[i-1])-iminus:]}, &feats)
+	add([]string{"i-2 word", ctx[i-2]}, &feats)
+	add([]string{"i+1 word", ctx[i+1]}, &feats)
+	add([]string{"i+1 suffix", ctx[i+1][len(ctx[i+1])-iplus:]}, &feats)
+	add([]string{"i+2 word", ctx[i+2]}, &feats)
 	return feats
 }
 
-func add(args []string, features map[string]float64) map[string]float64 {
+func add(args []string, features *map[string]float64) {
 	key := strings.Join(args, " ")
-	if _, ok := features[key]; ok {
-		features[key]++
-	} else {
-		features[key] = 1
-	}
-	return features
+	(*features)[key]++
 }
 
 func normalize(word string) string {
 	if word == "" {
 		return word
 	}
-	first := string(word[0])
-	if strings.Contains(word, "-") && first != "-" {
+	first := word[0]
+	if strings.IndexByte(word, '-') >= 0 && first != '-' {
 		return "!HYPHEN"
-	} else if _, err := strconv.Atoi(word); err == nil && len(word) == 4 {
+	} else if year.MatchString(word) {
 		return "!YEAR"
-	} else if _, err := strconv.Atoi(first); err == nil {
+	} else if '0' <= first && first <= '9' {
 		return "!DIGITS"
 	}
 	return strings.ToLower(word)
@@ -338,21 +319,26 @@ func sumValues(m map[string]int) int {
 	return sum
 }
 
+func maxClass(scores map[string]float64) string {
+	max := 0.0
+	class := ""
+	for label, value := range scores {
+		if value > max {
+			max = value
+			class = label
+		}
+	}
+	return class
+}
+
 func maxValue(m map[string]int) (string, int) {
 	maxValue := 0
 	key := ""
 	for k, v := range m {
-		if v >= maxValue {
+		if v > maxValue {
 			maxValue = v
 			key = k
 		}
 	}
 	return key, maxValue
-}
-
-func get(k string, m map[string]float64) float64 {
-	if v, ok := m[k]; ok {
-		return v
-	}
-	return 0.0
 }
