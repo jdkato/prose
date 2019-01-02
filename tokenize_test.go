@@ -2,6 +2,7 @@ package prose
 
 import (
 	"encoding/json"
+	"log"
 	"path/filepath"
 	"testing"
 
@@ -158,5 +159,14 @@ func BenchmarkTokenizationSimple(b *testing.B) {
 		for _, s := range getWordBenchData() {
 			makeDoc(s)
 		}
+	}
+}
+func TestBigzhu(t *testing.T) {
+	text := `a
+b`
+
+	i := iterTokenizer{}
+	for _, i := range i.tokenize(text) {
+		log.Printf("word='%v'", i)
 	}
 }
