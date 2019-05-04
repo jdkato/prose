@@ -58,6 +58,12 @@ func doSplit(token string) []*Token {
 			// don't -> [do, n't].
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
+		} else if idx := hasAnyIndex(lower, []string{"=", "/"}); idx > -1 {
+			// by bigzhu: Handle "big/big", "big=big", etc.
+			//
+			// big/big -> [big, /, big].
+			tokens = addToken(token[:idx], tokens)
+			token = token[idx:]
 		} else if hasAnySuffix(token, suffixes) {
 			// Remove suffixes -- e.g., Well) -> [Well, )].
 			suffs = append([]*Token{
@@ -129,8 +135,8 @@ var sanitizer = strings.NewReplacer(
 	"\u2018", "'",
 	"\u2019", "'",
 	"&rsquo;", "'")
-var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "'"}
-var prefixes = []string{"$", "(", `"`, "[", "="}
+var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "'", "=", "/"}
+var prefixes = []string{"$", "(", `"`, "[", "=", "/"}
 var emoticons = map[string]int{
 	"(-8":         1,
 	"(-;":         1,

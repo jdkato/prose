@@ -164,7 +164,7 @@ func BenchmarkTokenizationSimple(b *testing.B) {
 func TestBigzhu(t *testing.T) {
 	text := `a
 b`
-	text = "=say! so what!"
+	text = "fuck/say! so what! /haha"
 
 	i := iterTokenizer{}
 	for _, i := range i.tokenize(text) {
