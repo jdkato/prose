@@ -130,7 +130,7 @@ var sanitizer = strings.NewReplacer(
 	"\u2019", "'",
 	"&rsquo;", "'")
 var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "'"}
-var prefixes = []string{"$", "(", `"`, "["}
+var prefixes = []string{"$", "(", `"`, "[", "="}
 var emoticons = map[string]int{
 	"(-8":         1,
 	"(-;":         1,
