@@ -58,10 +58,11 @@ func doSplit(token string) []*Token {
 			// don't -> [do, n't].
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
-		} else if idx := hasAnyIndex(lower, []string{"=", "/"}); idx > -1 {
+		} else if idx := hasAnyIndex(lower, []string{"=", "/", "'d"}); idx > -1 {
 			// by bigzhu: Handle "big/big", "big=big", etc.
 			//
 			// big/big -> [big, /, big].
+			// you'd -> [you, 'd]
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
 		} else if hasAnySuffix(token, suffixes) {
