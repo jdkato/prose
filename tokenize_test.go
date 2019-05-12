@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -162,12 +163,16 @@ func BenchmarkTokenizationSimple(b *testing.B) {
 	}
 }
 func TestBigzhu(t *testing.T) {
-	text := `a
-b`
-	text = "fuck/say! so what! /haha you'd"
+	text := "say,\"acquire\""
+	text = `what we would say,"acquire" the language.`
 
-	i := iterTokenizer{}
-	for _, i := range i.tokenize(text) {
-		log.Printf("word='%v'", i)
+	doc, err := NewDocument(text)
+	if err != nil {
+		err = errors.WithStack(err)
+		t.Fail()
+	}
+
+	for _, i := range doc.Tokens() {
+		log.Printf("word='%v'", i.Text)
 	}
 }
