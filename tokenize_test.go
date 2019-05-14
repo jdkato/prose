@@ -164,7 +164,7 @@ func BenchmarkTokenizationSimple(b *testing.B) {
 }
 func TestBigzhu(t *testing.T) {
 	text := "say,\"acquire\""
-	text = `good;fuck`
+	text = `big-zhu`
 
 	doc, err := NewDocument(text)
 	if err != nil {

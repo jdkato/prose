@@ -58,6 +58,12 @@ func doSplit(token string) []*Token {
 			// don't -> [do, n't].
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
+		} else if hasAnySuffix(token, suffixes) {
+			// Remove suffixes -- e.g., Well) -> [Well, )].
+			suffs = append([]*Token{
+				{Text: string(token[len(token)-1])}},
+				suffs...)
+			token = token[:len(token)-1]
 		} else if idx := hasAnyIndex(lower, prefixes); idx > -1 {
 			// by bigzhu: Handle "big/big", "big=big", etc.
 			//
@@ -66,12 +72,6 @@ func doSplit(token string) []*Token {
 			// must in prefixes
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
-		} else if hasAnySuffix(token, suffixes) {
-			// Remove suffixes -- e.g., Well) -> [Well, )].
-			suffs = append([]*Token{
-				{Text: string(token[len(token)-1])}},
-				suffs...)
-			token = token[:len(token)-1]
 		} else {
 			tokens = addToken(token, tokens)
 		}
