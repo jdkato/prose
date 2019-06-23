@@ -31,9 +31,22 @@ func isSpecial(token string) bool {
 func doSplit(token string) []*Token {
 	tokens := []*Token{}
 	suffs := []*Token{}
+	apostropheReg := regexp.MustCompile(`^'.+'`)
 
 	last := 0
 	for token != "" && utf8.RuneCountInString(token) != last {
+		// 拆分单引号圈中的文本: 'big' -> ["'", "big", "'"]
+		// 第一步, 前后有单引号的拆分: 'fuck!'-> ["'", "fuck!'"]
+		if apostropheReg.MatchString(token) {
+			// fmt.Println("匹配到了?!")
+			tokens = addToken(string(token[0]), tokens)
+			// 结尾的'的 放到后面
+			suffs = append([]*Token{
+				{Text: string(token[len(token)-1])}},
+				suffs...)
+			token = token[1 : len(token)-1]
+		}
+
 		if isSpecial(token) {
 			// We've found a special case (e.g., an emoticon) -- so, we add it as a token without
 			// any further processing.
@@ -46,7 +59,7 @@ func doSplit(token string) []*Token {
 			// Remove prefixes -- e.g., $100 -> [$, 100].
 			tokens = addToken(string(token[0]), tokens)
 			token = token[1:]
-		} else if idx := hasAnyIndex(lower, []string{"'ll", "'s", "'re", "'m"}); idx > -1 {
+		} else if idx := hasAnyIndex(lower, []string{"'ll", "'s", "'re", "'m", "'d", "'ve", "n't"}); idx > -1 {
 			// Handle "they'll", "I'll", etc.
 			//
 			// they'll -> [they, 'll].
@@ -138,8 +151,8 @@ var sanitizer = strings.NewReplacer(
 	"\u2018", "'",
 	"\u2019", "'",
 	"&rsquo;", "'")
-var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "'", "=", "/"}
-var prefixes = []string{"$", "(", `"`, "[", "=", "/", "-", ";", "…", "'"}
+var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "=", "/"}
+var prefixes = []string{"$", "(", `"`, "[", "=", "/", "-", ";", "…"}
 
 var emoticons = map[string]int{
 	"(-8":         1,

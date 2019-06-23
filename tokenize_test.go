@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"path/filepath"
+	"regexp"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -163,9 +164,7 @@ func BenchmarkTokenizationSimple(b *testing.B) {
 	}
 }
 func TestBigzhu(t *testing.T) {
-	text := `
- ‘organizations’
-`
+	text := `'big big'`
 
 	doc, err := NewDocument(text)
 	if err != nil {
@@ -176,4 +175,9 @@ func TestBigzhu(t *testing.T) {
 	for _, i := range doc.Tokens() {
 		log.Printf("word='%v'", i.Text)
 	}
+}
+
+func TestReg(t *testing.T) {
+	apostropheReg := regexp.MustCompile(`^'.+'`)
+	t.Log(apostropheReg.MatchString("'big big'"))
 }
