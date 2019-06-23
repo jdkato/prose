@@ -163,7 +163,10 @@ func BenchmarkTokenizationSimple(b *testing.B) {
 	}
 }
 func TestBigzhu(t *testing.T) {
-	text := `This morning, the sun had risen as…  it always did… but this time, the old-timer didn’t crawl out of his hole.
+	text := `
+from him.
+
+…… Night finally descended.
 
 `
 

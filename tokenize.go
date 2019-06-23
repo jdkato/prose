@@ -132,6 +132,7 @@ func (t *iterTokenizer) tokenize(text string) []*Token {
 
 var internalRE = regexp.MustCompile(`^(?:[A-Za-z]\.){2,}$|^[A-Z][a-z]{1,3}\.$`)
 var sanitizer = strings.NewReplacer(
+	"……", "… …", // 两个连续的省略符号会导致程序崩溃, 只有在这里替换分开
 	"\u201c", `"`,
 	"\u201d", `"`,
 	"\u2018", "'",
