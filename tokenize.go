@@ -1,6 +1,7 @@
 package prose
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
@@ -31,20 +32,21 @@ func isSpecial(token string) bool {
 func doSplit(token string) []*Token {
 	tokens := []*Token{}
 	suffs := []*Token{}
-	apostropheReg := regexp.MustCompile(`^'.+'`)
+	apostropheReg := regexp.MustCompile(`^'\S+'`)
 
 	last := 0
 	for token != "" && utf8.RuneCountInString(token) != last {
 		// 拆分单引号圈中的文本: 'big' -> ["'", "big", "'"]
 		// 第一步, 前后有单引号的拆分: 'fuck!'-> ["'", "fuck!'"]
 		if apostropheReg.MatchString(token) {
-			// fmt.Println("匹配到了?!")
+			fmt.Println("匹配到了?!")
 			tokens = addToken(string(token[0]), tokens)
 			// 结尾的'的 放到后面
 			suffs = append([]*Token{
 				{Text: string(token[len(token)-1])}},
 				suffs...)
 			token = token[1 : len(token)-1]
+			fmt.Println(token)
 		}
 
 		if isSpecial(token) {
@@ -59,24 +61,18 @@ func doSplit(token string) []*Token {
 			// Remove prefixes -- e.g., $100 -> [$, 100].
 			tokens = addToken(string(token[0]), tokens)
 			token = token[1:]
-		} else if idx := hasAnyIndex(lower, []string{"'ll", "'s", "'re", "'m", "'d", "'ve", "n't"}); idx > -1 {
-			// Handle "they'll", "I'll", etc.
-			//
-			// they'll -> [they, 'll].
-			tokens = addToken(token[:idx], tokens)
-			token = token[idx:]
-		} else if idx := hasAnyIndex(lower, []string{"n't"}); idx > -1 {
-			// Handle "Don't", "won't", etc.
-			//
-			// don't -> [do, n't].
-			tokens = addToken(token[:idx], tokens)
-			token = token[idx:]
 		} else if hasAnySuffix(token, suffixes) {
 			// Remove suffixes -- e.g., Well) -> [Well, )].
 			suffs = append([]*Token{
 				{Text: string(token[len(token)-1])}},
 				suffs...)
 			token = token[:len(token)-1]
+		} else if idx := hasAnyIndex(lower, []string{"'ll", "'s", "'re", "'m", "'d", "'ve", "n't"}); idx > -1 {
+			// Handle "they'll", "I'll", etc.
+			//
+			// they'll -> [they, 'll].
+			tokens = addToken(token[:idx], tokens)
+			token = token[idx:]
 		} else if idx := hasAnyIndex(lower, prefixes); idx > -1 {
 			// by bigzhu: Handle "big/big", "big=big", etc.
 			//
