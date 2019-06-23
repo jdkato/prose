@@ -1,7 +1,6 @@
 package prose
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 	"unicode"
@@ -26,7 +25,9 @@ func addToken(s string, toks []*Token) []*Token {
 
 func isSpecial(token string) bool {
 	_, found := emoticons[token]
-	return found || internalRE.MatchString(token)
+	// return found || internalRE.MatchString(token)
+	// 这里取消大写开头不拆分的限制
+	return found
 }
 
 func doSplit(token string) []*Token {
@@ -39,14 +40,12 @@ func doSplit(token string) []*Token {
 		// 拆分单引号圈中的文本: 'big' -> ["'", "big", "'"]
 		// 第一步, 前后有单引号的拆分: 'fuck!'-> ["'", "fuck!'"]
 		if apostropheReg.MatchString(token) {
-			fmt.Println("匹配到了?!")
 			tokens = addToken(string(token[0]), tokens)
 			// 结尾的'的 放到后面
 			suffs = append([]*Token{
 				{Text: string(token[len(token)-1])}},
 				suffs...)
 			token = token[1 : len(token)-1]
-			fmt.Println(token)
 		}
 
 		if isSpecial(token) {
