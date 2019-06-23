@@ -164,10 +164,7 @@ func BenchmarkTokenizationSimple(b *testing.B) {
 }
 func TestBigzhu(t *testing.T) {
 	text := `
-from him.
-
-…… Night finally descended.
-
+ ‘organizations’
 `
 
 	doc, err := NewDocument(text)
