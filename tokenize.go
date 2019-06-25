@@ -1,6 +1,7 @@
 package prose
 
 import (
+	"log"
 	"regexp"
 	"strings"
 	"unicode"
@@ -33,13 +34,15 @@ func isSpecial(token string) bool {
 func doSplit(token string) []*Token {
 	tokens := []*Token{}
 	suffs := []*Token{}
-	apostropheReg := regexp.MustCompile(`^'\S+'`)
+	apostropheReg := regexp.MustCompile(`^'\S+'$`)
 
 	last := 0
 	for token != "" && utf8.RuneCountInString(token) != last {
 		// 拆分单引号圈中的文本: 'big' -> ["'", "big", "'"]
-		// 第一步, 前后有单引号的拆分: 'fuck!'-> ["'", "fuck!'"]
 		if apostropheReg.MatchString(token) {
+
+			log.Printf("满足拆分 %v", token)
+			// 开头引号放前面
 			tokens = addToken(string(token[0]), tokens)
 			// 结尾的'的 放到后面
 			suffs = append([]*Token{
