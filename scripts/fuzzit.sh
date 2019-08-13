@@ -30,3 +30,5 @@ fi
 
 target prose-transform ./transform Fuzz
 target prose-tokenize ./tokenize Fuzz
+target prose-summarize ./summarize Fuzz
+target prose-chunk ./chunk Fuzz
