@@ -29,3 +29,4 @@ else
 fi
 
 target prose-transform ./transform Fuzz
+target prose-tokenize ./tokenize Fuzz

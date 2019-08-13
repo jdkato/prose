@@ -1,33 +1,37 @@
 dist: bionic
-language: go
-go:
-  - "1.11"
 
-services:
-  - docker
+stages:
+  - name: Build & test
+    if: type != cron
 
-before_install:
-  - go get github.com/mattn/goveralls
+  - name: Fuzzit-Regression
+    if: type != cron AND branch = master AND type IN (pull_request)
 
-install:
-  - make setup
-  - make build
-
-script:
-  - make test
-  # Coveralls is down for maintenance currently
-  # - bash scripts/cover.sh
+  - name: Fuzzit-Fuzzing
+    if: type = cron
 
 jobs:
   include:
-    - stage: fuzzit.dev (regression)
-      if: branch = master AND type IN (pull_request)
+    - stage: Build & test
+      language: go
+      go:
+        - "1.11"
+      before_install:
+        - go get github.com/mattn/goveralls
+      install:
+        - make setup
+        - make build
+      script:
+        - make test
+        # Coveralls is down for maintenance currently
+        # - bash scripts/cover.sh
+
+    - stage: Fuzzit-Regression
       go: 1.12.x
       script:
         - bash scripts/fuzzit.sh regression
 
-    - stage: fuzzit.dev (fuzzing)
-      if: branch = master AND type IN (push)
+    - stage: Fuzzit-Fuzzing
       go: 1.12.x
       script:
         - bash scripts/fuzzit.sh fuzzing
