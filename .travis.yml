@@ -13,17 +13,20 @@ install:
   - make setup
   - make build
 
+script:
+  - make test
+  # Coveralls is down for maintenance currently
+  # - bash scripts/cover.sh
+
 jobs:
   include:
-    - stage: Build, Unit-Tests & Fuzz-Tests
+    - stage: fuzzit.dev (regression)
+      if: branch = master AND type IN (pull_request)
       go: 1.12.x
       script:
-        - make test
-        # Coveralls is down for maintenance currently
-        # - bash scripts/cover.sh
         - bash scripts/fuzzit.sh regression
 
-    - stage: Fuzzit (Fuzzing)
+    - stage: fuzzit.dev (fuzzing)
       if: branch = master AND type IN (push)
       go: 1.12.x
       script:
