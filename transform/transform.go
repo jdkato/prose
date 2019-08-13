@@ -78,5 +78,9 @@ func Camel(s string) string {
 			break
 		}
 	}
-	return strings.TrimSpace(string(unicode.ToLower(first)) + Pascal(s)[1:])
+	body := Pascal(s)
+	if len(body) > 1 {
+		return strings.TrimSpace(string(unicode.ToLower(first)) + body[1:])
+	}
+	return s
 }
