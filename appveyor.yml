@@ -12,4 +12,4 @@ build_script:
   - cmd: make setup
   - cmd: make build-win
 test_script:
-  - cmd: make ci
+  - cmd: make test
