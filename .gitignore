@@ -9,6 +9,7 @@ bin
 _obj
 _test
 tag/*.gob
+fuzz/
 
 # Architecture specific extensions/prefixes
 *.[568vq]
