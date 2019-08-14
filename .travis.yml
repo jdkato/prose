@@ -1,4 +1,11 @@
 dist: bionic
+language: go
+go:
+  - "1.12.x"
+
+install:
+  - make setup
+  - make build
 
 stages:
   - name: Build & test
@@ -8,22 +15,15 @@ stages:
     if: type != cron AND branch = master AND type IN (pull_request)
 
   - name: Fuzzit-Fuzzing
-    if: type = cron
+    if: type != cron
 
 jobs:
   include:
     - stage: Build & test
-      language: go
-      go:
-        - "1.11"
-      before_install:
-        - go get github.com/mattn/goveralls
-      install:
-        - make setup
-        - make build
       script:
         - make test
         # Coveralls is down for maintenance currently
+        # - go get github.com/mattn/goveralls
         # - bash scripts/cover.sh
 
     - stage: Fuzzit-Regression
