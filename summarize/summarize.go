@@ -53,6 +53,7 @@ type Document struct {
 	NumSentences    float64        // Number of sentences
 	NumSyllables    float64        // Number of syllables
 	NumWords        float64        // Number of words
+	NumLongWords    float64        // Number of long words
 	Sentences       []Sentence     // the Document's sentences
 	WordFrequency   map[string]int // [word]frequency
 
@@ -112,6 +113,9 @@ func (d *Document) Initialize() {
 					d.WordFrequency[word]++
 				} else {
 					d.WordFrequency[word] = 1
+				}
+				if len(word) > 6 {
+					d.NumLongWords++
 				}
 				syllables := Syllables(word)
 				words = append(words, Word{Text: word, Syllables: syllables})
