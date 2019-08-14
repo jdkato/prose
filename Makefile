@@ -19,7 +19,7 @@ bench:
 test:
 	go test -v
 
-ci: test lint
+ci: lint test
 
 lint:
 	./bin/golangci-lint run

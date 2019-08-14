@@ -5,5 +5,5 @@ go:
 install:
   - make setup
 script:
-  - make test
+  - make ci
   # - bash scripts/cover.sh
