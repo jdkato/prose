@@ -27,6 +27,7 @@ func TestReadability(t *testing.T) {
 		assert.True(t, check(test.StdDevGrade, a.StdDevGradeLevel))
 		assert.True(t, check(test.DaleChall, a.DaleChall))
 		assert.True(t, check(test.ReadingEase, a.ReadingEase))
+		assert.True(t, check(test.LIX, a.LIX))
 	}
 }
 

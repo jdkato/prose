@@ -12,7 +12,8 @@
         "MeanGrade": 13.21,
         "StdDevGrade": 0.72,
         "DaleChall": 9.51,
-        "ReadingEase": 47.29
+        "ReadingEase": 47.29,
+        "LIX": 54.06
     },
     {
         "text": "Existing computer programs that measure readability are based largely upon subroutines which estimate number of syllables, usually by counting vowels. The shortcoming in estimating syllables is that it necessitates keypunching the prose into the computer. There is no need to estimate syllables since word length in letters is a better predictor of readability than word length in syllables. Therefore, a new readability formula was computed that has for its predictors letters per 100 words and sentences per 100 words. Both predictors can be counted by an optical scanning device, and thus the formula makes it economically feasible for an organization such as the U.S. Office of Education to calibrate the readability of all textbooks for the public school system.",
@@ -27,7 +28,8 @@
         "MeanGrade": 16.34,
         "StdDevGrade": 1.29,
         "DaleChall": 12.19,
-        "ReadingEase": 24.14
+        "ReadingEase": 24.14,
+        "LIX": 59.09
     },
     {
         "text": "He teaches science (He previously worked for 5 years as an engineer.) at the local University.",
@@ -42,6 +44,7 @@
         "MeanGrade": 11.06,
         "StdDevGrade": 2.03,
         "DaleChall": 10.66,
-        "ReadingEase": 53.12
+        "ReadingEase": 53.12,
+        "LIX": 47.25
     }
 ]

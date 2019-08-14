@@ -28,6 +28,7 @@ type testCase struct {
 	FleschKincaid        float64
 	GunningFog           float64
 	SMOG                 float64
+	LIX                  float64
 
 	MeanGrade   float64
 	StdDevGrade float64

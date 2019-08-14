@@ -69,6 +69,7 @@ type Assessment struct {
 	FleschKincaid        float64
 	GunningFog           float64
 	SMOG                 float64
+	LIX                  float64
 
 	// mean & standard deviation of the above estimated grade levels
 	MeanGradeLevel   float64
@@ -143,7 +144,8 @@ func (d *Document) Assess() *Assessment {
 	a := Assessment{
 		FleschKincaid: d.FleschKincaid(), ReadingEase: d.FleschReadingEase(),
 		GunningFog: d.GunningFog(), SMOG: d.SMOG(), DaleChall: d.DaleChall(),
-		AutomatedReadability: d.AutomatedReadability(), ColemanLiau: d.ColemanLiau()}
+		AutomatedReadability: d.AutomatedReadability(), ColemanLiau: d.ColemanLiau(),
+		LIX: d.LIX()}
 
 	gradeScores := []float64{
 		a.FleschKincaid, a.AutomatedReadability, a.GunningFog, a.SMOG,
