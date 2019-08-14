@@ -10,11 +10,11 @@
 set -eux
 
 function target {
-	go-fuzz-build -libfuzzer -func $3 -o fuzzer.a $2
-	clang -fsanitize=fuzzer fuzzer.a -o fuzzer
+    go-fuzz-build -libfuzzer -func $3 -o fuzzer.a $2
+    clang -fsanitize=fuzzer fuzzer.a -o fuzzer
 
     ./fuzzit create target $1 || true
-	./fuzzit create job $LOCAL --type fuzzing --branch $TRAVIS_BRANCH --revision $TRAVIS_COMMIT prose/$1 ./fuzzer
+    ./fuzzit create job $LOCAL --type fuzzing --branch $TRAVIS_BRANCH --revision $TRAVIS_COMMIT prose/$1 ./fuzzer
 }
 
 go get -u github.com/dvyukov/go-fuzz/go-fuzz-build
