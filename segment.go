@@ -49,9 +49,10 @@ func newPunktSentenceTokenizer() *punktSentenceTokenizer {
 
 // segment splits text into sentences.
 func (p punktSentenceTokenizer) segment(text string) []Sentence {
-	sents := []Sentence{}
-	for _, s := range p.tokenizer.Tokenize(text) {
-		sents = append(sents, Sentence{Text: strings.TrimSpace(s.Text)})
+	tokens := p.tokenizer.Tokenize(text)
+	sents := make([]Sentence, len(tokens))
+	for i := range tokens {
+		sents[i] = Sentence{Text: strings.TrimSpace(tokens[i].Text)}
 	}
 	return sents
 }
