@@ -11,4 +11,4 @@ install:
 build_script:
   - cmd: make setup
 test_script:
-  - cmd: make ci
+  - cmd: make test

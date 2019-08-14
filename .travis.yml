@@ -3,6 +3,7 @@ go:
   - "1.11.x"
   - "1.12.x"
 install:
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash
   - make setup
 script:
   - make ci

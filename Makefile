@@ -25,8 +25,6 @@ lint:
 	./bin/golangci-lint run
 
 setup:
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash
-
 	go get -u github.com/shogo82148/go-shuffle
 	go get -u github.com/willf/pad
 	go get -u github.com/montanaflynn/stats
