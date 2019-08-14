@@ -151,6 +151,11 @@ func TestTokenizationTwitter(t *testing.T) {
 	doc, _ = makeDoc("ˌˌˌ kill the last letter")
 	expected = []string{"ˌˌˌ", "kill", "the", "last", "letter"}
 	assert.Equal(t, expected, getTokenText(doc))
+
+	doc, _ = makeDoc("March. July. March. June. January.")
+	expected = []string{
+		"March", ".", "July", ".", "March", ".", "June", ".", "January", "."}
+	assert.Equal(t, expected, getTokenText(doc))
 }
 
 func BenchmarkTokenization(b *testing.B) {

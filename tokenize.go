@@ -116,7 +116,7 @@ func (t *iterTokenizer) tokenize(text string) []*Token {
 	return tokens
 }
 
-var internalRE = regexp.MustCompile(`^(?:[A-Za-z]\.){2,}$|^[A-Z][a-z]{1,3}\.$`)
+var internalRE = regexp.MustCompile(`^(?:[A-Za-z]\.){2,}$|^[A-Z][a-z]{1,2}\.$`)
 var sanitizer = strings.NewReplacer(
 	"\u201c", `"`,
 	"\u201d", `"`,
