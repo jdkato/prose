@@ -143,6 +143,14 @@ func TestTokenizationTwitter(t *testing.T) {
 		"Mr.", "James", "plays", "basketball", "in", "the", "N.B.A.", ",",
 		"do", "you", "?"}
 	assert.Equal(t, expected, getTokenText(doc))
+
+	doc, _ = makeDoc("ˌˌ kill the last letter")
+	expected = []string{"ˌˌ", "kill", "the", "last", "letter"}
+	assert.Equal(t, expected, getTokenText(doc))
+
+	doc, _ = makeDoc("ˌˌˌ kill the last letter")
+	expected = []string{"ˌˌˌ", "kill", "the", "last", "letter"}
+	assert.Equal(t, expected, getTokenText(doc))
 }
 
 func BenchmarkTokenization(b *testing.B) {
