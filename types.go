@@ -18,10 +18,3 @@ type Entity struct {
 type Sentence struct {
 	Text string // The sentence's text.
 }
-
-// A span represents an in-text location within a Document.
-type span struct {
-	attributes map[string]string
-	begin      int
-	end        int
-}

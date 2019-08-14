@@ -2,9 +2,8 @@ language: go
 go:
   - "1.11.x"
   - "1.12.x"
-before_install:
-  - go get github.com/mattn/goveralls
 install:
   - make setup
 script:
-  - bash scripts/cover.sh
+  - make test
+  # - bash scripts/cover.sh

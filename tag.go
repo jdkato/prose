@@ -27,7 +27,6 @@ import (
 	"strings"
 
 	"github.com/mingrammer/commonregex"
-	"github.com/montanaflynn/stats"
 )
 
 // TupleSlice is a slice of tuples in the form (words, tags).
@@ -64,12 +63,15 @@ var keep = regexp.MustCompile(`^\-[A-Z]{3}\-$`)
 
 // averagedPerceptron is a Averaged Perceptron classifier.
 type averagedPerceptron struct {
-	classes   []string
-	instances float64
-	stamps    map[string]float64
-	tagMap    map[string]string
-	totals    map[string]float64
-	weights   map[string]map[string]float64
+	classes []string
+	stamps  map[string]float64
+	totals  map[string]float64
+	tagMap  map[string]string
+	weights map[string]map[string]float64
+
+	// TODO: Training
+	//
+	// instances float64
 }
 
 // newAveragedPerceptron creates a new AveragedPerceptron model.
@@ -133,13 +135,113 @@ func (pt *perceptronTagger) train(sentences TupleSlice, iterations int) {
 		shuffle.Shuffle(sentences)
 	}
 	pt.model.averageWeights()
+}
+
+func (m *averagedPerceptron) averageWeights() {
+	for feat, weights := range m.weights {
+		newWeights := make(map[string]float64)
+		for class, weight := range weights {
+			key := feat + "-" + class
+			total := m.totals[key]
+			total += (m.instances - m.stamps[key]) * weight
+			averaged, _ := stats.Round(total/m.instances, 3)
+			if averaged != 0.0 {
+				newWeights[class] = averaged
+			}
+		}
+		m.weights[feat] = newWeights
+	}
+}
+
+// newTrainedPerceptronTagger creates a new PerceptronTagger using the given
+// model.
+func newTrainedPerceptronTagger(model *averagedPerceptron) *perceptronTagger {
+	return &perceptronTagger{model: model}
+}
+
+func (pt *perceptronTagger) makeTagMap(sentences TupleSlice) {
+	counts := make(map[string]map[string]int)
+	for _, tuple := range sentences {
+		words, tags := tuple[0], tuple[1]
+		for i, word := range words {
+			tag := tags[i]
+			if counts[word] == nil {
+				counts[word] = make(map[string]int)
+			}
+			counts[word][tag]++
+			pt.model.addClass(tag)
+		}
+	}
+	for word, tagFreqs := range counts {
+		tag, mode := maxValue(tagFreqs)
+		n := float64(sumValues(tagFreqs))
+		if n >= 20 && (float64(mode)/n) >= 0.97 {
+			pt.tagMap[word] = tag
+		}
+	}
+}
+
+func sumValues(m map[string]int) int {
+	sum := 0
+	for _, v := range m {
+		sum += v
+	}
+	return sum
+}
+
+func maxValue(m map[string]int) (string, int) {
+	maxValue := 0
+	key := ""
+	for k, v := range m {
+		if v >= maxValue {
+			maxValue = v
+			key = k
+		}
+	}
+	return key, maxValue
+}
+
+func get(k string, m map[string]float64) float64 {
+	if v, ok := m[k]; ok {
+		return v
+	}
+	return 0.0
+}
+
+func (m *averagedPerceptron) update(truth, guess string, feats map[string]float64) {
+	m.instances++
+	if truth == guess {
+		return
+	}
+	for f := range feats {
+		weights := make(map[string]float64)
+		if val, ok := m.weights[f]; ok {
+			weights = val
+		} else {
+			m.weights[f] = weights
+		}
+		m.updateFeat(truth, f, get(truth, weights), 1.0)
+		m.updateFeat(guess, f, get(guess, weights), -1.0)
+	}
+}
+
+func (m *averagedPerceptron) updateFeat(c, f string, v, w float64) {
+	key := f + "-" + c
+	m.totals[key] = (m.instances - m.stamps[key]) * w
+	m.stamps[key] = m.instances
+	m.weights[f][c] = w + v
+}
+
+func (m *averagedPerceptron) addClass(class string) {
+	if !stringInSlice(class, m.classes) {
+		m.classes = append(m.classes, class)
+	}
 }*/
 
 // perceptronTagger is a port of Textblob's "fast and accurate" POS tagger.
 // See https://github.com/sloria/textblob-aptagger for details.
 type perceptronTagger struct {
-	tagMap map[string]string
-	model  *averagedPerceptron
+	model *averagedPerceptron
 }
 
 // newPerceptronTagger creates a new PerceptronTagger and loads the built-in
@@ -160,14 +262,6 @@ func newPerceptronTagger() *perceptronTagger {
 
 	return &perceptronTagger{model: newAveragedPerceptron(wts, tags, classes)}
 }
-
-/* TODO:
-
-// newTrainedPerceptronTagger creates a new PerceptronTagger using the given
-// model.
-func newTrainedPerceptronTagger(model *averagedPerceptron) *perceptronTagger {
-	return &perceptronTagger{model: model}
-}*/
 
 // tag takes a slice of words and returns a slice of tagged tokens.
 func (pt *perceptronTagger) tag(tokens []*Token) []*Token {
@@ -209,28 +303,6 @@ func (pt *perceptronTagger) tag(tokens []*Token) []*Token {
 	return tokens
 }
 
-func (pt *perceptronTagger) makeTagMap(sentences TupleSlice) {
-	counts := make(map[string]map[string]int)
-	for _, tuple := range sentences {
-		words, tags := tuple[0], tuple[1]
-		for i, word := range words {
-			tag := tags[i]
-			if counts[word] == nil {
-				counts[word] = make(map[string]int)
-			}
-			counts[word][tag]++
-			pt.model.addClass(tag)
-		}
-	}
-	for word, tagFreqs := range counts {
-		tag, mode := maxValue(tagFreqs)
-		n := float64(sumValues(tagFreqs))
-		if n >= 20 && (float64(mode)/n) >= 0.97 {
-			pt.tagMap[word] = tag
-		}
-	}
-}
-
 func (m *averagedPerceptron) predict(features map[string]float64) string {
 	var weights map[string]float64
 	var found bool
@@ -249,52 +321,6 @@ func (m *averagedPerceptron) predict(features map[string]float64) string {
 		}
 	}
 	return max(scores)
-}
-
-func (m *averagedPerceptron) update(truth, guess string, feats map[string]float64) {
-	m.instances++
-	if truth == guess {
-		return
-	}
-	for f := range feats {
-		weights := make(map[string]float64)
-		if val, ok := m.weights[f]; ok {
-			weights = val
-		} else {
-			m.weights[f] = weights
-		}
-		m.updateFeat(truth, f, get(truth, weights), 1.0)
-		m.updateFeat(guess, f, get(guess, weights), -1.0)
-	}
-}
-
-func (m *averagedPerceptron) updateFeat(c, f string, v, w float64) {
-	key := f + "-" + c
-	m.totals[key] = (m.instances - m.stamps[key]) * w
-	m.stamps[key] = m.instances
-	m.weights[f][c] = w + v
-}
-
-func (m *averagedPerceptron) addClass(class string) {
-	if !stringInSlice(class, m.classes) {
-		m.classes = append(m.classes, class)
-	}
-}
-
-func (m *averagedPerceptron) averageWeights() {
-	for feat, weights := range m.weights {
-		newWeights := make(map[string]float64)
-		for class, weight := range weights {
-			key := feat + "-" + class
-			total := m.totals[key]
-			total += (m.instances - m.stamps[key]) * weight
-			averaged, _ := stats.Round(total/m.instances, 3)
-			if averaged != 0.0 {
-				newWeights[class] = averaged
-			}
-		}
-		m.weights[feat] = newWeights
-	}
 }
 
 func max(scores map[string]float64) string {
@@ -355,31 +381,4 @@ func normalize(word string) string {
 		return "!DIGITS"
 	}
 	return strings.ToLower(word)
-}
-
-func sumValues(m map[string]int) int {
-	sum := 0
-	for _, v := range m {
-		sum += v
-	}
-	return sum
-}
-
-func maxValue(m map[string]int) (string, int) {
-	maxValue := 0
-	key := ""
-	for k, v := range m {
-		if v >= maxValue {
-			maxValue = v
-			key = k
-		}
-	}
-	return key, maxValue
-}
-
-func get(k string, m map[string]float64) float64 {
-	if v, ok := m[k]; ok {
-		return v
-	}
-	return 0.0
 }

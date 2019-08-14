@@ -16,7 +16,10 @@ func TestModelFromDisk(t *testing.T) {
 	temp := filepath.Join(testdata, "temp")
 	_ = os.RemoveAll(temp)
 
-	model.Write(temp)
+	err := model.Write(temp)
+	if err != nil {
+		panic(err)
+	}
 	model = ModelFromDisk(temp)
 
 	assert.Equal(t, model.Name, "temp")

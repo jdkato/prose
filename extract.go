@@ -10,7 +10,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/deckarep/golang-set"
+	mapset "github.com/deckarep/golang-set"
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -26,18 +26,6 @@ func (m *mappedProbDist) prob(label string) float64 {
 		return math.Pow(2, p)
 	}
 	return 0.0
-}
-
-func (m *mappedProbDist) max() string {
-	var class string
-	max := math.Inf(-1)
-	for label, value := range m.dict {
-		if value > max {
-			max = value
-			class = label
-		}
-	}
-	return class
 }
 
 func newMappedProbDist(dict map[string]float64, normalize bool) *mappedProbDist {

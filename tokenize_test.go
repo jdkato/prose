@@ -149,14 +149,20 @@ func BenchmarkTokenization(b *testing.B) {
 	in := readDataFile(filepath.Join(testdata, "sherlock.txt"))
 	text := string(in)
 	for n := 0; n < b.N; n++ {
-		makeDoc(text)
+		_, err := makeDoc(text)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
 func BenchmarkTokenizationSimple(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		for _, s := range getWordBenchData() {
-			makeDoc(s)
+			_, err := makeDoc(s)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }
