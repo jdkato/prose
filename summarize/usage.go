@@ -24,9 +24,10 @@ func (d *Document) WordDensity() map[string]float64 {
 // omitting stop words and normalizing case.
 func (d *Document) Keywords() map[string]int {
 	scores := map[string]int{}
+	stopWordsMap := util.SliceToMap(stopWords)
 	for word, freq := range d.WordFrequency {
 		normalized := strings.ToLower(word)
-		if util.StringInSlice(normalized, stopWords) {
+		if _, found := stopWordsMap[normalized]; found {
 			continue
 		}
 		if _, found := scores[normalized]; found {
