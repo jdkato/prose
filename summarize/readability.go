@@ -63,9 +63,7 @@ func (d *Document) DaleChall() float64 {
 	easy := 0.0
 	easyWordsMap := util.SliceToMap(easyWords)
 	for word := range d.WordFrequency {
-
-		_, ok := easyWordsMap[word]
-		if ok {
+		if _, ok := easyWordsMap[word]; ok {
 			easy++
 		}
 	}
