@@ -96,3 +96,18 @@ func ContainsAny(a string, b []string) bool {
 	}
 	return false
 }
+
+// SliceToMap takes in a slice of strings.  It then converts the slice into a map
+// where the keys of the map is the strings in the slice and the value of the map
+// is an empty struct.  This map is useful for doing repeated contains searches
+// on the input slice.
+func SliceToMap(slice []string) map[string]struct{} {
+	// The value of this map is an empty struct because it will have a width of zero
+	// and therefore takes up no memory.
+	set := make(map[string]struct{}, len(slice))
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+
+	return set
+}

@@ -61,9 +61,11 @@ func (d *Document) ColemanLiau() float64 {
 // (https://en.wikipedia.org/wiki/Dale%E2%80%93Chall_readability_formula).
 func (d *Document) DaleChall() float64 {
 	easy := 0.0
+	easyWordsMap := util.SliceToMap(easyWords)
 	for word := range d.WordFrequency {
-		// TODO: look into more efficient lookup techniques.
-		if util.StringInSlice(word, easyWords) {
+
+		_, ok := easyWordsMap[word]
+		if ok {
 			easy++
 		}
 	}
