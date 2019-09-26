@@ -3,7 +3,6 @@ package summarize
 import (
 	"strings"
 
-	"github.com/jdkato/prose/internal/util"
 	"github.com/montanaflynn/stats"
 )
 
@@ -24,10 +23,9 @@ func (d *Document) WordDensity() map[string]float64 {
 // omitting stop words and normalizing case.
 func (d *Document) Keywords() map[string]int {
 	scores := map[string]int{}
-	stopWordsMap := util.SliceToMap(stopWords)
 	for word, freq := range d.WordFrequency {
 		normalized := strings.ToLower(word)
-		if _, found := stopWordsMap[normalized]; found {
+		if _, found := stopWords[normalized]; found {
 			continue
 		}
 		if _, found := scores[normalized]; found {

@@ -2,8 +2,6 @@ package summarize
 
 import (
 	"math"
-
-	"github.com/jdkato/prose/internal/util"
 )
 
 // FleschKincaid computes the Flesch–Kincaid grade level
@@ -61,9 +59,8 @@ func (d *Document) ColemanLiau() float64 {
 // (https://en.wikipedia.org/wiki/Dale%E2%80%93Chall_readability_formula).
 func (d *Document) DaleChall() float64 {
 	easy := 0.0
-	easyWordsMap := util.SliceToMap(easyWords)
 	for word := range d.WordFrequency {
-		if _, ok := easyWordsMap[word]; ok {
+		if _, ok := easyWords[word]; ok {
 			easy++
 		}
 	}
