@@ -36,19 +36,7 @@ test: test-tokenize test-transform test-summarize test-chunk test-tag
 ci: test lint
 
 lint:
-	gometalinter --vendor --disable-all \
-		--enable=deadcode \
-		--enable=ineffassign \
-		--enable=gosimple \
-		--enable=staticcheck \
-		--enable=gofmt \
-		--enable=goimports \
-		--enable=misspell \
-		--enable=errcheck \
-		--enable=vet \
-		--enable=vetshadow \
-		--deadline=1m \
-		./tokenize ./tag ./transform ./summarize ./chunk
+	golangci-lint run
 
 setup:
 	go get -u github.com/shogo82148/go-shuffle
@@ -57,10 +45,9 @@ setup:
 	go get -u gopkg.in/neurosnap/sentences.v1/english
 	go get -u github.com/stretchr/testify/assert
 	go get -u github.com/urfave/cli
-	go get -u github.com/alecthomas/gometalinter
 	go get -u github.com/jteeuwen/go-bindata/...
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
-	gometalinter --install
+	wget -O - -q https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s v1.19.1
 
 model:
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/*.gob

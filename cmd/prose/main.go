@@ -8,8 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jdkato/prose/tag"
 	"github.com/urfave/cli"
+
+	"github.com/jdkato/prose/tag"
 )
 
 // Version is the semantic version number

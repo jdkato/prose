@@ -24,9 +24,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jdkato/prose/internal/util"
 	"gopkg.in/neurosnap/sentences.v1"
 	"gopkg.in/neurosnap/sentences.v1/data"
+
+	"github.com/jdkato/prose/internal/util"
 )
 
 // PunktSentenceTokenizer is an extension of the Go implementation of the Punkt
