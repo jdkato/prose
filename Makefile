@@ -3,7 +3,7 @@ BUILD_DIR=./builds
 
 LDFLAGS=-ldflags "-s -w"
 
-.PHONY: clean test lint ci cross install bump model setup
+.PHONY: clean test lint ci cross install bump model setup vendor
 
 all: build
 
@@ -64,3 +64,6 @@ setup:
 
 model:
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/*.gob
+
+vendor:
+	go mod tidy && go mod vendor

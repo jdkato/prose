@@ -1,0 +1,23 @@
+# github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d
+github.com/cpuguy83/go-md2man/v2/md2man
+# github.com/davecgh/go-spew v1.1.0
+github.com/davecgh/go-spew/spew
+# github.com/montanaflynn/stats v0.5.0
+github.com/montanaflynn/stats
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/russross/blackfriday/v2 v2.0.1
+github.com/russross/blackfriday/v2
+# github.com/shogo82148/go-shuffle v0.0.0-20180218125048-27e6095f230d
+github.com/shogo82148/go-shuffle
+# github.com/shurcooL/sanitized_anchor_name v1.0.0
+github.com/shurcooL/sanitized_anchor_name
+# github.com/stretchr/testify v1.4.0
+github.com/stretchr/testify/assert
+# github.com/urfave/cli v1.22.1
+github.com/urfave/cli
+# gopkg.in/neurosnap/sentences.v1 v1.0.6
+gopkg.in/neurosnap/sentences.v1
+gopkg.in/neurosnap/sentences.v1/data
+# gopkg.in/yaml.v2 v2.2.2
+gopkg.in/yaml.v2
