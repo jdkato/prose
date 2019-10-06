@@ -7,6 +7,9 @@ install:
   - make setup
   - make build
 
+env:
+  - GO111MODULE=on
+
 stages:
   - name: Build & test
     if: type != cron

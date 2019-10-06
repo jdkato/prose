@@ -45,7 +45,7 @@ setup:
 	go get -u gopkg.in/neurosnap/sentences.v1/english
 	go get -u github.com/stretchr/testify/assert
 	go get -u github.com/urfave/cli
-	go get -u github.com/jteeuwen/go-bindata/...
+	GO111MODULE=off go get -u github.com/jteeuwen/go-bindata/...
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
 	wget -O - -q https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s v1.19.1
 
