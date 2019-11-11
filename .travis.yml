@@ -5,6 +5,7 @@ go:
 
 install:
   - make setup
+  # TODO: Remove `cmd` altogether
   - make build
 
 stages:

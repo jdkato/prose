@@ -25,7 +25,7 @@ func main() {
 	app.Usage = "A command-line POS tagger (for testing purposes only!)"
 	app.Version = Version
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:        "path",
 			Usage:       "read `path` as source input instead of stdin",
 			Destination: &file,

@@ -51,14 +51,14 @@ lint:
 		./tokenize ./tag ./transform ./summarize ./chunk
 
 setup:
-	go get -u github.com/shogo82148/go-shuffle
-	go get -u github.com/jdkato/syllables
-	go get -u github.com/montanaflynn/stats
-	go get -u gopkg.in/neurosnap/sentences.v1/english
-	go get -u github.com/stretchr/testify/assert
-	go get -u github.com/urfave/cli
-	go get -u github.com/alecthomas/gometalinter
-	go get -u github.com/jteeuwen/go-bindata/...
+	go get github.com/shogo82148/go-shuffle
+	go get github.com/jdkato/syllables
+	go get github.com/montanaflynn/stats
+	go get gopkg.in/neurosnap/sentences.v1/english
+	go get github.com/stretchr/testify/assert
+	go get github.com/urfave/cli
+	go get github.com/alecthomas/gometalinter
+	go get github.com/jteeuwen/go-bindata/...
 	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
 	gometalinter --install
 
