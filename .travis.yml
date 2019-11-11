@@ -27,12 +27,13 @@ jobs:
         - go get github.com/mattn/goveralls
         - bash scripts/cover.sh
 
-    - stage: Fuzzit-Regression
-      go: 1.12.x
-      script:
-        - bash scripts/fuzzit.sh regression
-
-    - stage: Fuzzit-Fuzzing
-      go: 1.12.x
-      script:
-        - bash scripts/fuzzit.sh fuzzing
+    # TODO: Fix this
+    # - stage: Fuzzit-Regression
+    #   go: 1.12.x
+    #   script:
+    #     - bash scripts/fuzzit.sh regression
+    #
+    # - stage: Fuzzit-Fuzzing
+    #   go: 1.12.x
+    #   script:
+    #     - bash scripts/fuzzit.sh fuzzing
