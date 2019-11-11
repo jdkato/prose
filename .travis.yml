@@ -12,10 +12,10 @@ stages:
     if: type != cron
 
   - name: Fuzzit-Regression
-    if: type != cron AND branch = master AND type IN (pull_request)
+    if: type != cron AND type != pull_request AND branch = master
 
   - name: Fuzzit-Fuzzing
-    if: type != cron
+    if: type != cron AND type != pull_request AND branch = master
 
 jobs:
   include:
@@ -23,8 +23,8 @@ jobs:
       script:
         - make test
         # Coveralls is down for maintenance currently
-        # - go get github.com/mattn/goveralls
-        # - bash scripts/cover.sh
+        - go get github.com/mattn/goveralls
+        - bash scripts/cover.sh
 
     - stage: Fuzzit-Regression
       go: 1.12.x
