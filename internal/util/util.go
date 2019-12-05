@@ -9,6 +9,43 @@ import (
 	"strings"
 )
 
+var empty struct{}
+
+var punctuation map[byte]struct{}{
+	"\\": empty,
+	'"': empty,
+	"!": empty,
+	"#": empty, 
+	"$": empty, 
+	"%": empty,
+	"&": empty,
+	"'": empty,
+	"(": empty,
+	")": empty,
+	"*": empty,
+	"+": empty,
+	",": empty, 
+	"-": empty,
+	".": empty,
+	"/": empty,
+	":": empty,
+	";": empty,
+	"<": empty,
+	"=": empty,
+	">": empty,
+	"?": empty,
+	"@": empty,
+	"[": empty,
+	"]": empty,
+	"^": empty,
+	"_": empty,
+	"`": empty,
+	"{": empty,
+	"|": empty,
+	"}": empty,
+	"~": empty,
+}
+
 // ReadDataFile reads data from a file, panicking on any errors.
 func ReadDataFile(path string) []byte {
 	p, err := filepath.Abs(path)
@@ -37,12 +74,8 @@ func Min(a, b int) int {
 
 // IsPunct determines if a character is a punctuation symbol.
 func IsPunct(c byte) bool {
-	for _, r := range []byte("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~") {
-		if c == r {
-			return true
-		}
-	}
-	return false
+	_, ok := punctuation[c]
+	return ok
 }
 
 // IsSpace determines if a character is a whitespace character.
