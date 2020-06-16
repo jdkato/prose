@@ -20,4 +20,4 @@ do
 
 done
 
-goveralls -coverprofile=acc.out -service=travis-ci
+goveralls -coverprofile=acc.out -service=travis-ci -ignore=data.go,utilities.go

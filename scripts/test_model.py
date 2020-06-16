@@ -17,9 +17,9 @@ AP_TIME = []
 
 def pipe_through_prog(prog, text):
     global AP_TIME
+    cmd = ['go', 'run'] + prog.split()
     for _ in range(5):
-        p1 = sp.Popen(
-            prog.split(), stdout=sp.PIPE, stdin=sp.PIPE, stderr=sp.PIPE)
+        p1 = sp.Popen(cmd, stdout=sp.PIPE, stdin=sp.PIPE, stderr=sp.PIPE)
         now = time.time()
         [result, err] = p1.communicate(input=text.encode('utf-8'))
         AP_TIME.append(time.time() - now)
@@ -31,8 +31,8 @@ class APTagger(TaggerI):
     """A wrapper around the aptag Go library.
     """
     def tag(self, tokens):
-        prog = os.path.join('bin', 'prose')
-        ret, tags, err = pipe_through_prog(prog, ' '.join(tokens))
+        prog = os.path.join('scripts', 'main.go')
+        _, tags, _ = pipe_through_prog(prog, ' '.join(tokens))
         return tags
 
     def tag_sents(self, sentences):
@@ -44,6 +44,8 @@ class APTagger(TaggerI):
     def evaluate(self, gold):
         tagged_sents = self.tag_sents(untag(sent) for sent in gold)
         gold_tokens = list(itertools.chain(*gold))
+        print(json.dumps(gold_tokens))
+        print(len(tagged_sents), len(gold_tokens))
         return accuracy(gold_tokens, tagged_sents)
 
 
@@ -59,14 +61,16 @@ if __name__ == '__main__':
         pt_times.append(time.time() - now)
     pt_time = round(sum(pt_times) / len(pt_times), 3)
 
+    '''NOTE: Moved to tag_test.go
     print("Timing prose ...")
     acc = round(APTagger().evaluate(sents), 3)
     ap_time = round(sum(AP_TIME) / len(AP_TIME), 3)
+    '''
 
     print("Evaluating accuracy ...")
     headers = ['Library', 'Accuracy', '5-Run Average (sec)']
     table = [
         ['NLTK', round(PT.evaluate(sents), 3), pt_time],
-        ['`prose`', acc, ap_time]
+        # ['`prose`', acc, ap_time]
     ]
     print(tabulate(table, headers, tablefmt='pipe'))

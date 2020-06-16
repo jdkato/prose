@@ -218,6 +218,79 @@
     ]
   },
   {
+    "name": "31. Double punctuation (question mark / exclamation point)",
+    "input": "The first item 2.) The second item",
+    "output": [
+      "1.) The first item",
+      "2.) The second item"
+    ]
+  },
+  {
+    "name": "32. List (period followed by parens and period to end item)",
+    "input": "The first item. 2.) The second item.",
+    "output": [
+      "1.) The first item.",
+      "2.) The second item."
+    ]
+  },
+  {
+    "name": "33.) List (parens and no period to end item)",
+    "input": "The first item. 2.) The second item.",
+    "output": [
+      "1) The first item",
+      "2) The second item"
+    ]
+  },
+  {
+    "name": "34. List (parens and period to end item)",
+    "input": "The first item. 2) The second item.",
+    "output": [
+      "1) The first item.",
+      "2) The second item."
+    ]
+  },
+  {
+    "name": "35.) List (period to mark list and no period to end item)",
+    "input": "The first item. 2) The second item.",
+    "output": [
+      "1. The first item",
+      "2. The second item"
+    ]
+  },
+  {
+    "name": "36. List (period to mark list and period to end item)",
+    "input": "1. The first item. 2. The second item.",
+    "output": [
+      "1. The first item.",
+      "2. The second item."
+    ]
+  },
+  {
+    "name": "37. List with bullet",
+    "input": "• 9. The first item • 10. The second item",
+    "output": [
+      "• 9. The first item",
+      "• 10. The second item"
+    ]
+  },
+  {
+    "name": "38. List with hypthen",
+    "input": "⁃9. The first item ⁃10. The second item",
+    "output": [
+      "⁃9. The first item",
+      "⁃10. The second item"
+    ]
+  },
+  {
+    "name": "39. Alphabetical list",
+    "input": "a. The first item b. The second item c. The third list item",
+    "output": [
+      "a. The first item",
+      "b. The second item",
+      "c. The third list item"
+    ]
+  },
+  {
     "name":"40. Errant newlines in the middle of sentences (PDF)",
     "input":"This is a sentence\ncut off in the middle because pdf.",
     "output":[

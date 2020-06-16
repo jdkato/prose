@@ -18,8 +18,7 @@
     [
         "abbreviations",
         "like",
-        "M.D",
-        "."
+        "M.D."
     ],
     [
         "and",
@@ -68,7 +67,8 @@
         "name",
         "is",
         "Jonas",
-        "E.",
+        "E",
+        ".",
         "Smith",
         "."
     ],
@@ -79,7 +79,9 @@
         "on",
         "Thursday",
         "morning",
-        "...",
+        ".",
+        ".",
+        ".",
         "Arthur",
         "did",
         "n't",
@@ -92,7 +94,8 @@
         "Please",
         "turn",
         "to",
-        "p.",
+        "p",
+        ".",
         "55",
         "."
     ],
@@ -100,7 +103,8 @@
         "Were",
         "Jane",
         "and",
-        "co.",
+        "co",
+        ".",
         "at",
         "the",
         "party",
@@ -146,8 +150,7 @@
         ",",
         "Briggs",
         "&",
-        "Co",
-        "."
+        "Co."
     ],
     [
         "It",
@@ -159,8 +162,7 @@
         "I",
         "can",
         "see",
-        "Mt",
-        "."
+        "Mt."
     ],
     [
         "Fuji",
@@ -176,7 +178,8 @@
         "is",
         "on",
         "5th",
-        "st.",
+        "st",
+        ".",
         "near",
         "the",
         "light",
@@ -205,8 +208,7 @@
         "live",
         "in",
         "the",
-        "E.U",
-        "."
+        "E.U."
     ],
     [
         "How",
@@ -330,9 +332,7 @@
         "Her",
         "email",
         "is",
-        "Jane.Doe",
-        "@",
-        "example.com",
+        "Jane.Doe@example.com",
         "."
     ],
     [
@@ -348,9 +348,7 @@
         "site",
         "is",
         ":",
-        "https",
-        ":",
-        "//www.example.50.com/new-site/awesome_content.html",
+        "https://www.example.50.com/new-site/awesome_content.html",
         "."
     ],
     [
@@ -383,12 +381,12 @@
         "to",
         "him",
         ",",
-        "``",
+        "\"",
         "This",
         "is",
         "great",
         ".",
-        "''"
+        "\""
     ],
     [
         "she",
@@ -401,12 +399,12 @@
         "to",
         "him",
         ",",
-        "``",
+        "\"",
         "This",
         "is",
         "great",
         ".",
-        "''"
+        "\""
     ],
     [
         "She",
@@ -617,7 +615,8 @@
         "The",
         "second",
         "item",
-        "c.",
+        "c",
+        ".",
         "The",
         "third",
         "list",
@@ -709,7 +708,8 @@
         "you",
         "see",
         "Albert",
-        "I.",
+        "I",
+        ".",
         "Jones",
         "yesterday",
         "?"
@@ -720,10 +720,12 @@
         "that",
         "by",
         "simplifying",
-        "one\u2019s",
+        "one",
+        "'s",
         "life",
         ",",
-        "\u201cthe",
+        "\"",
+        "the",
         "laws",
         "of",
         "the",
@@ -741,13 +743,16 @@
         "."
     ],
     [
-        ".\u201d"
+        ".",
+        "\""
     ],
     [
-        "``",
+        "\"",
         "Bohr",
         "[",
-        "...",
+        ".",
+        ".",
+        ".",
         "]",
         "used",
         "the",
@@ -756,9 +761,11 @@
         "parallel",
         "stairways",
         "[",
-        "...",
+        ".",
+        ".",
+        ".",
         "]",
-        "''",
+        "\"",
         "(",
         "Smith",
         "55",
@@ -832,26 +839,14 @@
         "never",
         "meant",
         "that",
-        "...",
+        ".",
+        ".",
+        ".",
         ".",
         "She",
         "left",
         "the",
         "store",
-        "."
-    ],
-    [
-        "I",
-        "wasn\u2019t",
-        "really",
-        "...",
-        "well",
-        ",",
-        "what",
-        "I",
-        "mean",
-        "...",
-        "see",
         "."
     ],
     [
@@ -879,7 +874,8 @@
     ],
     [
         "I",
-        "didn\u2019t",
+        "did",
+        "n't",
         "mean",
         "it",
         "."
@@ -952,10 +948,8 @@
         "store",
         "and",
         "bought",
-        "1,000.That",
-        "is",
-        "a",
-        "lot",
+        "1,000",
+        "things",
         "."
     ]
 ]

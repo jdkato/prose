@@ -14,53 +14,27 @@ build-win:
 	go build ${LDFLAGS} -o bin/prose.exe ./cmd/prose
 
 bench:
-	go test -bench=. ./tokenize ./transform ./summarize ./tag ./chunk
+	go test -bench=. -run=^$$ -benchmem
 
-test-tokenize:
-	go test -v ./tokenize
+test:
+	go test -v
 
-test-transform:
-	go test -v ./transform
-
-test-summarize:
-	go test -v ./summarize
-
-test-chunk:
-	go test -v ./chunk
-
-test-tag:
-	go test -v ./tag
-
-test: test-tokenize test-transform test-summarize test-chunk test-tag
-
-ci: test lint
+ci: lint test
 
 lint:
-	gometalinter --vendor --disable-all \
-		--enable=deadcode \
-		--enable=ineffassign \
-		--enable=gosimple \
-		--enable=staticcheck \
-		--enable=gofmt \
-		--enable=goimports \
-		--enable=misspell \
-		--enable=errcheck \
-		--enable=vet \
-		--enable=vetshadow \
-		--deadline=1m \
-		./tokenize ./tag ./transform ./summarize ./chunk
+	./bin/golangci-lint run
 
 setup:
-	go get github.com/shogo82148/go-shuffle
-	go get github.com/jdkato/syllables
-	go get github.com/montanaflynn/stats
-	go get gopkg.in/neurosnap/sentences.v1/english
-	go get github.com/stretchr/testify/assert
-	go get github.com/urfave/cli
-	go get github.com/alecthomas/gometalinter
-	go get github.com/jteeuwen/go-bindata/...
-	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/
-	gometalinter --install
+	go get -u github.com/shogo82148/go-shuffle
+	go get -u github.com/willf/pad
+	go get -u github.com/montanaflynn/stats
+	go get -u gopkg.in/neurosnap/sentences.v1/english
+	go get -u github.com/stretchr/testify/assert
+	go get -u github.com/urfave/cli
+	go get -u github.com/jteeuwen/go-bindata/...
+	go get -u github.com/deckarep/golang-set
+	go get -u github.com/mingrammer/commonregex
+	go get -u gonum.org/v1/gonum/mat
 
 model:
-	go-bindata -ignore=\\.DS_Store -pkg="model" -o internal/model/model.go internal/model/*.gob
+	go-bindata -ignore=\\.DS_Store -pkg="prose" -o data.go model/**/*.gob
