@@ -2,7 +2,7 @@
 
 `prose` is a natural language processing library (English only, at the moment) in *pure Go*. It supports tokenization, segmentation, part-of-speech tagging, and named-entity extraction.
 
-You can can find a more detailed summary on the library's performance here: [Introducing `prose` v2.0.0: Bringing NLP *to Go*](https://medium.com/@errata.ai/introducing-prose-v2-0-0-bringing-nlp-to-go-a1f0c121e4a5).
+You can find a more detailed summary on the library's performance here: [Introducing `prose` v2.0.0: Bringing NLP *to Go*](https://medium.com/@errata.ai/introducing-prose-v2-0-0-bringing-nlp-to-go-a1f0c121e4a5).
 
 ## Installation
 
@@ -82,7 +82,7 @@ doc, err := prose.NewDocument(
 
 ### Tokenizing
 
-`prose` includes a tokenizer capable of hanlding modern text, including the non-word character spans shown below.
+`prose` includes a tokenizer capable of handling modern text, including the non-word character spans shown below.
 
 | Type            | Example                           |
 |-----------------|-----------------------------------|
