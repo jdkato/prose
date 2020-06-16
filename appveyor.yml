@@ -8,7 +8,5 @@ init:
   - cmd: copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
 install:
   - set PATH=%GOPATH%\bin;c:\go\bin;C:\Ruby22\bin;%cd%\bin;%PATH%
-build_script:
-  - cmd: make setup
 test_script:
   - cmd: make test
