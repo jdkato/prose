@@ -1,4 +1,4 @@
-# prose [![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose) [![Build status](https://ci.appveyor.com/api/projects/status/24bepq85nnnk4scr?svg=true)](https://ci.appveyor.com/project/jdkato/prose) [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/gopkg.in/jdkato/prose.v2) [![Coverage Status](https://coveralls.io/repos/github/jdkato/prose/badge.svg?branch=v2)](https://coveralls.io/github/jdkato/prose?branch=v2) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose)](https://goreportcard.com/report/github.com/jdkato/prose) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#natural-language-processing)
+# prose [![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose) [![Build status](https://ci.appveyor.com/api/projects/status/24bepq85nnnk4scr?svg=true)](https://ci.appveyor.com/project/jdkato/prose) [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/github.com/jdkato/prose/v2) [![Coverage Status](https://coveralls.io/repos/github/jdkato/prose/badge.svg?branch=v2)](https://coveralls.io/github/jdkato/prose?branch=v2) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose)](https://goreportcard.com/report/github.com/jdkato/prose) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#natural-language-processing)
 
 `prose` is a natural language processing library (English only, at the moment) in *pure Go*. It supports tokenization, segmentation, part-of-speech tagging, and named-entity extraction.
 
@@ -7,7 +7,7 @@ You can can find a more detailed summary on the library's performance here: [Int
 ## Installation
 
 ```console
-$ go get  github.com/jdkato/prose/v2
+$ go get github.com/jdkato/prose/v2
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ import (
     "fmt"
     "log"
 
-    "gopkg.in/jdkato/prose.v2"
+    "github.com/jdkato/prose/v2"
 )
 
 func main() {
@@ -100,7 +100,7 @@ import (
     "fmt"
     "log"
 
-    "gopkg.in/jdkato/prose.v2"
+    "github.com/jdkato/prose/v2"
 )
 
 func main() {
@@ -239,7 +239,7 @@ The full list of supported POS tags is given below.
 package main
 
 import (
-    "gopkg.in/jdkato/prose.v2"
+    "github.com/jdkato/prose/v2"
 )
 
 func main() {
