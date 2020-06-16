@@ -7,7 +7,7 @@ You can can find a more detailed summary on the library's performance here: [Int
 ## Installation
 
 ```console
-$ go get gopkg.in/jdkato/prose.v2
+$ go get  github.com/jdkato/prose/v2
 ```
 
 ## Usage
