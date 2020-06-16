@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func makeNER(text string, model *Model) (*Document, error) {
@@ -61,7 +59,10 @@ func split(data []prodigyOuput) ([]EntityContext, []prodigyOuput) {
 }
 
 func TestSumLogs(t *testing.T) {
-	assert.Equal(t, 3.0, sumLogs([]float64{math.Log2(3), math.Log2(5)}))
+	s := sumLogs([]float64{math.Log2(3), math.Log2(5)})
+	if s != 3.0 {
+		t.Errorf("sumLogs() expected = %v, got = %v", 3.0, s)
+	}
 }
 
 func TestNERProdigy(t *testing.T) {
@@ -91,5 +92,9 @@ func TestNERProdigy(t *testing.T) {
 			}
 		}
 	}
-	assert.True(t, correct/float64(len(test)) >= 0.819444) // baseline
+
+	r := correct / float64(len(test))
+	if r < 0.819444 {
+		t.Errorf("NERProdigy() expected >= 0.819444, got = %v", r)
+	}
 }

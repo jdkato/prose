@@ -25,8 +25,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/mingrammer/commonregex"
 )
 
 // TupleSlice is a slice of tuples in the form (words, tags).
@@ -284,9 +282,8 @@ func (pt *perceptronTagger) tag(tokens []*Token) []*Token {
 			tag = "-"
 		} else if _, ok := emoticons[word]; ok {
 			tag = "SYM"
-		} else if commonregex.LinkRegex.MatchString(word) ||
-			commonregex.EmailRegex.MatchString(word) ||
-			strings.HasPrefix(word, "@") {
+		} else if strings.HasPrefix(word, "@") {
+			// TODO: URLs and emails?
 			tag = "NN"
 		} else if none.MatchString(word) {
 			tag = "-NONE-"

@@ -4,14 +4,15 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestModelFromDisk(t *testing.T) {
 	data := filepath.Join(testdata, "PRODUCT")
+
 	model := ModelFromDisk(data)
-	assert.Equal(t, model.Name, "PRODUCT")
+	if model.Name != "PRODUCT" {
+		t.Errorf("ModelFromDisk() expected = PRODUCT, got = %v", model.Name)
+	}
 
 	temp := filepath.Join(testdata, "temp")
 	_ = os.RemoveAll(temp)
@@ -21,6 +22,7 @@ func TestModelFromDisk(t *testing.T) {
 		panic(err)
 	}
 	model = ModelFromDisk(temp)
-
-	assert.Equal(t, model.Name, "temp")
+	if model.Name != "temp" {
+		t.Errorf("ModelFromDisk() expected = temp, got = %v", model.Name)
+	}
 }

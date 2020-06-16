@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func makeTagger(text string) (*Document, error) {
@@ -31,9 +30,11 @@ func TestTagSimple(t *testing.T) {
 	for _, tok := range doc.Tokens() {
 		tags = append(tags, tok.Tag)
 	}
-	assert.Equal(t, []string{
+	if !reflect.DeepEqual([]string{
 		"NNP", "NNP", ",", "CD", "NNS", "JJ", ",", "MD", "VB", "DT", "NN",
-		"IN", "DT", "JJ", "NN", "NNP", "CD", "."}, tags)
+		"IN", "DT", "JJ", "NN", "NNP", "CD", "."}, tags) {
+		t.Errorf("TagSimple() got = %v", tags)
+	}
 }
 
 func TestTagTreebank(t *testing.T) {
@@ -52,7 +53,11 @@ func TestTagTreebank(t *testing.T) {
 			correct++
 		}
 	}
-	assert.True(t, correct/float64(len(expected)) >= 0.957477) // baseline
+
+	v := correct / float64(len(expected))
+	if v < 0.957477 {
+		t.Errorf("TagTreebank() expected >= 0.957477, got = %v", v)
+	}
 }
 
 func BenchmarkTag(b *testing.B) {

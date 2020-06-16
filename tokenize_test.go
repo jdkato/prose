@@ -3,12 +3,18 @@ package prose
 import (
 	"encoding/json"
 	"path/filepath"
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 var testdata = "testdata"
+
+func checkCase(t *testing.T, doc *Document, expected []string, name string) {
+	tokens := getTokenText(doc)
+	if !reflect.DeepEqual(tokens, expected) {
+		t.Errorf("%v: unexpected tokens", name)
+	}
+}
 
 func makeDoc(text string) (*Document, error) {
 	return NewDocument(
@@ -49,7 +55,11 @@ func getWordBenchData() []string {
 
 func TestTokenizationEmpty(t *testing.T) {
 	doc, _ := makeDoc("")
-	assert.Len(t, getTokenText(doc), 0)
+
+	l := len(getTokenText(doc))
+	if l != 0 {
+		t.Errorf("TokenizationEmpty() expected = 0, got = %v", l)
+	}
 }
 
 func TestTokenizationSimple(t *testing.T) {
@@ -62,14 +72,17 @@ func TestTokenizationSimple(t *testing.T) {
 		"offer", "a", "one-size-fits-all", "collection", "of", "rules—instead",
 		",", "it", "strives", "to", "make", "customization", "as", "easy", "as",
 		"possible", "."}
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationSimple()")
 }
 
 func TestTokenizationTreebank(t *testing.T) {
 	input, output := getWordData("treebank_words.json")
 	for i, s := range input {
 		doc, _ := makeDoc(s)
-		assert.Equal(t, output[i], getTokenText(doc))
+		tokens := getTokenText(doc)
+		if !reflect.DeepEqual(tokens, output[i]) {
+			t.Errorf("TokenizationTreebank(): unexpected tokens")
+		}
 	}
 }
 
@@ -87,7 +100,7 @@ func TestTokenizationWeb(t *testing.T) {
 		">0.67", "SD", "score", ")", "had", "higher", "IGF-I", "levels", "than", "other", "children",
 		"(", "P=0.02", ";", "http://univ.edu.es/study.html", ")", "[", "20-22", "]", "."}
 	doc, _ := makeDoc(web)
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationWeb()")
 }
 
 func TestTokenizationWebParagraph(t *testing.T) {
@@ -130,32 +143,32 @@ func TestTokenizationWebParagraph(t *testing.T) {
 		"(", "P=0.02", ";", "http://univ.edu.es/study.html", ")", "[", "20-22", "]", "."}
 
 	doc, _ := makeDoc(web)
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationWebParagraph()")
 }
 
 func TestTokenizationTwitter(t *testing.T) {
 	doc, _ := makeDoc("@twitter, what time does it start :-)")
 	expected := []string{"@twitter", ",", "what", "time", "does", "it", "start", ":-)"}
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationWebParagraph(1)")
 
 	doc, _ = makeDoc("Mr. James plays basketball in the N.B.A., do you?")
 	expected = []string{
 		"Mr.", "James", "plays", "basketball", "in", "the", "N.B.A.", ",",
 		"do", "you", "?"}
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationWebParagraph(2)")
 
 	doc, _ = makeDoc("ˌˌ kill the last letter")
 	expected = []string{"ˌˌ", "kill", "the", "last", "letter"}
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationWebParagraph(3)")
 
 	doc, _ = makeDoc("ˌˌˌ kill the last letter")
 	expected = []string{"ˌˌˌ", "kill", "the", "last", "letter"}
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationWebParagraph(4)")
 
 	doc, _ = makeDoc("March. July. March. June. January.")
 	expected = []string{
 		"March", ".", "July", ".", "March", ".", "June", ".", "January", "."}
-	assert.Equal(t, expected, getTokenText(doc))
+	checkCase(t, doc, expected, "TokenizationWebParagraph(5)")
 }
 
 func BenchmarkTokenization(b *testing.B) {

@@ -10,7 +10,6 @@ import (
 	"strings"
 	"unicode"
 
-	mapset "github.com/deckarep/golang-set"
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -94,13 +93,14 @@ func newMaxentClassifier(
 	mapping map[string]int,
 	labels []string) *binaryMaxentClassifier {
 
-	set := mapset.NewSet()
+	set := make(map[string]struct{})
 	for label := range mapping {
-		set.Add(strings.Split(label, "-")[0])
+		k := strings.Split(label, "-")[0]
+		set[k] = struct{}{}
 	}
 
 	return &binaryMaxentClassifier{
-		set.Cardinality() + 1,
+		len(set) + 1,
 		labels,
 		mapping,
 		weights}
