@@ -1,13 +1,6 @@
-<<<<<<< HEAD
-# prose [![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose) [![Build status](https://ci.appveyor.com/api/projects/status/24bepq85nnnk4scr/branch/master?svg=true)](https://ci.appveyor.com/project/jdkato/prose/branch/master) [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/github.com/jdkato/prose) [![Coverage Status](https://coveralls.io/repos/github/jdkato/prose/badge.svg?branch=master)](https://coveralls.io/github/jdkato/prose?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose)](https://goreportcard.com/report/github.com/jdkato/prose) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#natural-language-processing)
-
-
-`prose` is Go library for text (primarily English at the moment) processing that supports tokenization, part-of-speech tagging, named-entity extraction, and more. The library's functionality is split into subpackages designed for modular use.
-=======
 # prose [![Build Status](https://travis-ci.org/jdkato/prose.svg?branch=master)](https://travis-ci.org/jdkato/prose) [![Build status](https://ci.appveyor.com/api/projects/status/24bepq85nnnk4scr?svg=true)](https://ci.appveyor.com/project/jdkato/prose) [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/gopkg.in/jdkato/prose.v2) [![Coverage Status](https://coveralls.io/repos/github/jdkato/prose/badge.svg?branch=v2)](https://coveralls.io/github/jdkato/prose?branch=v2) [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose)](https://goreportcard.com/report/github.com/jdkato/prose) [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/avelino/awesome-go#natural-language-processing)
 
 `prose` is a natural language processing library (English only, at the moment) in *pure Go*. It supports tokenization, segmentation, part-of-speech tagging, and named-entity extraction.
->>>>>>> v2
 
 You can can find a more detailed summary on the library's performance here: [Introducing `prose` v2.0.0: Bringing NLP *to Go*](https://medium.com/@errata.ai/introducing-prose-v2-0-0-bringing-nlp-to-go-a1f0c121e4a5).
 

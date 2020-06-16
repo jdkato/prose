@@ -313,11 +313,7 @@ func (m *averagedPerceptron) predict(features map[string]float64) string {
 			continue
 		}
 		for label, weight := range weights {
-			if _, ok := scores[label]; ok {
-				scores[label] += value * weight
-			} else {
-				scores[label] = value * weight
-			}
+			scores[label] += value * weight
 		}
 	}
 	return max(scores)
@@ -360,11 +356,7 @@ func featurize(i int, ctx []string, w, p1, p2 string) map[string]float64 {
 
 func add(args []string, features map[string]float64) map[string]float64 {
 	key := strings.Join(args, " ")
-	if _, ok := features[key]; ok {
-		features[key]++
-	} else {
-		features[key] = 1
-	}
+	features[key]++
 	return features
 }
 

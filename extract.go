@@ -492,11 +492,7 @@ func encode(corpus featureSet) *binaryMaxentClassifier {
 		for _, fname := range featureOrder {
 			fval := entry.features[fname]
 			key := strings.Join([]string{fname, fval}, "-")
-			if _, ok := count[key]; ok {
-				count[key]++
-			} else {
-				count[key] = 1
-			}
+			count[key]++
 			entry := strings.Join([]string{fname, fval, label}, "-")
 			if _, found := mapping[entry]; !found {
 				mapping[entry] = len(mapping)
