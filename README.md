@@ -69,7 +69,7 @@ The document-creation process adheres to the following sequence of steps:
 ```text
 tokenization -> POS tagging -> NE extraction
             \
-             segmenatation
+             segmentation
 ```
 
 Each step may be disabled (assuming later steps aren't required) by passing the appropriate [*functional option*](https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis). To disable named-entity extraction, for example, you'd do the following:
@@ -150,7 +150,7 @@ import (
     "fmt"
     "strings"
 
-    "github.com/jdkato/prose"
+    "github.com/jdkato/prose/v2"
 )
 
 func main() {
