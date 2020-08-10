@@ -9,11 +9,67 @@ import (
 
 // iterTokenizer splits a sentence into words.
 type iterTokenizer struct {
+	specialRE *regexp.Regexp
+	sanitizer *strings.Replacer
+	suffixes  []string
+	prefixes  []string
+	emoticons map[string]int
 }
 
-// newIterTokenizer is a iterTokenizer constructor.
-func newIterTokenizer() *iterTokenizer {
-	return new(iterTokenizer)
+type TokenizerOptFunc func(*iterTokenizer)
+
+// Use the provided special regex for unsplittable tokens.
+func UsingSpecialRE(x *regexp.Regexp) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.specialRE = x
+	}
+}
+
+// Use the provided sanitizer.
+func UsingSanitizer(x *strings.Replacer) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.sanitizer = x
+	}
+}
+
+// Use the provided suffixes.
+func UsingSuffixes(x []string) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.suffixes = x
+	}
+}
+
+// Use the provided prefixes.
+func UsingPrefixes(x []string) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.prefixes = x
+	}
+}
+
+// Use the provided map of emoticons.
+func UsingEmoticons(x map[string]int) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.emoticons = x
+	}
+}
+
+// Constructor for default iterTokenizer
+func NewIterTokenizer(opts ...TokenizerOptFunc) *iterTokenizer {
+	tok := new(iterTokenizer)
+
+	// Set default parameters
+	tok.emoticons = emoticons
+	tok.prefixes = prefixes
+	tok.sanitizer = sanitizer
+	tok.specialRE = internalRE
+	tok.suffixes = suffixes
+
+	// Apply options if provided
+	for _, applyOpt := range opts {
+		applyOpt(tok)
+	}
+
+	return tok
 }
 
 func addToken(s string, toks []*Token) []*Token {
@@ -23,18 +79,18 @@ func addToken(s string, toks []*Token) []*Token {
 	return toks
 }
 
-func isSpecial(token string) bool {
-	_, found := emoticons[token]
-	return found || internalRE.MatchString(token)
+func (t *iterTokenizer) isSpecial(token string) bool {
+	_, found := t.emoticons[token]
+	return found || t.specialRE.MatchString(token)
 }
 
-func doSplit(token string) []*Token {
+func (t *iterTokenizer) doSplit(token string) []*Token {
 	tokens := []*Token{}
 	suffs := []*Token{}
 
 	last := 0
 	for token != "" && utf8.RuneCountInString(token) != last {
-		if isSpecial(token) {
+		if t.isSpecial(token) {
 			// We've found a special case (e.g., an emoticon) -- so, we add it as a token without
 			// any further processing.
 			tokens = addToken(token, tokens)
@@ -42,7 +98,7 @@ func doSplit(token string) []*Token {
 		}
 		last = utf8.RuneCountInString(token)
 		lower := strings.ToLower(token)
-		if hasAnyPrefix(token, prefixes) {
+		if hasAnyPrefix(token, t.prefixes) {
 			// Remove prefixes -- e.g., $100 -> [$, 100].
 			tokens = addToken(string(token[0]), tokens)
 			token = token[1:]
@@ -58,7 +114,7 @@ func doSplit(token string) []*Token {
 			// don't -> [do, n't].
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
-		} else if hasAnySuffix(token, suffixes) {
+		} else if hasAnySuffix(token, t.suffixes) {
 			// Remove suffixes -- e.g., Well) -> [Well, )].
 			suffs = append([]*Token{
 				{Text: string(token[len(token)-1])}},
@@ -76,7 +132,7 @@ func doSplit(token string) []*Token {
 func (t *iterTokenizer) tokenize(text string) []*Token {
 	tokens := []*Token{}
 
-	clean, white := sanitizer.Replace(text), false
+	clean, white := t.sanitizer.Replace(text), false
 	length := len(clean)
 
 	start, index := 0, 0
@@ -94,7 +150,7 @@ func (t *iterTokenizer) tokenize(text string) []*Token {
 				if toks, found := cache[span]; found {
 					tokens = append(tokens, toks...)
 				} else {
-					toks := doSplit(span)
+					toks := t.doSplit(span)
 					cache[span] = toks
 					tokens = append(tokens, toks...)
 				}
@@ -110,7 +166,7 @@ func (t *iterTokenizer) tokenize(text string) []*Token {
 	}
 
 	if start < index {
-		tokens = append(tokens, doSplit(clean[start:index])...)
+		tokens = append(tokens, t.doSplit(clean[start:index])...)
 	}
 
 	return tokens
