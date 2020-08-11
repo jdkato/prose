@@ -7,6 +7,10 @@ import (
 	"unicode/utf8"
 )
 
+type Tokenizer interface {
+	Tokenize(string) []*Token
+}
+
 // iterTokenizer splits a sentence into words.
 type iterTokenizer struct {
 	specialRE *regexp.Regexp
@@ -129,7 +133,7 @@ func (t *iterTokenizer) doSplit(token string) []*Token {
 }
 
 // tokenize splits a sentence into a slice of words.
-func (t *iterTokenizer) tokenize(text string) []*Token {
+func (t *iterTokenizer) Tokenize(text string) []*Token {
 	tokens := []*Token{}
 
 	clean, white := t.sanitizer.Replace(text), false

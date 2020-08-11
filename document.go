@@ -12,14 +12,24 @@ type DocOpts struct {
 	Extract  bool // If true, include named-entity extraction
 	Segment  bool // If true, include segmentation
 	Tag      bool // If true, include POS tagging
-	Tokenize bool // If true, include tokenization
+	Tokenizer Tokenizer // If true, include tokenization
+}
+
+// UsingTokenizer specifies the Tokenizer to use.
+func UsingTokenizer(include Tokenizer) DocOpt {
+	return func(doc *Document, opts *DocOpts) {
+		// Tagging and entity extraction both require tokenization.
+		opts.Tokenizer = include
+	}
 }
 
 // WithTokenization can enable (the default) or disable tokenization.
+// Deprecated: use UsingTokenizer instead.
 func WithTokenization(include bool) DocOpt {
 	return func(doc *Document, opts *DocOpts) {
-		// Tagging and entity extraction both require tokenization.
-		opts.Tokenize = include
+		if !include {
+			opts.Tokenizer = nil
+		}
 	}
 }
 
@@ -82,7 +92,7 @@ func (doc *Document) Entities() []Entity {
 }
 
 var defaultOpts = DocOpts{
-	Tokenize: true,
+	Tokenizer: NewIterTokenizer(),
 	Segment:  true,
 	Tag:      true,
 	Extract:  true,
@@ -110,9 +120,8 @@ func NewDocument(text string, opts ...DocOpt) (*Document, error) {
 		segmenter := newPunktSentenceTokenizer()
 		doc.sentences = segmenter.segment(text)
 	}
-	if base.Tokenize || base.Tag || base.Extract {
-		tokenizer := NewIterTokenizer()
-		doc.tokens = append(doc.tokens, tokenizer.tokenize(text)...)
+	if base.Tokenizer != nil {
+		doc.tokens = append(doc.tokens, base.Tokenizer.Tokenize(text)...)
 	}
 	if base.Tag || base.Extract {
 		doc.tokens = doc.Model.tagger.tag(doc.tokens)
