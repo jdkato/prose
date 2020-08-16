@@ -11,6 +11,7 @@ import (
 type iterTokenizer struct {
 	specialRE *regexp.Regexp
 	sanitizer *strings.Replacer
+	contractions  []string
 	suffixes  []string
 	prefixes  []string
 	emoticons map[string]int
@@ -53,11 +54,19 @@ func UsingEmoticons(x map[string]int) TokenizerOptFunc {
 	}
 }
 
+// Use the provided contractions.
+func UsingContractions(x []string) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.contractions = x
+	}
+}
+
 // Constructor for default iterTokenizer
 func NewIterTokenizer(opts ...TokenizerOptFunc) *iterTokenizer {
 	tok := new(iterTokenizer)
 
 	// Set default parameters
+	tok.contractions = contractions
 	tok.emoticons = emoticons
 	tok.prefixes = prefixes
 	tok.sanitizer = sanitizer
@@ -102,15 +111,10 @@ func (t *iterTokenizer) doSplit(token string) []*Token {
 			// Remove prefixes -- e.g., $100 -> [$, 100].
 			tokens = addToken(string(token[0]), tokens)
 			token = token[1:]
-		} else if idx := hasAnyIndex(lower, []string{"'ll", "'s", "'re", "'m"}); idx > -1 {
-			// Handle "they'll", "I'll", etc.
+		} else if idx := hasAnyIndex(lower, t.contractions); idx > -1 {
+			// Handle "they'll", "I'll", "Don't", "won't", etc.
 			//
 			// they'll -> [they, 'll].
-			tokens = addToken(token[:idx], tokens)
-			token = token[idx:]
-		} else if idx := hasAnyIndex(lower, []string{"n't"}); idx > -1 {
-			// Handle "Don't", "won't", etc.
-			//
 			// don't -> [do, n't].
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
@@ -179,6 +183,7 @@ var sanitizer = strings.NewReplacer(
 	"\u2018", "'",
 	"\u2019", "'",
 	"&rsquo;", "'")
+var contractions = []string{"'ll", "'s", "'re", "'m", "n't"}
 var suffixes = []string{",", ")", `"`, "]", "!", ";", ".", "?", ":", "'"}
 var prefixes = []string{"$", "(", `"`, "["}
 var emoticons = map[string]int{

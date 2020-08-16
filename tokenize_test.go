@@ -9,6 +9,16 @@ import (
 
 var testdata = "testdata"
 
+func checkTokens(t *testing.T, tokens []*Token, expected []string, name string) {
+	observed := []string{}
+	for i := range tokens {
+		observed = append(observed, tokens[i].Text)
+	}
+	if !reflect.DeepEqual(observed, expected) {
+		t.Errorf("%v: unexpected tokens", name)
+	}
+}
+
 func checkCase(t *testing.T, doc *Document, expected []string, name string) {
 	tokens := getTokenText(doc)
 	if !reflect.DeepEqual(tokens, expected) {
@@ -169,6 +179,26 @@ func TestTokenizationTwitter(t *testing.T) {
 	expected = []string{
 		"March", ".", "July", ".", "March", ".", "June", ".", "January", "."}
 	checkCase(t, doc, expected, "TokenizationWebParagraph(5)")
+}
+
+func TestTokenizationContractions(t *testing.T) {
+	tokenizer := NewIterTokenizer()
+	tokens := tokenizer.tokenize("He's happy")
+	expected := []string{"He", "'s", "happy"}
+	checkTokens(t, tokens, expected, "TokenizationContraction(default-found)")
+
+	tokens = tokenizer.tokenize("I've been better")
+	expected = []string{"I've", "been", "better"}
+	checkTokens(t, tokens, expected, "TokenizationContraction(default-missing)")
+
+	tokenizer = NewIterTokenizer(UsingContractions([]string{"'ve"}))
+	tokens = tokenizer.tokenize("I've been better")
+	expected = []string{"I", "'ve", "been", "better"}
+	checkTokens(t, tokens, expected, "TokenizationContraction(custom-found)")
+
+	tokens = tokenizer.tokenize("He's happy")
+	expected = []string{"He's", "happy"}
+	checkTokens(t, tokens, expected, "TokenizationContraction(custom-missing)")
 }
 
 func BenchmarkTokenization(b *testing.B) {
