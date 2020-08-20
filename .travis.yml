@@ -4,6 +4,7 @@ go:
   - "1.13.x"
 install:
   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash
+  - go get github.com/mattn/goveralls
 script:
   - make ci
   - bash scripts/cover.sh
