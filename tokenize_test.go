@@ -183,20 +183,20 @@ func TestTokenizationTwitter(t *testing.T) {
 
 func TestTokenizationContractions(t *testing.T) {
 	tokenizer := NewIterTokenizer()
-	tokens := tokenizer.tokenize("He's happy")
+	tokens := tokenizer.Tokenize("He's happy")
 	expected := []string{"He", "'s", "happy"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(default-found)")
 
-	tokens = tokenizer.tokenize("I've been better")
+	tokens = tokenizer.Tokenize("I've been better")
 	expected = []string{"I've", "been", "better"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(default-missing)")
 
 	tokenizer = NewIterTokenizer(UsingContractions([]string{"'ve"}))
-	tokens = tokenizer.tokenize("I've been better")
+	tokens = tokenizer.Tokenize("I've been better")
 	expected = []string{"I", "'ve", "been", "better"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(custom-found)")
 
-	tokens = tokenizer.tokenize("He's happy")
+	tokens = tokenizer.Tokenize("He's happy")
 	expected = []string{"He's", "happy"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(custom-missing)")
 }
