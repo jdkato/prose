@@ -18,8 +18,14 @@ type DataSource func(model *Model)
 
 // UsingEntities creates a NER from labeled data.
 func UsingEntities(data []EntityContext) DataSource {
+	return UsingEntitiesAndTokenizer(data, NewIterTokenizer())
+}
+
+// UsingEntities creates a NER from labeled data and custom tokenizer.
+func UsingEntitiesAndTokenizer(data []EntityContext, tokenizer Tokenizer) DataSource {
 	return func(model *Model) {
-		model.extracter = extracterFromData(data, model.tagger)
+		corpus := makeCorpus(data, model.tagger, tokenizer)
+		model.extracter = extracterFromData(corpus)
 	}
 }
 

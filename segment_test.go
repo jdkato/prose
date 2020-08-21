@@ -26,7 +26,7 @@ func readDataFile(path string) []byte {
 func makeSegmenter(text string) (*Document, error) {
 	return NewDocument(
 		text,
-		WithTokenization(false),
+		UsingTokenizer(nil),
 		WithTagging(false),
 		WithExtraction(false))
 }
