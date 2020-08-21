@@ -7,6 +7,8 @@ import (
 	"unicode/utf8"
 )
 
+type TokenTester func(string) bool
+
 type Tokenizer interface {
 	Tokenize(string) []*Token
 }
@@ -19,9 +21,17 @@ type iterTokenizer struct {
 	suffixes  []string
 	prefixes  []string
 	emoticons map[string]int
+	isUnsplittable TokenTester
 }
 
 type TokenizerOptFunc func(*iterTokenizer)
+
+// UsingIsUnsplittableFN gives a function that tests whether a token is splittable or not.
+func UsingIsUnsplittable(x TokenTester) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.isUnsplittable = x
+	}
+}
 
 // Use the provided special regex for unsplittable tokens.
 func UsingSpecialRE(x *regexp.Regexp) TokenizerOptFunc {
@@ -72,6 +82,7 @@ func NewIterTokenizer(opts ...TokenizerOptFunc) *iterTokenizer {
 	// Set default parameters
 	tok.contractions = contractions
 	tok.emoticons = emoticons
+	tok.isUnsplittable = func(_ string) bool { return false }
 	tok.prefixes = prefixes
 	tok.sanitizer = sanitizer
 	tok.specialRE = internalRE
@@ -94,7 +105,7 @@ func addToken(s string, toks []*Token) []*Token {
 
 func (t *iterTokenizer) isSpecial(token string) bool {
 	_, found := t.emoticons[token]
-	return found || t.specialRE.MatchString(token)
+	return found || t.specialRE.MatchString(token) || t.isUnsplittable(token)
 }
 
 func (t *iterTokenizer) doSplit(token string) []*Token {
