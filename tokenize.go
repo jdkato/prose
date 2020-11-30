@@ -15,12 +15,12 @@ type Tokenizer interface {
 
 // iterTokenizer splits a sentence into words.
 type iterTokenizer struct {
-	specialRE *regexp.Regexp
-	sanitizer *strings.Replacer
-	contractions  []string
-	suffixes  []string
-	prefixes  []string
-	emoticons map[string]int
+	specialRE      *regexp.Regexp
+	sanitizer      *strings.Replacer
+	contractions   []string
+	suffixes       []string
+	prefixes       []string
+	emoticons      map[string]int
 	isUnsplittable TokenTester
 }
 
@@ -96,9 +96,9 @@ func NewIterTokenizer(opts ...TokenizerOptFunc) *iterTokenizer {
 	return tok
 }
 
-func addToken(s string, toks []*Token) []*Token {
+func addToken(toks []*Token, s string, from, to int) []*Token {
 	if strings.TrimSpace(s) != "" {
-		toks = append(toks, &Token{Text: s})
+		toks = append(toks, &Token{Text: s, Start: from, End: to})
 	}
 	return toks
 }
@@ -108,7 +108,7 @@ func (t *iterTokenizer) isSpecial(token string) bool {
 	return found || t.specialRE.MatchString(token) || t.isUnsplittable(token)
 }
 
-func (t *iterTokenizer) doSplit(token string) []*Token {
+func (t *iterTokenizer) doSplit(token string, offset int) []*Token {
 	tokens := []*Token{}
 	suffs := []*Token{}
 
@@ -117,34 +117,42 @@ func (t *iterTokenizer) doSplit(token string) []*Token {
 		if t.isSpecial(token) {
 			// We've found a special case (e.g., an emoticon) -- so, we add it as a token without
 			// any further processing.
-			tokens = addToken(token, tokens)
+			tokens = addToken(tokens, token, offset, offset+len(token))
 			break
 		}
 		last = utf8.RuneCountInString(token)
 		lower := strings.ToLower(token)
-		if hasAnyPrefix(token, t.prefixes) {
+		if length := hasAnyPrefix(token, t.prefixes); length > 0 {
 			// Remove prefixes -- e.g., $100 -> [$, 100].
-			tokens = addToken(string(token[0]), tokens)
-			token = token[1:]
+			tokens = addToken(tokens, token[:length], offset, offset+length)
+			token = token[length:]
+			offset += length
 		} else if idx := hasAnyIndex(lower, t.contractions); idx > -1 {
 			// Handle "they'll", "I'll", "Don't", "won't", etc.
 			//
 			// they'll -> [they, 'll].
 			// don't -> [do, n't].
-			tokens = addToken(token[:idx], tokens)
+			tokens = addToken(tokens, token[:idx], offset, offset+idx)
 			token = token[idx:]
-		} else if hasAnySuffix(token, t.suffixes) {
+			offset += idx
+		} else if length := hasAnySuffix(token, t.suffixes); length > 0 {
 			// Remove suffixes -- e.g., Well) -> [Well, )].
 			suffs = append([]*Token{
-				{Text: string(token[len(token)-1])}},
+				{Text: string(token[len(token)-length]),
+					Start: offset + len(token) - length,
+					End:   offset + len(token)}},
 				suffs...)
 			token = token[:len(token)-1]
 		} else {
-			tokens = addToken(token, tokens)
+			tokens = addToken(tokens, token, offset, offset+len(token))
 		}
 	}
-
 	return append(tokens, suffs...)
+}
+
+type tokensOffset struct {
+	tl     []*Token
+	offset int
 }
 
 // tokenize splits a sentence into a slice of words.
@@ -155,7 +163,7 @@ func (t *iterTokenizer) Tokenize(text string) []*Token {
 	length := len(clean)
 
 	start, index := 0, 0
-	cache := map[string][]*Token{}
+	cache := map[string]tokensOffset{}
 	for index <= length {
 		uc, size := utf8.DecodeRuneInString(clean[index:])
 		if size == 0 {
@@ -167,10 +175,18 @@ func (t *iterTokenizer) Tokenize(text string) []*Token {
 			if start < index {
 				span := clean[start:index]
 				if toks, found := cache[span]; found {
-					tokens = append(tokens, toks...)
+					for _, t := range toks.tl {
+						tokens = append(tokens, &Token{
+							Tag:   t.Tag,
+							Text:  t.Text,
+							Label: t.Label,
+							Start: t.Start - toks.offset + start,
+							End:   t.End - toks.offset + start,
+						})
+					}
 				} else {
-					toks := t.doSplit(span)
-					cache[span] = toks
+					toks := t.doSplit(span, start)
+					cache[span] = tokensOffset{toks, start}
 					tokens = append(tokens, toks...)
 				}
 			}
@@ -185,7 +201,7 @@ func (t *iterTokenizer) Tokenize(text string) []*Token {
 	}
 
 	if start < index {
-		tokens = append(tokens, t.doSplit(clean[start:index])...)
+		tokens = append(tokens, t.doSplit(clean[start:index], start)...)
 	}
 
 	return tokens

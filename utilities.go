@@ -52,24 +52,24 @@ func getDiskAsset(path string) *gob.Decoder {
 	return gob.NewDecoder(f)
 }
 
-func hasAnyPrefix(s string, prefixes []string) bool {
+func hasAnyPrefix(s string, prefixes []string) int {
 	n := len(s)
 	for _, prefix := range prefixes {
 		if n > len(prefix) && strings.HasPrefix(s, prefix) {
-			return true
+			return len(prefix)
 		}
 	}
-	return false
+	return -1
 }
 
-func hasAnySuffix(s string, suffixes []string) bool {
+func hasAnySuffix(s string, suffixes []string) int {
 	n := len(s)
 	for _, suffix := range suffixes {
 		if n > len(suffix) && strings.HasSuffix(s, suffix) {
-			return true
+			return len(suffix)
 		}
 	}
-	return false
+	return -1
 }
 
 func hasAnyIndex(s string, suffixes []string) int {
