@@ -15,7 +15,7 @@ func checkTokens(t *testing.T, tokens []*Token, expected []string, name string) 
 		observed = append(observed, tokens[i].Text)
 	}
 	if !reflect.DeepEqual(observed, expected) {
-		t.Errorf("%v: unexpected tokens", name)
+		t.Errorf("%v: unexpected tokens: %#v", name, observed)
 	}
 }
 
@@ -23,6 +23,18 @@ func checkCase(t *testing.T, doc *Document, expected []string, name string) {
 	tokens := getTokenText(doc)
 	if !reflect.DeepEqual(tokens, expected) {
 		t.Errorf("%v: unexpected tokens", name)
+	}
+}
+
+func checkStartEnd(t *testing.T, token *Token, expectedText string, expectedStart, expectedEnd int) {
+	if token.Text != expectedText {
+		t.Errorf("got %v, want %v", token.Text, expectedText)
+	}
+	if token.Start != expectedStart {
+		t.Errorf("got %v, want %v", token.Start, expectedStart)
+	}
+	if token.End != expectedEnd {
+		t.Errorf("got %v, want %v", token.End, expectedEnd)
 	}
 }
 
@@ -157,28 +169,72 @@ func TestTokenizationWebParagraph(t *testing.T) {
 }
 
 func TestTokenizationTwitter(t *testing.T) {
-	doc, _ := makeDoc("@twitter, what time does it start :-)")
+	text := "@twitter, what time does it start :-)"
+	doc, _ := makeDoc(text)
 	expected := []string{"@twitter", ",", "what", "time", "does", "it", "start", ":-)"}
 	checkCase(t, doc, expected, "TokenizationWebParagraph(1)")
+	checkStartEnd(t, doc.tokens[0], "@twitter", 0, 8)
+	checkStartEnd(t, doc.tokens[1], ",", 8, 9)
+	checkStartEnd(t, doc.tokens[2], "what", 10, 14)
+	checkStartEnd(t, doc.tokens[3], "time", 15, 19)
+	checkStartEnd(t, doc.tokens[4], "does", 20, 24)
+	checkStartEnd(t, doc.tokens[5], "it", 25, 27)
+	checkStartEnd(t, doc.tokens[6], "start", 28, 33)
+	checkStartEnd(t, doc.tokens[7], ":-)", 34, len(text))
 
-	doc, _ = makeDoc("Mr. James plays basketball in the N.B.A., do you?")
+	text = "Mr. James plays basketball in the N.B.A., do you?"
+	doc, _ = makeDoc(text)
 	expected = []string{
 		"Mr.", "James", "plays", "basketball", "in", "the", "N.B.A.", ",",
 		"do", "you", "?"}
 	checkCase(t, doc, expected, "TokenizationWebParagraph(2)")
+	checkStartEnd(t, doc.tokens[0], "Mr.", 0, 3)
+	checkStartEnd(t, doc.tokens[1], "James", 4, 9)
+	checkStartEnd(t, doc.tokens[2], "plays", 10, 15)
+	checkStartEnd(t, doc.tokens[3], "basketball", 16, 26)
+	checkStartEnd(t, doc.tokens[4], "in", 27, 29)
+	checkStartEnd(t, doc.tokens[5], "the", 30, 33)
+	checkStartEnd(t, doc.tokens[6], "N.B.A.", 34, 40)
+	checkStartEnd(t, doc.tokens[7], ",", 40, 41)
+	checkStartEnd(t, doc.tokens[8], "do", 42, 44)
+	checkStartEnd(t, doc.tokens[9], "you", 45, 48)
+	checkStartEnd(t, doc.tokens[10], "?", 48, len(text))
 
-	doc, _ = makeDoc("ˌˌ kill the last letter")
+	text = "ˌˌ kill the last letter"
+	doc, _ = makeDoc(text)
 	expected = []string{"ˌˌ", "kill", "the", "last", "letter"}
 	checkCase(t, doc, expected, "TokenizationWebParagraph(3)")
+	checkStartEnd(t, doc.tokens[0], "ˌˌ", 0, 4)
+	checkStartEnd(t, doc.tokens[1], "kill", 5, 9)
+	checkStartEnd(t, doc.tokens[2], "the", 10, 13)
+	checkStartEnd(t, doc.tokens[3], "last", 14, 18)
+	checkStartEnd(t, doc.tokens[4], "letter", 19, len(text))
 
-	doc, _ = makeDoc("ˌˌˌ kill the last letter")
+	text = "ˌˌˌ kill the last letter"
+	doc, _ = makeDoc(text)
 	expected = []string{"ˌˌˌ", "kill", "the", "last", "letter"}
 	checkCase(t, doc, expected, "TokenizationWebParagraph(4)")
+	checkStartEnd(t, doc.tokens[0], "ˌˌˌ", 0, 6)
+	checkStartEnd(t, doc.tokens[1], "kill", 7, 11)
+	checkStartEnd(t, doc.tokens[2], "the", 12, 15)
+	checkStartEnd(t, doc.tokens[3], "last", 16, 20)
+	checkStartEnd(t, doc.tokens[4], "letter", 21, len(text))
 
-	doc, _ = makeDoc("March. July. March. June. January.")
+	text = "March. July. March. June.  January."
+	doc, _ = makeDoc(text)
 	expected = []string{
 		"March", ".", "July", ".", "March", ".", "June", ".", "January", "."}
 	checkCase(t, doc, expected, "TokenizationWebParagraph(5)")
+	checkStartEnd(t, doc.tokens[0], "March", 0, 5)
+	checkStartEnd(t, doc.tokens[1], ".", 5, 6)
+	checkStartEnd(t, doc.tokens[2], "July", 7, 11)
+	checkStartEnd(t, doc.tokens[3], ".", 11, 12)
+	checkStartEnd(t, doc.tokens[4], "March", 13, 18)
+	checkStartEnd(t, doc.tokens[5], ".", 18, 19)
+	checkStartEnd(t, doc.tokens[6], "June", 20, 24)
+	checkStartEnd(t, doc.tokens[7], ".", 24, 25)
+	checkStartEnd(t, doc.tokens[8], "January", 27, 34)
+	checkStartEnd(t, doc.tokens[9], ".", 34, len(text))
 }
 
 func TestTokenizationContractions(t *testing.T) {
@@ -186,19 +242,47 @@ func TestTokenizationContractions(t *testing.T) {
 	tokens := tokenizer.Tokenize("He's happy")
 	expected := []string{"He", "'s", "happy"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(default-found)")
+	checkStartEnd(t, tokens[0], "He", 0, 2)
+	checkStartEnd(t, tokens[1], "'s", 2, 4)
+	checkStartEnd(t, tokens[2], "happy", 5, 10)
 
 	tokens = tokenizer.Tokenize("I've been better")
 	expected = []string{"I've", "been", "better"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(default-missing)")
+	checkStartEnd(t, tokens[0], "I've", 0, 4)
+	checkStartEnd(t, tokens[1], "been", 5, 9)
+	checkStartEnd(t, tokens[2], "better", 10, 16)
 
 	tokenizer = NewIterTokenizer(UsingContractions([]string{"'ve"}))
 	tokens = tokenizer.Tokenize("I've been better")
 	expected = []string{"I", "'ve", "been", "better"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(custom-found)")
+	checkStartEnd(t, tokens[0], "I", 0, 1)
+	checkStartEnd(t, tokens[1], "'ve", 1, 4)
+	checkStartEnd(t, tokens[2], "been", 5, 9)
+	checkStartEnd(t, tokens[3], "better", 10, 16)
 
 	tokens = tokenizer.Tokenize("He's happy")
 	expected = []string{"He's", "happy"}
 	checkTokens(t, tokens, expected, "TokenizationContraction(custom-missing)")
+	checkStartEnd(t, tokens[0], "He's", 0, 4)
+	checkStartEnd(t, tokens[1], "happy", 5, 10)
+}
+
+func TestTokenizationSuffixes(t *testing.T) {
+	tokenizer := NewIterTokenizer()
+	tokens := tokenizer.Tokenize("(Well,\nthat\twasn't good).")
+	expected := []string{"(", "Well", ",", "that", "was", "n't", "good", ")", "."}
+	checkTokens(t, tokens, expected, "TestTokenizationSuffixes")
+	checkStartEnd(t, tokens[0], "(", 0, 1)
+	checkStartEnd(t, tokens[1], "Well", 1, 5)
+	checkStartEnd(t, tokens[2], ",", 5, 6)
+	checkStartEnd(t, tokens[3], "that", 7, 11)
+	checkStartEnd(t, tokens[4], "was", 12, 15)
+	checkStartEnd(t, tokens[5], "n't", 15, 18)
+	checkStartEnd(t, tokens[6], "good", 19, 23)
+	checkStartEnd(t, tokens[7], ")", 23, 24)
+	checkStartEnd(t, tokens[8], ".", 24, 25)
 }
 
 func BenchmarkTokenization(b *testing.B) {
