@@ -15,12 +15,13 @@ type Tokenizer interface {
 
 // iterTokenizer splits a sentence into words.
 type iterTokenizer struct {
-	specialRE *regexp.Regexp
-	sanitizer *strings.Replacer
-	contractions  []string
-	suffixes  []string
-	prefixes  []string
-	emoticons map[string]int
+	specialRE      *regexp.Regexp
+	sanitizer      *strings.Replacer
+	contractions   []string
+	splitCases     []string
+	suffixes       []string
+	prefixes       []string
+	emoticons      map[string]int
 	isUnsplittable TokenTester
 }
 
@@ -75,6 +76,13 @@ func UsingContractions(x []string) TokenizerOptFunc {
 	}
 }
 
+// Use the provided splitCases.
+func UsingSplitCases(x []string) TokenizerOptFunc {
+	return func(tokenizer *iterTokenizer) {
+		tokenizer.splitCases = x
+	}
+}
+
 // Constructor for default iterTokenizer
 func NewIterTokenizer(opts ...TokenizerOptFunc) *iterTokenizer {
 	tok := new(iterTokenizer)
@@ -92,6 +100,8 @@ func NewIterTokenizer(opts ...TokenizerOptFunc) *iterTokenizer {
 	for _, applyOpt := range opts {
 		applyOpt(tok)
 	}
+
+	tok.splitCases = append(tok.splitCases, tok.contractions...)
 
 	return tok
 }
@@ -126,11 +136,12 @@ func (t *iterTokenizer) doSplit(token string) []*Token {
 			// Remove prefixes -- e.g., $100 -> [$, 100].
 			tokens = addToken(string(token[0]), tokens)
 			token = token[1:]
-		} else if idx := hasAnyIndex(lower, t.contractions); idx > -1 {
-			// Handle "they'll", "I'll", "Don't", "won't", etc.
+		} else if idx := hasAnyIndex(lower, t.splitCases); idx > -1 {
+			// Handle "they'll", "I'll", "Don't", "won't", amount($).
 			//
 			// they'll -> [they, 'll].
 			// don't -> [do, n't].
+			// amount($) -> [amount, (, $, )].
 			tokens = addToken(token[:idx], tokens)
 			token = token[idx:]
 		} else if hasAnySuffix(token, t.suffixes) {
