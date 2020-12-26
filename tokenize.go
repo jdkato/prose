@@ -1,7 +1,9 @@
 package prose
 
 import (
+	"math"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -15,12 +17,12 @@ type Tokenizer interface {
 
 // iterTokenizer splits a sentence into words.
 type iterTokenizer struct {
-	specialRE *regexp.Regexp
-	sanitizer *strings.Replacer
-	contractions  []string
-	suffixes  []string
-	prefixes  []string
-	emoticons map[string]int
+	specialRE      *regexp.Regexp
+	sanitizer      *strings.Replacer
+	contractions   []string
+	suffixes       []string
+	prefixes       []string
+	emoticons      map[string]int
 	isUnsplittable TokenTester
 }
 
@@ -126,13 +128,21 @@ func (t *iterTokenizer) doSplit(token string) []*Token {
 			// Remove prefixes -- e.g., $100 -> [$, 100].
 			tokens = addToken(string(token[0]), tokens)
 			token = token[1:]
-		} else if idx := hasAnyIndex(lower, t.contractions); idx > -1 {
-			// Handle "they'll", "I'll", "Don't", "won't", etc.
+		} else if idxs := hasAnyIndex(lower, t.contractions); idxs != nil {
+			// Handle "they'll", "I'll", "Don't", "won't", amount($).
 			//
 			// they'll -> [they, 'll].
 			// don't -> [do, n't].
-			tokens = addToken(token[:idx], tokens)
-			token = token[idx:]
+			sort.Ints(idxs)
+			var lastIdx, splitMark int
+			for i, idx := range idxs {
+				if i != 0 {
+					lastIdx = idxs[i-1]
+				}
+				splitMark = int(math.Abs(float64(idx - lastIdx)))
+				tokens = addToken(token[:splitMark], tokens)
+				token = token[splitMark:]
+			}
 		} else if hasAnySuffix(token, t.suffixes) {
 			// Remove suffixes -- e.g., Well) -> [Well, )].
 			suffs = append([]*Token{
