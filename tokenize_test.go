@@ -201,6 +201,16 @@ func TestTokenizationContractions(t *testing.T) {
 	checkTokens(t, tokens, expected, "TokenizationContraction(custom-missing)")
 }
 
+func TestTokenizationMultipleContractions(t *testing.T) {
+	tokenizer := NewIterTokenizer()
+	tokens := tokenizer.Tokenize("He's're")
+	for _, token := range tokens {
+		t.Logf("token: %v\n", token)
+	}
+	expected := []string{"He", "'s", "'re"}
+	checkTokens(t, tokens, expected, "TokenizationContraction(default-found)")
+}
+
 func BenchmarkTokenization(b *testing.B) {
 	in := readDataFile(filepath.Join(testdata, "sherlock.txt"))
 	text := string(in)
