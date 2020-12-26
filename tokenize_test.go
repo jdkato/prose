@@ -181,6 +181,13 @@ func TestTokenizationTwitter(t *testing.T) {
 	checkCase(t, doc, expected, "TokenizationWebParagraph(5)")
 }
 
+func TestTokenizationSplitCases(t *testing.T) {
+	tokenizer := NewIterTokenizer(UsingSplitCases([]string{"("}))
+	tokens := tokenizer.Tokenize("amount($)")
+	expected := []string{"amount", "(", "$", ")"}
+	checkTokens(t, tokens, expected, "TokenizationSplitCases(custom-found)")
+}
+
 func TestTokenizationContractions(t *testing.T) {
 	tokenizer := NewIterTokenizer()
 	tokens := tokenizer.Tokenize("He's happy")
