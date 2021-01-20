@@ -160,7 +160,7 @@ func (t *iterTokenizer) doSplit(token string) []*Token {
 
 // tokenize splits a sentence into a slice of words.
 func (t *iterTokenizer) Tokenize(text string) []*Token {
-	tokens := []*Token{}
+	var tokens []*Token
 
 	clean, white := t.sanitizer.Replace(text), false
 	length := len(clean)
