@@ -243,7 +243,7 @@ import (
 )
 
 func main() {
-    doc, _ := prose.NewDocument("Lebron James plays basketbal in Los Angeles.")
+    doc, _ := prose.NewDocument("Lebron James plays basketball in Los Angeles.")
     for _, ent := range doc.Entities() {
         fmt.Println(ent.Text, ent.Label)
         // Lebron James PERSON
