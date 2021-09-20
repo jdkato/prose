@@ -1,6 +1,6 @@
 module github.com/jdkato/prose/v3
 
-go 1.13
+go 1.16
 
 require (
 	github.com/neurosnap/sentences v1.0.6 // indirect
