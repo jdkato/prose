@@ -1,6 +1,8 @@
 package prose
 
 import (
+	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 )
@@ -60,12 +62,45 @@ func ModelFromData(name string, sources ...DataSource) *Model {
 
 // ModelFromDisk loads a Model from the user-provided location.
 func ModelFromDisk(path string) *Model {
-	name, classifier := loadClassifier(path)
+	filesys := os.DirFS(path)
+	return &Model{
+		Name: filepath.Base(path),
+
+		extracter: loadClassifier(filesys),
+		tagger:    newPerceptronTagger(),
+	}
+}
+
+// ModelFromFS loads a model from the
+func ModelFromFS(name string, filesys fs.FS) *Model {
+	// Locate a folder matching name within filesys
+	var modelFS fs.FS
+	err := fs.WalkDir(filesys, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Model located. Exit tree traversal
+		if d.Name() == name {
+			modelFS, err = fs.Sub(filesys, path)
+			if err != nil {
+				return err
+			}
+			return io.EOF
+		}
+
+		return nil
+	})
+	if err != io.EOF {
+		checkError(err)
+	}
+
 	return &Model{
 		Name: name,
 
-		extracter: classifier,
-		tagger:    newPerceptronTagger()}
+		extracter: loadClassifier(modelFS),
+		tagger:    newPerceptronTagger(),
+	}
 }
 
 // Write saves a Model to the user-provided location.
@@ -96,24 +131,28 @@ func loadTagger(path string) *perceptronTagger {
 	return newTrainedPerceptronTagger(model)
 }*/
 
-func loadClassifier(path string) (string, *entityExtracter) {
+func loadClassifier(filesys fs.FS) *entityExtracter {
 	var mapping map[string]int
 	var weights []float64
 	var labels []string
 
-	loc := filepath.Join(path, "Maxent")
-	dec := getDiskAsset(filepath.Join(loc, "mapping.gob"))
-	checkError(dec.Decode(&mapping))
+	maxent, err := fs.Sub(filesys, "Maxent")
+	checkError(err)
 
-	dec = getDiskAsset(filepath.Join(loc, "weights.gob"))
-	checkError(dec.Decode(&weights))
+	file, err := maxent.Open("mapping.gob")
+	checkError(err)
+	checkError(getDiskAsset(file).Decode(&mapping))
 
-	dec = getDiskAsset(filepath.Join(loc, "labels.gob"))
-	checkError(dec.Decode(&labels))
+	file, err = maxent.Open("weights.gob")
+	checkError(err)
+	checkError(getDiskAsset(file).Decode(&weights))
+
+	file, err = maxent.Open("labels.gob")
+	checkError(err)
+	checkError(getDiskAsset(file).Decode(&labels))
 
 	model := newMaxentClassifier(weights, mapping, labels)
-	name := filepath.Base(path)
-	return name, newTrainedEntityExtracter(model)
+	return newTrainedEntityExtracter(model)
 }
 
 func defaultModel(tagging, classifying bool) *Model {

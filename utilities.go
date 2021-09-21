@@ -3,7 +3,7 @@ package prose
 import (
 	"bytes"
 	"encoding/gob"
-	"os"
+	"io/fs"
 	"path"
 	"strconv"
 	"strings"
@@ -46,10 +46,8 @@ func getAsset(folder, name string) *gob.Decoder {
 	return gob.NewDecoder(bytes.NewReader(b))
 }
 
-func getDiskAsset(path string) *gob.Decoder {
-	f, err := os.Open(path)
-	checkError(err)
-	return gob.NewDecoder(f)
+func getDiskAsset(file fs.File) *gob.Decoder {
+	return gob.NewDecoder(file)
 }
 
 func hasAnyPrefix(s string, prefixes []string) bool {
