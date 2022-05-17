@@ -52,7 +52,7 @@ type EntityContext struct {
 
 // ModelFromData creates a new Model from user-provided training data.
 func ModelFromData(name string, sources ...DataSource) *Model {
-	model := defaultModel(true, true)
+	model := DefaultModel(true, true)
 	model.Name = name
 	for _, source := range sources {
 		source(model)
@@ -155,7 +155,7 @@ func loadClassifier(filesys fs.FS) *entityExtracter {
 	return newTrainedEntityExtracter(model)
 }
 
-func defaultModel(tagging, classifying bool) *Model {
+func DefaultModel(tagging, classifying bool) *Model {
 	var tagger *perceptronTagger
 	var classifier *entityExtracter
 

@@ -113,7 +113,7 @@ func NewDocument(text string, opts ...DocOpt) (*Document, error) {
 	}
 
 	if doc.Model == nil {
-		doc.Model = defaultModel(base.Tag, base.Extract)
+		doc.Model = DefaultModel(base.Tag, base.Extract)
 	}
 
 	if base.Segment {
