@@ -132,6 +132,19 @@ func (t *Tokenizer) Tokenize(text string) []Token {
 	return tokens
 }
 
+// blank reports whether s is empty or entirely whitespace.
+//
+// The scan below advances `start` past a single trailing space, so a run of
+// two or more leaves a whitespace-only span behind. Those are not tokens.
+func blank(s string) bool {
+	for _, r := range s {
+		if !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return true
+}
+
 // split breaks one whitespace-delimited span into tokens.
 //
 // base is the span's byte offset in the original text; every offset produced
@@ -142,6 +155,10 @@ func (t *Tokenizer) Tokenize(text string) []Token {
 // span sit at different offsets. It would buy little anyway — the work is a
 // handful of prefix and suffix tests.
 func (t *Tokenizer) split(span string, base int, tokens []Token) []Token {
+	if blank(span) {
+		return tokens
+	}
+
 	// Suffixes peel off the end, so they are collected in reverse and
 	// appended once the core of the span is resolved.
 	//

@@ -179,3 +179,34 @@ func conlluText(t testing.TB, path string) []string {
 	}
 	return out
 }
+
+// TestNoBlankTokens guards against whitespace-only tokens. Runs of two or more
+// spaces, or a space beside a tab or newline, leave a blank span behind in the
+// scan; emitting it as a token corrupts anything that reasons about adjacency,
+// such as Vale's `sequence` check.
+func TestNoBlankTokens(t *testing.T) {
+	cases := []string{
+		"The  dog  runs.",
+		"multiple    spaces",
+		"tab\t\tseparated",
+		"newline\n\nseparated",
+		"mixed \t \n whitespace",
+		"trailing   ",
+		"   leading",
+		"   ",
+	}
+
+	tk := tokenize.New()
+	for _, src := range cases {
+		for _, tok := range tk.Tokenize(src) {
+			if strings.TrimSpace(tok.Text) == "" {
+				t.Errorf("input %q: produced a blank token %q at %d",
+					src, tok.Text, tok.Start)
+			}
+			if got := tok.In(src); got != tok.Text {
+				t.Errorf("input %q: token %q at [%d:%d] locates %q",
+					src, tok.Text, tok.Start, tok.End(), got)
+			}
+		}
+	}
+}
