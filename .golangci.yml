@@ -1,0 +1,47 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - misspell
+    - revive
+
+  exclusions:
+    rules:
+      # internal/v2ref is prose v2, kept verbatim so the v3 rewrite can be
+      # checked against it. It is not maintained and is deleted once the
+      # parity tests have served their purpose, so linting it is noise.
+      - path: internal/v2ref/
+        linters:
+          - errcheck
+          - govet
+          - ineffassign
+          - staticcheck
+          - unused
+          - misspell
+          - revive
+
+      # Test helpers legitimately ignore errors when the failure mode is a
+      # test failure anyway.
+      - path: _test\.go
+        linters:
+          - errcheck
+
+      # punkt.go embeds several types from gopkg.in/neurosnap/sentences.
+      # Naming the embedded field at the call site says which package's
+      # behaviour is being invoked, which matters more here than brevity.
+      - path: segment/punkt\.go
+        text: "QF1008"
+        linters:
+          - staticcheck
+
+formatters:
+  enable:
+    - gofmt

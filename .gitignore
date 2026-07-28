@@ -28,3 +28,6 @@ _testmain.go
 *.prof
 
 testdata/temp
+
+# Coverage output
+coverage.out
