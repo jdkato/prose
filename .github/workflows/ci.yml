@@ -87,9 +87,12 @@ jobs:
         with:
           go-version: stable
           check-latest: true
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v9
         with:
-          version: latest
+          # Pinned rather than "latest": the action's v6 line installs
+          # golangci-lint v1, which neither reads this repo's v2 config schema
+          # nor accepts a Go 1.25 target. Pinning also keeps CI reproducible.
+          version: v2.12.2
 
   coverage:
     name: coverage
