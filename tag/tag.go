@@ -60,7 +60,14 @@ func bytesToString(b []byte) string {
 // untouched.
 type Token = token.Token
 
-// Tagger assigns part-of-speech tags.
+// Tagger assigns part-of-speech tags with an averaged perceptron.
+//
+// It reads the words around the one it is tagging, which makes it accurate on
+// ordinary prose and unsteady on text that is not: a grammar rule fires on a
+// sentence that is already wrong, and the context there is not evidence for
+// anything. See Lexical for a tagger that leans on a dictionary instead.
+//
+// It satisfies Interface, as every tagger here does.
 type Tagger struct {
 	model   *flat.Model
 	lexicon Lexicon
@@ -91,6 +98,10 @@ type Option func(*Tagger)
 // list of unambiguous words. It is not copied, and must not be modified once
 // the Tagger is in use -- taggers are safe for concurrent use, and this is the
 // one thing that would break that.
+//
+// This is the small case: a handful of words whose tag you want to fix. When a
+// dictionary is what drives the tagging, use Lexical, which also carries the
+// words that have more than one reading.
 func WithLexicon(l Lexicon) Option {
 	return func(t *Tagger) {
 		t.lexicon = l
@@ -150,6 +161,9 @@ type scratch struct {
 	key     []byte
 	context []string
 }
+
+// Name reports which tagger this is.
+func (t *Tagger) Name() string { return Default }
 
 // Tag assigns a tag to each word and returns the tagged tokens.
 //
