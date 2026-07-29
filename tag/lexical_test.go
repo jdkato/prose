@@ -107,3 +107,16 @@ func TestOpenByName(t *testing.T) {
 		t.Error("an unknown tagger should be an error")
 	}
 }
+
+// When the model picks a reading the dictionary does not list, its answer is
+// still evidence of the class. `VBP` against a dictionary listing `NN` and
+// `VB` should land on `VB`: the model was sure it was a verb, and only unsure
+// which form.
+func TestLexicalRefinesWithinTheModelsClass(t *testing.T) {
+	lex := lexical(t, "like\tNN\tVB\tJJ\tIN\n")
+
+	got := tagOf(lex.Tag([]string{"I", "like", "it"}), "like")
+	if got != "VB" {
+		t.Errorf("'like' = %s, want VB (the model read it as a verb)", got)
+	}
+}

@@ -88,11 +88,22 @@ func (l *Lexical) TagTokens(tokens []Token) {
 		}
 
 		// Several: keep the fallback's answer when it is among them, since
-		// context is what tells them apart. Otherwise fall back to the
-		// dictionary's first, which is the most common reading.
-		if !contains(tags, tokens[i].Tag) {
-			tokens[i].Tag = tags[0]
+		// context is what tells them apart.
+		if contains(tags, tokens[i].Tag) {
+			continue
 		}
+
+		// The fallback chose a reading the dictionary does not list -- `VBP`
+		// where it allows `VB`. Its answer is still evidence of the *class*,
+		// so prefer a listed tag of that class over the first one: the model
+		// said verb, and switching to noun because noun happens to be listed
+		// first would throw away the one thing it was sure of.
+		if tag, ok := sameClass(tags, tokens[i].Tag); ok {
+			tokens[i].Tag = tag
+			continue
+		}
+
+		tokens[i].Tag = tags[0]
 	}
 }
 
@@ -109,6 +120,46 @@ func (l *Lexical) lookup(word string) []string {
 	}
 
 	return l.entries[lower]
+}
+
+// sameClass finds a tag among tags that describes the same part of speech as
+// want, ignoring the finer distinctions Penn packs into the tag.
+//
+// Penn encodes class and inflection together -- NN/NNS, VB/VBD/VBG -- and the
+// first letters are the class. Two tags sharing them are the same kind of word
+// in different forms.
+func sameClass(tags []string, want string) (string, bool) {
+	class := classOf(want)
+	if class == "" {
+		return "", false
+	}
+
+	for _, t := range tags {
+		if classOf(t) == class {
+			return t, true
+		}
+	}
+
+	return "", false
+}
+
+// classOf reduces a Penn tag to the part of speech it names.
+func classOf(tag string) string {
+	switch {
+	case strings.HasPrefix(tag, "NNP"):
+		return "NNP"
+	case strings.HasPrefix(tag, "NN"):
+		return "NN"
+	case strings.HasPrefix(tag, "VB"):
+		return "VB"
+	case strings.HasPrefix(tag, "JJ"):
+		return "JJ"
+	case strings.HasPrefix(tag, "RB"):
+		return "RB"
+	case strings.HasPrefix(tag, "PRP"):
+		return "PRP"
+	}
+	return tag
 }
 
 func contains(haystack []string, needle string) bool {
