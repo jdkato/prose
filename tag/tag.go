@@ -62,8 +62,39 @@ type Token = token.Token
 
 // Tagger assigns part-of-speech tags.
 type Tagger struct {
-	model *flat.Model
-	pool  sync.Pool
+	model   *flat.Model
+	lexicon Lexicon
+	pool    sync.Pool
+}
+
+// A Lexicon fixes the tag for words that only ever carry one.
+//
+// The model predicts from context, which is what makes it general -- and what
+// makes it wrong on text that is not idiomatic. "aware" is an adjective in
+// every English sentence, but in "all ready aware of the risk" the surrounding
+// words are not evidence for anything, and the model settles on NN. A caller
+// that knows a word is unambiguous can say so.
+//
+// Lookups try the word as written, then its lower-case form, so one entry
+// covers "aware", "Aware" and "AWARE".
+//
+// Tags are not validated against the model's own set: a caller may want a tag
+// the model never emits.
+type Lexicon map[string]string
+
+// An Option configures a Tagger.
+type Option func(*Tagger)
+
+// WithLexicon fixes the tag for the given words.
+//
+// The lexicon takes precedence over the model, including over the model's own
+// list of unambiguous words. It is not copied, and must not be modified once
+// the Tagger is in use -- taggers are safe for concurrent use, and this is the
+// one thing that would break that.
+func WithLexicon(l Lexicon) Option {
+	return func(t *Tagger) {
+		t.lexicon = l
+	}
 }
 
 // defaultModel loads the built-in English model on first use.
@@ -78,28 +109,31 @@ var defaultModel = sync.OnceValues(func() (*flat.Model, error) {
 //
 // The model is loaded on the first call and shared thereafter, so calling New
 // repeatedly is cheap.
-func New() (*Tagger, error) {
+func New(opts ...Option) (*Tagger, error) {
 	m, err := defaultModel()
 	if err != nil {
 		return nil, err
 	}
-	return newWithModel(m), nil
+	return newWithModel(m, opts...), nil
 }
 
 // FromBytes returns a Tagger backed by a model in prose's flat format.
 //
 // data is retained and must not be modified afterwards; feature strings are
 // sliced from it rather than copied.
-func FromBytes(data []byte) (*Tagger, error) {
+func FromBytes(data []byte, opts ...Option) (*Tagger, error) {
 	m, err := flat.Unmarshal(data)
 	if err != nil {
 		return nil, err
 	}
-	return newWithModel(m), nil
+	return newWithModel(m, opts...), nil
 }
 
-func newWithModel(m *flat.Model) *Tagger {
+func newWithModel(m *flat.Model, opts ...Option) *Tagger {
 	t := &Tagger{model: m}
+	for _, opt := range opts {
+		opt(t)
+	}
 	t.pool.New = func() any {
 		return &scratch{
 			scores: make([]float32, len(m.Classes())),
@@ -181,10 +215,37 @@ func (t *Tagger) tagOne(s *scratch, i int, ctx []string, word, p1, p2 string) st
 	case keepRe.MatchString(word):
 		return word
 	}
+	// Ahead of the model's own lexicon: a caller supplying one is making a
+	// more specific claim than the training data.
+	if tag, ok := t.lookup(word); ok {
+		return tag
+	}
+
 	if tag, ok := t.model.TagFor(word); ok {
 		return tag
 	}
 	return t.predict(s, i, ctx, word, p1, p2)
+}
+
+// lookup consults the caller's lexicon, trying the word as written before its
+// lower-case form so that one entry covers every casing.
+func (t *Tagger) lookup(word string) (string, bool) {
+	if t.lexicon == nil {
+		return "", false
+	}
+
+	if tag, ok := t.lexicon[word]; ok {
+		return tag, true
+	}
+
+	lower := strings.ToLower(word)
+	if lower == word {
+		return "", false
+	}
+
+	tag, ok := t.lexicon[lower]
+
+	return tag, ok
 }
 
 // predict scores the model's features for one token and returns the best tag.

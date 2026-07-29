@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/jdkato/prose/v3/tag"
+	"github.com/jdkato/prose/v3/tag/aptagmodel"
 )
 
 var benchWords = []string{
@@ -87,7 +88,10 @@ func TestModelResidentMemory(t *testing.T) {
 	runtime.GC()
 	runtime.ReadMemStats(&before)
 
-	tg, err := tag.New()
+	// FromBytes rather than New: New caches the decoded model for the process,
+	// so it allocates nothing once another test has called it and this measures
+	// whichever test happened to run first.
+	tg, err := tag.FromBytes(aptagmodel.English)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +101,9 @@ func TestModelResidentMemory(t *testing.T) {
 	runtime.ReadMemStats(&after)
 	runtime.KeepAlive(tg)
 
-	mb := float64(after.HeapAlloc-before.HeapAlloc) / (1 << 20)
+	// Signed: HeapAlloc can fall across the two reads, and the unsigned
+	// difference then wraps to a number that looks like terabytes.
+	mb := float64(int64(after.HeapAlloc)-int64(before.HeapAlloc)) / (1 << 20)
 	t.Logf("model resident: %.2f MB", mb)
 	if mb > 6 {
 		t.Errorf("model resident memory %.2f MB exceeds the 6 MB target", mb)
