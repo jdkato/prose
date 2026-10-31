@@ -6,7 +6,6 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/jdkato/prose/v3/internal/re"
 	"github.com/jdkato/prose/v3/internal/strutil"
 	"github.com/jdkato/prose/v3/tag"
 	"github.com/jdkato/prose/v3/tokenize"
@@ -54,7 +53,9 @@ type IgnoreFunc func(word string, tags []tag.Token, idx int, firstOrLast bool) b
 // A TitleConverter converts a string to title case according to its style.
 type TitleConverter struct {
 	CaseOpts
-	ignore IgnoreFunc
+	ignore   IgnoreFunc
+	entries  []vocabEntry
+	prefixRe *regexp.Regexp
 }
 
 // Styles for TitleConverter.
@@ -87,17 +88,20 @@ func NewTitleConverter(style IgnoreFunc, opts ...CaseOptFunc) *TitleConverter {
 	title.indicator = base.indicator
 	title.prefix = base.prefix
 
+	if title.prefix != "" {
+		title.prefixRe = regexp.MustCompile(title.prefix)
+	}
+	title.entries = compileVocab(title.vocab)
+
 	return title
 }
 
 // Convert returns a copy of the string s in title case format.
 func (tc *TitleConverter) Convert(s string) string {
 	prefix := ""
-	if tc.prefix != "" {
-		if prefixRe := regexp.MustCompile(tc.prefix); prefixRe.MatchString(s) {
-			prefix = prefixRe.FindString(s)
-			s = strings.TrimPrefix(s, prefix)
-		}
+	if tc.prefixRe != nil && tc.prefixRe.MatchString(s) {
+		prefix = tc.prefixRe.FindString(s)
+		s = strings.TrimPrefix(s, prefix)
 	}
 
 	idx, pos := 0, 0
@@ -124,7 +128,7 @@ func (tc *TitleConverter) Convert(s string) string {
 		ext := utf8.RuneCountInString(m)
 
 		idx = pos + ext
-		if found := tc.inVocab(m); found != "" {
+		if found := lookupVocab(tc.entries, m); found != "" {
 			return found
 		} else if tc.ignore(sm, tags, widx, pos == 0 || idx == end) &&
 			(prev == ' ' || prev == '-' || prev == '/') &&
@@ -135,18 +139,6 @@ func (tc *TitleConverter) Convert(s string) string {
 
 		return strutil.ToTitle(m, false)
 	})
-}
-
-func (tc *TitleConverter) inVocab(s string) string {
-	for _, token := range tc.vocab {
-		matched := re.MatchString(token, s)
-		if strings.EqualFold(token, s) {
-			return token
-		} else if matched {
-			return s
-		}
-	}
-	return ""
 }
 
 // optionsAP implements AP-style casing.

@@ -26,6 +26,9 @@ var defaultSentOpts = CaseOpts{
 // A SentenceConverter converts a string to sentence case.
 type SentenceConverter struct {
 	CaseOpts
+	entries  []vocabEntry
+	tokenRe  *re.Regexp
+	prefixRe *regexp.Regexp
 }
 
 // NewSentenceConverter returns a new SentenceConverter.
@@ -41,6 +44,17 @@ func NewSentenceConverter(opts ...CaseOptFunc) *SentenceConverter {
 	sent.indicator = base.indicator
 	sent.prefix = base.prefix
 
+	if sent.prefix != "" {
+		sent.prefixRe = regexp.MustCompile(sent.prefix)
+	}
+
+	ps := `[\p{N}\p{L}*]+[^\s]*`
+	if len(sent.vocab) > 0 {
+		ps = fmt.Sprintf(`\b(?:%s)\b|%s`, strings.Join(sent.vocab, "|"), ps)
+	}
+	sent.tokenRe = re.MustCompile(`(?i)` + ps)
+	sent.entries = compileVocab(sent.vocab)
+
 	return sent
 }
 
@@ -49,22 +63,14 @@ func (sc *SentenceConverter) Convert(s string) string {
 	var made []string
 
 	prefix := ""
-	if sc.prefix != "" {
-		if prefixRe := regexp.MustCompile(sc.prefix); prefixRe.MatchString(s) {
-			prefix = prefixRe.FindString(s)
-			s = strings.TrimPrefix(s, prefix)
-		}
+	if sc.prefixRe != nil && sc.prefixRe.MatchString(s) {
+		prefix = sc.prefixRe.FindString(s)
+		s = strings.TrimPrefix(s, prefix)
 	}
-
-	ps := `[\p{N}\p{L}*]+[^\s]*`
-	if len(sc.vocab) > 0 {
-		ps = fmt.Sprintf(`\b(?:%s)\b|%s`, strings.Join(sc.vocab, "|"), ps)
-	}
-	re := re.MustCompile(`(?i)` + ps)
 
 	// Tokenize before lowering anything, so vocabulary entries keep the case
 	// they were written with.
-	tokens := re.FindAllString(s, -1)
+	tokens := sc.tokenRe.FindAllString(s, -1)
 
 	for i, token := range tokens {
 		prev := ""
@@ -72,7 +78,7 @@ func (sc *SentenceConverter) Convert(s string) string {
 			prev = tokens[i-1]
 		}
 
-		if entry := sc.inVocab(token); entry != "" {
+		if entry := lookupVocab(sc.entries, token); entry != "" {
 			made = append(made, entry)
 		} else if i == 0 || sc.indicator(prev, i-1) {
 			made = append(made, strutil.ToTitle(token, true))
@@ -82,16 +88,4 @@ func (sc *SentenceConverter) Convert(s string) string {
 	}
 
 	return prefix + strings.Join(made, " ")
-}
-
-func (sc *SentenceConverter) inVocab(s string) string {
-	for _, token := range sc.vocab {
-		matched := re.MatchString(token, s)
-		if strings.EqualFold(token, s) {
-			return token
-		} else if matched {
-			return s
-		}
-	}
-	return ""
 }

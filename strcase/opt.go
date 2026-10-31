@@ -8,6 +8,9 @@ package strcase
 
 import (
 	"sort"
+	"strings"
+
+	"github.com/jdkato/prose/v3/internal/re"
 )
 
 // A CaseConverter converts a string to a specific case.
@@ -61,4 +64,34 @@ func UsingPrefix(prefix string) CaseOptFunc {
 	return func(opts *CaseOpts) {
 		opts.prefix = prefix
 	}
+}
+
+// A vocabEntry is a vocab word and its compiled pattern, which is nil when the
+// word isn't a valid pattern.
+type vocabEntry struct {
+	word    string
+	pattern *re.Regexp
+}
+
+// compileVocab compiles each vocab word once, so a lookup costs no compiles.
+func compileVocab(vocab []string) []vocabEntry {
+	entries := make([]vocabEntry, len(vocab))
+	for i, word := range vocab {
+		entries[i].word = word
+		entries[i].pattern, _ = re.Compile(word)
+	}
+	return entries
+}
+
+// lookupVocab returns the vocab word equal to s, ignoring case; s if a word's
+// pattern matches it; or "" otherwise.
+func lookupVocab(entries []vocabEntry, s string) string {
+	for _, e := range entries {
+		if strings.EqualFold(e.word, s) {
+			return e.word
+		} else if e.pattern != nil && e.pattern.MatchString(s) {
+			return s
+		}
+	}
+	return ""
 }

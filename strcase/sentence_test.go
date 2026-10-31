@@ -1,6 +1,7 @@
 package strcase_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/jdkato/prose/v3/strcase"
@@ -58,5 +59,27 @@ func TestVocab(t *testing.T) {
 		if test.Expect != sent {
 			t.Fatalf("Got '%s'; expected '%s'", sent, test.Expect)
 		}
+	}
+}
+
+// Vocab patterns are compiled once, so a conversion shouldn't allocate more
+// for a longer list of exceptions.
+func TestVocabCostIsFlat(t *testing.T) {
+	allocs := func(n int) float64 {
+		vocab := make([]string, n)
+		for i := range vocab {
+			vocab[i] = fmt.Sprintf("Alpha%02d", i)
+		}
+		sc := strcase.NewSentenceConverter(strcase.UsingVocab(vocab))
+		tc := strcase.NewTitleConverter(strcase.APStyle, strcase.UsingVocab(vocab))
+		return testing.AllocsPerRun(20, func() {
+			_ = sc.Convert("Get started with the API fast")
+			_ = tc.Convert("Get started with the API fast")
+		})
+	}
+
+	one, many := allocs(1), allocs(60)
+	if many > 2*one {
+		t.Fatalf("60 exceptions allocated %.0f times per run; 1 allocated %.0f", many, one)
 	}
 }
