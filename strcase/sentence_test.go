@@ -15,7 +15,13 @@ var cases = []testCase{
 	{"Top-Level ideas", "Top-level ideas"},
 	{"Intro to the top-level idEas", "Intro to the top-level ideas"},
 	{"build-backend tools", "Build-backend tools"},
-	{"README files", "Readme files"},
+	{"README files", "README files"},
+	{"TAP endpoint", "TAP endpoint"},
+	{"Configure the CLI", "Configure the CLI"},
+	{"Using the TAP Service", "Using the TAP service"},
+	{"Querying the SIA Service", "Querying the SIA service"},
+	{"Two APIs and the API's docs", "Two APIs and the API's docs"},
+	{"Is it on", "Is it on"},
 }
 
 var vocabCases = []testCase{

@@ -3,6 +3,7 @@ package strcase
 import (
 	"fmt"
 	"regexp"
+	"unicode"
 
 	"github.com/jdkato/prose/v3/internal/re"
 	"strings"
@@ -80,6 +81,8 @@ func (sc *SentenceConverter) Convert(s string) string {
 
 		if entry := lookupVocab(sc.entries, token); entry != "" {
 			made = append(made, entry)
+		} else if isAcronym(token) {
+			made = append(made, token)
 		} else if i == 0 || sc.indicator(prev, i-1) {
 			made = append(made, strutil.ToTitle(token, true))
 		} else {
@@ -88,4 +91,29 @@ func (sc *SentenceConverter) Convert(s string) string {
 	}
 
 	return prefix + strings.Join(made, " ")
+}
+
+// isAcronym reports whether token is written in capitals, like TAP or CLI,
+// so sentence case keeps it as written. A plural or possessive (APIs, API's)
+// and trailing punctuation don't count against it.
+func isAcronym(token string) bool {
+	token = strings.TrimRightFunc(token, func(r rune) bool {
+		return !unicode.IsLetter(r) && !unicode.IsNumber(r)
+	})
+	for _, suffix := range []string{"'s", "’s", "s"} {
+		if trimmed, ok := strings.CutSuffix(token, suffix); ok {
+			token = trimmed
+			break
+		}
+	}
+
+	letters := 0
+	for _, r := range token {
+		if unicode.IsLower(r) {
+			return false
+		} else if unicode.IsLetter(r) {
+			letters++
+		}
+	}
+	return letters >= 2
 }
