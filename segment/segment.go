@@ -1,7 +1,8 @@
 // Package segment splits text into sentences that know where they came from.
 //
 // Segmentation uses the Punkt algorithm via gopkg.in/neurosnap/sentences, with
-// prose's customizations for English (see punkt.go).
+// prose's customizations (see punkt.go), for the languages that have a trained
+// Punkt model, and a rule-based segmenter for the rest. See ForLanguage.
 //
 // The trained model is immutable once built, so it is loaded once per process
 // and shared. Sentences carry their byte offsets, so a caller never has to go
@@ -49,7 +50,9 @@ func (s Sentence) In(src string) string {
 
 // Segmenter splits text into sentences.
 type Segmenter struct {
+	// Exactly one of these is set.
 	tokenizer *sentences.DefaultSentenceTokenizer
+	rules     *ruleSegmenter
 }
 
 // trainedStorage loads and prepares the English punkt model exactly once.
@@ -78,6 +81,8 @@ var supervisedAbbrevs = []string{"sgt", "gov", "no", "mt"}
 //
 // The model is loaded on the first call and shared thereafter, so calling New
 // repeatedly is cheap. The returned Segmenter is safe for concurrent use.
+//
+// For another language, see ForLanguage.
 func New() (*Segmenter, error) {
 	training, err := trainedStorage()
 	if err != nil {
@@ -95,7 +100,7 @@ func WithTraining(training *sentences.Storage) *Segmenter {
 }
 
 func newWithStorage(training *sentences.Storage) *Segmenter {
-	lang := sentences.NewPunctStrings()
+	lang := punctStrings{sentences.NewPunctStrings()}
 	word := newWordTokenizer(lang)
 	annotations := sentences.NewAnnotations(training, lang, word)
 
@@ -128,11 +133,20 @@ func newWithStorage(training *sentences.Storage) *Segmenter {
 // Sentences that are entirely whitespace are dropped rather than returned as
 // empty spans.
 func (s *Segmenter) Segment(text string) []Sentence {
-	raw := s.tokenizer.Tokenize(text)
+	var spans []span
+	if s.rules != nil {
+		spans = s.rules.split(text)
+	} else {
+		raw := s.tokenizer.Tokenize(text)
+		spans = make([]span, len(raw))
+		for i, r := range raw {
+			spans[i] = span{r.Start, r.End}
+		}
+	}
 
-	out := make([]Sentence, 0, len(raw))
-	for _, r := range raw {
-		start, end := trimRange(text, r.Start, r.End)
+	out := make([]Sentence, 0, len(spans))
+	for _, r := range spans {
+		start, end := trimRange(text, r.start, r.end)
 		if start >= end {
 			continue
 		}
@@ -140,6 +154,9 @@ func (s *Segmenter) Segment(text string) []Sentence {
 	}
 	return out
 }
+
+// span is a half-open byte range of the source.
+type span struct{ start, end int }
 
 // SegmentText returns just the sentence strings, for callers that do not care
 // where they came from.

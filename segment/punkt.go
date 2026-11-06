@@ -35,7 +35,22 @@ type wordTokenizer struct {
 	sentences.DefaultWordTokenizer
 }
 
-var reAbbr = regexp.MustCompile(`((?:[\w]\.)+[\w]*\.)`)
+// punctStrings extends Punkt's idea of a token worth looking at to a closing
+// quotation mark standing alone. Punkt keeps only tokens with sentence
+// punctuation and the one after each; in French, where « Bonjour ! » sets
+// the quote off with spaces, the closer is a token of its own, and the
+// decision whether to break after it needs the word that follows it.
+type punctStrings struct {
+	*sentences.DefaultPunctStrings
+}
+
+func (p punctStrings) HasSentencePunct(text string) bool {
+	return p.DefaultPunctStrings.HasSentencePunct(text) || isCloser(text)
+}
+
+// \pL rather than \w, which in Go is ASCII: "z.B." is an abbreviation in
+// German, and so is "т.е." in Russian.
+var reAbbr = regexp.MustCompile(`((?:[\pL\pN_]\.)+[\pL\pN_]*\.)`)
 var reLooksLikeEllipsis = regexp.MustCompile(`(?:\.\s?){2,}\.`)
 var reEntities = regexp.MustCompile(`Yahoo!`)
 
@@ -47,10 +62,14 @@ func newWordTokenizer(p sentences.PunctStrings) *wordTokenizer {
 }
 
 func (e *wordTokenizer) HasSentEndChars(t *sentences.Token) bool {
+	// A sentence can end in its punctuation followed by whatever closes a
+	// quotation or parenthesis in the language: ” and ’ in English, » in
+	// French and Russian, “ and ‘ in German, which close what „ and ‚
+	// opened.
 	enders := []string{
-		`."`, `.)`, `.’`, `.”`,
-		`?`, `?"`, `?'`, `?)`, `?’`, `?”`,
-		`!`, `!"`, `!'`, `!)`, `!’`, `!”`,
+		`."`, `.)`, `.’`, `.”`, `.»`, `.“`, `.‘`, `.›`,
+		`?`, `?"`, `?'`, `?)`, `?’`, `?”`, `?»`, `?“`, `?‘`, `?›`,
+		`!`, `!"`, `!'`, `!)`, `!’`, `!”`, `!»`, `!“`, `!‘`, `!›`,
 	}
 
 	for _, ender := range enders {
@@ -85,6 +104,17 @@ type multiPunctWordAnnotation struct {
 
 func (a *multiPunctWordAnnotation) Annotate(tokens []*sentences.Token) []*sentences.Token {
 	for _, tokPair := range a.TokenGrouper.Group(tokens) {
+		if len(tokPair) >= 2 && tokPair[1] != nil {
+			// French sets its marks off with spaces -- « Bonjour ! » -- so the
+			// closing quote is a token of its own. The break belongs after
+			// it, and only if what follows could start a sentence.
+			one, two := tokPair[0], tokPair[1]
+			if one.SentBreak && isCloser(two.Tok) {
+				one.SentBreak, two.SentBreak = false, true
+			} else if one.SentBreak && isCloser(one.Tok) && a.TokenParser.FirstLower(two) {
+				one.SentBreak = false
+			}
+		}
 		if len(tokPair) < 2 || tokPair[1] == nil {
 			tok := tokPair[0].Tok
 			if strings.Contains(tok, "\n") && strings.Contains(tok, " ") {
@@ -100,10 +130,20 @@ func (a *multiPunctWordAnnotation) Annotate(tokens []*sentences.Token) []*senten
 	return tokens
 }
 
+// isCloser reports whether tok is nothing but the punctuation that closes a
+// quotation or parenthesis.
+func isCloser(tok string) bool {
+	switch tok {
+	case `»`, `"`, `'`, `”`, `’`, `“`, `‘`, `›`, `)`, `]`, `}`:
+		return true
+	}
+	return false
+}
+
 // looksInternal determines if tok's punctuation could appear
 // sentence-internally (i.e., parentheses or quotations).
 func looksInternal(tok string) bool {
-	internal := []string{")", `’`, `”`, `"`, `'`}
+	internal := []string{")", `’`, `”`, `"`, `'`, `»`, `“`, `‘`, `›`}
 	for _, punc := range internal {
 		if strings.HasSuffix(tok, punc) {
 			return true
