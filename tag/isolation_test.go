@@ -22,10 +22,14 @@ func TestTaggerDoesNotLinkForeignModels(t *testing.T) {
 
 	// Packages the tagger must never reach. The root prose package pulls in
 	// ner, and with it the ~4 MB entity model.
+	// Nor any language model: a consumer picks the languages it pays for
+	// by importing their packages under tag/lang.
 	forbidden := []string{
 		"github.com/jdkato/prose/v3",
 		"github.com/jdkato/prose/v3/ner",
 		"github.com/jdkato/prose/v3/ner/maxentmodel",
+		"github.com/jdkato/prose/v3/tag/lang/all",
+		"github.com/jdkato/prose/v3/tag/lang/de",
 	}
 
 	deps := make(map[string]bool)

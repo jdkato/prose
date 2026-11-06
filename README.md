@@ -6,12 +6,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jdkato/prose)](https://goreportcard.com/report/github.com/jdkato/prose)
 
 `prose` is a natural language processing library for Go — pure Go, no cgo, no
-external services. English only.
+external services.
 
-- **Tokenization** — words and punctuation, with byte offsets
-- **Segmentation** — sentences, via the Punkt algorithm
-- **Tagging** — part of speech, using the Penn Treebank tag set
-- **Entities** — people, places and organizations
+- **Tokenization** — words and punctuation, with byte offsets, in any language
+- **Segmentation** — sentences, via the Punkt algorithm, in 17 languages
+- **Tagging** — part of speech, in 21 languages
+- **Entities** — people, places and organizations (English)
 - **Readability** — Flesch–Kincaid, Gunning fog, SMOG, Coleman–Liau and more
 - **Case conversion** — title and sentence case, AP and Chicago styles
 
@@ -80,6 +80,51 @@ quotes with straight ones, or `&rsquo;` with `'`, changes byte lengths and
 silently shifts every offset that follows. Normalization that would move bytes
 is the caller's decision, made before `prose` sees the text.
 
+## Languages
+
+English is built in. Other languages are packages you import, so a binary
+carries only the languages it uses:
+
+```go
+import (
+    "github.com/jdkato/prose/v3"
+
+    _ "github.com/jdkato/prose/v3/segment/lang/de"
+    _ "github.com/jdkato/prose/v3/tag/lang/de"
+)
+
+doc, err := prose.NewDocument("Dr. Müller fährt z.B. nach Berlin. Er bleibt dort.",
+    prose.WithLanguage("de"))
+
+for _, tok := range doc.Tokens() {
+    fmt.Println(tok.Text, tok.Tag)
+    // Dr. NOUN
+    // Müller PROPN
+    // fährt VERB
+    // ...
+}
+```
+
+Each piece can be asked for a language on its own: `tokenize.ForLanguage`,
+`segment.ForLanguage` and `tag.ForLanguage`. Import `segment/lang/all` and
+`tag/lang/all` when the language is decided at run time.
+
+| | Languages |
+| --- | --- |
+| Tagging | Catalan, Croatian, Danish, Dutch, English, Finnish, French, German, Indonesian, Italian, Korean, Latvian, Lithuanian, Norwegian, Portuguese, Romanian, Russian, Serbian, Spanish, Swedish, Turkish |
+| Segmentation | Czech, Danish, Dutch, English, Estonian, Finnish, French, German, Greek, Italian, Norwegian, Polish, Portuguese, Slovene, Spanish, Swedish, Turkish; punctuation rules for everything else, including Chinese, Japanese and Korean |
+| Tokenization | Every language. French, Italian and Catalan elisions (`l'homme`), French clitics (`donne-moi`), Spanish `¿¡`, every quotation style, and script boundaries for Chinese and Japanese |
+
+The English tagger uses the Penn Treebank tag set; every other model emits the
+[Universal Dependencies](https://universaldependencies.org/u/pos/) tag set, so
+one rule reads across languages, and `tag.ToUniversal` maps Penn tags onto it.
+The models are averaged perceptrons trained on the Universal Dependencies
+treebanks; [`tag/lang/MODELS.md`](tag/lang/MODELS.md) lists each one's training
+data, license and accuracy, and `cmd/train-tagger` trains one from any CoNLL-U
+treebank.
+
+Entity extraction and readability are English only.
+
 ## Pay only for what you use
 
 `prose` ships two trained models: a part-of-speech tagger (~3 MB) and an entity
@@ -115,6 +160,8 @@ Each component stands alone if you want just that piece:
 | [`tokenize`](https://pkg.go.dev/github.com/jdkato/prose/v3/tokenize) | words and punctuation |
 | [`segment`](https://pkg.go.dev/github.com/jdkato/prose/v3/segment) | sentences |
 | [`tag`](https://pkg.go.dev/github.com/jdkato/prose/v3/tag) | part-of-speech tags |
+| [`tag/lang`](https://pkg.go.dev/github.com/jdkato/prose/v3/tag/lang) | tagging models, one package per language |
+| [`segment/lang`](https://pkg.go.dev/github.com/jdkato/prose/v3/segment/lang) | segmentation models, one package per language |
 | [`ner`](https://pkg.go.dev/github.com/jdkato/prose/v3/ner) | named entities |
 | [`token`](https://pkg.go.dev/github.com/jdkato/prose/v3/token) | the shared token type |
 | [`summarize`](https://pkg.go.dev/github.com/jdkato/prose/v3/summarize) | readability metrics |

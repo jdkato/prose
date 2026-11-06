@@ -5,6 +5,25 @@
 // prose/v3/tokenize, prose/v3/segment, prose/v3/tag, and prose/v3/ner — and
 // Document ties them together for the common case.
 //
+// # Languages
+//
+// English is built in. Twenty more languages have a part-of-speech model and
+// sixteen a sentence-segmentation model, each in its own package under
+// prose/v3/tag/lang and prose/v3/segment/lang, so a program links only the
+// languages it imports. Pass WithLanguage to NewDocument, having imported the
+// language's packages:
+//
+//	import (
+//	    _ "github.com/jdkato/prose/v3/segment/lang/de"
+//	    _ "github.com/jdkato/prose/v3/tag/lang/de"
+//	)
+//
+//	doc, err := prose.NewDocument(text, prose.WithLanguage("de"))
+//
+// Tokenization needs no model and knows every language's punctuation, and
+// the elisions and scripts of the few that need more. Entity extraction is
+// English only, and is skipped for other languages.
+//
 // # Positions
 //
 // Everything prose returns knows where it came from. For any token, sentence,
@@ -27,6 +46,7 @@ package prose
 
 import (
 	"context"
+	"strings"
 	"sync"
 
 	"github.com/jdkato/prose/v3/ner"
@@ -74,6 +94,7 @@ type config struct {
 	tag       bool
 	extract   bool
 	tokenizer *tokenize.Tokenizer
+	lang      string
 }
 
 // Option configures a Document.
@@ -119,6 +140,23 @@ func UsingTokenizer(t *tokenize.Tokenizer) Option {
 	return func(c *config) { c.tokenizer = t }
 }
 
+// WithLanguage sets the language of the text, as a BCP 47 tag such as "de"
+// or "pt-BR". The default is English.
+//
+// The tokenizer, segmenter and tagger for the language are used in place of
+// the English ones; see tokenize.ForLanguage, segment.ForLanguage and
+// tag.ForLanguage for what each needs imported. Entity extraction is English
+// only and is skipped for any other language.
+func WithLanguage(lang string) Option {
+	return func(c *config) { c.lang = lang }
+}
+
+// english reports whether lang is English, or unset.
+func english(lang string) bool {
+	lang = strings.ToLower(lang)
+	return lang == "" || lang == "en" || strings.HasPrefix(lang, "en-") || strings.HasPrefix(lang, "en_")
+}
+
 // NewDocument creates a Document from text.
 //
 // By default it tokenizes, segments, tags, and extracts entities. Use the
@@ -138,6 +176,11 @@ func NewDocumentContext(ctx context.Context, text string, opts ...Option) (*Docu
 	for _, opt := range opts {
 		opt(&cfg)
 	}
+	// Extraction is English only; for another language it is left out,
+	// not failed, since it is on by default.
+	if !english(cfg.lang) {
+		cfg.extract = false
+	}
 	// Extraction is defined in terms of tagged tokens; asking for it without
 	// them is a configuration error rather than something to silently ignore.
 	if cfg.extract {
@@ -154,7 +197,7 @@ func NewDocumentContext(ctx context.Context, text string, opts ...Option) (*Docu
 	}
 
 	if cfg.segment {
-		seg, err := segment.New()
+		seg, err := segment.ForLanguage(cfg.lang)
 		if err != nil {
 			return nil, err
 		}
@@ -167,8 +210,10 @@ func NewDocumentContext(ctx context.Context, text string, opts ...Option) (*Docu
 
 	if cfg.tokenize {
 		tk := cfg.tokenizer
-		if tk == nil {
+		if tk == nil && english(cfg.lang) {
 			tk = defaultTokenizer()
+		} else if tk == nil {
+			tk = tokenize.ForLanguage(cfg.lang)
 		}
 		doc.tokens = tk.Tokenize(text)
 	}
@@ -178,7 +223,7 @@ func NewDocumentContext(ctx context.Context, text string, opts ...Option) (*Docu
 	}
 
 	if cfg.tag {
-		tg, err := tag.New()
+		tg, err := tag.ForLanguage(cfg.lang)
 		if err != nil {
 			return nil, err
 		}
@@ -189,7 +234,7 @@ func NewDocumentContext(ctx context.Context, text string, opts ...Option) (*Docu
 		return nil, err
 	}
 
-	if cfg.extract {
+	if cfg.extract && english(cfg.lang) {
 		ex, err := ner.New()
 		if err != nil {
 			return nil, err

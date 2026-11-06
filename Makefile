@@ -1,4 +1,4 @@
-.PHONY: all test race bench lint fmt vet tidy cover clean
+.PHONY: all test race bench lint fmt vet tidy cover clean models
 
 all: test
 
@@ -32,3 +32,8 @@ cover:
 
 clean:
 	rm -f coverage.out
+
+# Retrain every language model from Universal Dependencies treebanks checked
+# out under $(UD); see tag/lang/build.sh.
+models:
+	UD=$(UD) tag/lang/build.sh
