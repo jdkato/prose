@@ -46,6 +46,24 @@ type Tokenizer struct {
 	splitCases []string
 	specialRE  *regexp.Regexp
 	isSpecial  func(string) bool
+
+	// elision matches an elided word at the start of a span -- French "l'",
+	// Italian "dell'" -- which is split off with its apostrophe. Anchored.
+	elision *regexp.Regexp
+
+	// clitic matches a hyphenated pronoun at the end of a span -- French
+	// "-moi", "-t-il" -- which is split off with its hyphen. Anchored.
+	clitic *regexp.Regexp
+
+	// keepWhole lists words, lower-cased, that elision must not split:
+	// "aujourd'hui" is one word with an apostrophe in it.
+	keepWhole map[string]bool
+
+	// scripts splits a span where the writing system changes between
+	// Chinese, Japanese and everything else, which is the only boundary a
+	// tokenizer without a dictionary can find in text written without
+	// spaces.
+	scripts bool
 }
 
 // Option configures a Tokenizer.
@@ -71,6 +89,41 @@ func UsingSplitCases(c []string) Option {
 // split at all.
 func UsingSpecialTest(fn func(string) bool) Option {
 	return func(t *Tokenizer) { t.isSpecial = fn }
+}
+
+// UsingElision splits an elided word off the front of a span, apostrophe
+// included: with the French pattern, "l'homme" becomes "l'" and "homme". The
+// pattern must be anchored at the start.
+//
+// Words in keepWhole, compared case-insensitively, are never split, for the
+// few that carry an apostrophe of their own ("aujourd'hui").
+func UsingElision(re *regexp.Regexp, keepWhole ...string) Option {
+	return func(t *Tokenizer) {
+		t.elision = re
+		t.keepWhole = make(map[string]bool, len(keepWhole))
+		for _, w := range keepWhole {
+			t.keepWhole[strings.ToLower(w)] = true
+		}
+	}
+}
+
+// UsingClitics splits a hyphenated clitic off the end of a span, hyphen
+// included: with the French pattern, "donne-moi" becomes "donne" and "-moi".
+// The pattern must be anchored at the end.
+func UsingClitics(re *regexp.Regexp) Option {
+	return func(t *Tokenizer) { t.clitic = re }
+}
+
+// SplittingScripts splits a span where it changes between Han, hiragana,
+// katakana and any other script, and around East Asian punctuation.
+//
+// Chinese and Japanese are written without spaces, so a whitespace tokenizer
+// returns a whole clause as one token. Script changes are a real boundary --
+// "iPhoneを買った" is "iPhone", "を", "買", "った" -- but a word boundary
+// within a run of one script needs a dictionary, which prose does not carry.
+// The result is a usable approximation, not a segmentation.
+func SplittingScripts(on bool) Option {
+	return func(t *Tokenizer) { t.scripts = on }
 }
 
 // New returns a Tokenizer with prose's default English behaviour.
@@ -181,6 +234,13 @@ func (t *Tokenizer) split(span string, base int, tokens []Token) []Token {
 			continue
 		}
 
+		if idx := t.elided(span); idx > 0 {
+			// "l'homme" -> "l'" + "homme".
+			tokens = append(tokens, Token{Text: span[:idx], Start: base})
+			span, base = span[idx:], base+idx
+			continue
+		}
+
 		if idx := indexAnyCase(span, t.splitCases); idx > 0 {
 			// "they'll" -> "they" + "'ll"; "don't" -> "do" + "n't".
 			tokens = append(tokens, Token{Text: span[:idx], Start: base})
@@ -195,7 +255,18 @@ func (t *Tokenizer) split(span string, base int, tokens []Token) []Token {
 			continue
 		}
 
-		tokens = append(tokens, Token{Text: span, Start: base})
+		if cut := t.cliticAt(span); cut > 0 {
+			// "donne-moi" -> "donne" + "-moi".
+			suffixes = append(suffixes, Token{Text: span[cut:], Start: base + cut})
+			span = span[:cut]
+			continue
+		}
+
+		if t.scripts {
+			tokens = splitScripts(span, base, tokens)
+		} else {
+			tokens = append(tokens, Token{Text: span, Start: base})
+		}
 		span = ""
 	}
 
@@ -204,6 +275,33 @@ func (t *Tokenizer) split(span string, base int, tokens []Token) []Token {
 		tokens = append(tokens, suffixes[i])
 	}
 	return tokens
+}
+
+// elided returns the length of an elided word at the start of span, or 0.
+func (t *Tokenizer) elided(span string) int {
+	if t.elision == nil {
+		return 0
+	}
+	if t.keepWhole[strings.ToLower(span)] {
+		return 0
+	}
+	loc := t.elision.FindStringIndex(span)
+	if loc == nil || loc[1] >= len(span) {
+		return 0
+	}
+	return loc[1]
+}
+
+// cliticAt returns the offset of a hyphenated clitic ending span, or 0.
+func (t *Tokenizer) cliticAt(span string) int {
+	if t.clitic == nil {
+		return 0
+	}
+	loc := t.clitic.FindStringIndex(span)
+	if loc == nil || loc[0] <= 0 {
+		return 0
+	}
+	return loc[0]
 }
 
 // special reports whether a span must be kept whole.
@@ -291,10 +389,22 @@ var defaultSuffixes = []string{
 	",", ")", `"`, "]", "!", ";", ".", "?", ":", "'",
 	"”", // right double quotation mark
 	"’", // right single quotation mark
+	"»", // right-pointing guillemet: closes a French or Russian quotation
+	"“", // left double quotation mark: closes a German „quotation“
+	"‘", // left single quotation mark: closes a German ‚quotation‘
+	"›", // closes a ‹German› quotation
+	"…", // ellipsis
+	"。", "，", "、", "！", "？", "：", "；", "）", "」", "』", "】", "》", "〉", "〕",
 }
 
 var defaultPrefixes = []string{
 	"$", "(", `"`, "[",
 	"“", // left double quotation mark
 	"‘", // left single quotation mark
+	"«", // left-pointing guillemet
+	"„", // double low-9 quotation mark: opens a German or Russian quotation
+	"‚", // single low-9 quotation mark
+	"‹",
+	"¿", "¡", // Spanish inverted marks
+	"（", "「", "『", "【", "《", "〈", "〔",
 }
