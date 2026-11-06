@@ -1,7 +1,10 @@
 // Package tag assigns part-of-speech tags to tokenized text.
 //
 // The tagger is an averaged perceptron, after Honnibal's "A Good Part-of-Speech
-// Tagger in about 200 Lines of Python". It uses the Penn Treebank tag set.
+// Tagger in about 200 Lines of Python". The English model uses the Penn
+// Treebank tag set; the models for other languages, registered by the packages
+// under prose/v3/tag/lang, use the Universal Dependencies tag set. See
+// ForLanguage.
 //
 // # Performance
 //
@@ -23,15 +26,27 @@ package tag
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
-	"unicode/utf8"
-	"unsafe"
 
 	"github.com/jdkato/prose/v3/internal/emoticon"
 	"github.com/jdkato/prose/v3/internal/flat"
+	"github.com/jdkato/prose/v3/internal/perceptron"
 	"github.com/jdkato/prose/v3/tag/aptagmodel"
 	"github.com/jdkato/prose/v3/token"
+)
+
+// Tag sets a model can emit.
+const (
+	// Penn is the Penn Treebank tag set (NN, VBZ, JJ, ...), used by the
+	// English model.
+	Penn = "penn"
+
+	// Universal is the Universal Dependencies tag set (NOUN, VERB, ADJ, ...),
+	// used by every other language's model. It has 17 tags, the same in
+	// every language, which is what lets one rule read across languages.
+	Universal = "upos"
 )
 
 // Penn Treebank corpora mark traces and elisions with tokens like "*-1" or
@@ -43,15 +58,6 @@ var (
 )
 
 func isEmoticon(s string) bool { return emoticon.Is(s) }
-
-// bytesToString views b as a string without copying. The result is used only
-// for a map/blob lookup that does not retain it.
-func bytesToString(b []byte) string {
-	if len(b) == 0 {
-		return ""
-	}
-	return unsafe.String(&b[0], len(b))
-}
 
 // Token is prose's shared token type, re-exported so callers that only tag
 // text need not import the token package separately.
@@ -69,9 +75,12 @@ type Token = token.Token
 //
 // It satisfies Interface, as every tagger here does.
 type Tagger struct {
-	model   *flat.Model
-	lexicon Lexicon
-	pool    sync.Pool
+	model    *flat.Model
+	lexicon  Lexicon
+	pool     sync.Pool
+	template perceptron.Template
+	tagset   string
+	lang     string
 }
 
 // A Lexicon fixes the tag for words that only ever carry one.
@@ -141,14 +150,27 @@ func FromBytes(data []byte, opts ...Option) (*Tagger, error) {
 }
 
 func newWithModel(m *flat.Model, opts ...Option) *Tagger {
-	t := &Tagger{model: m}
+	t := &Tagger{model: m, tagset: Penn, lang: "en"}
+
+	// A model says what it is; one from before metadata existed is the
+	// English Penn Treebank model, which is all there was.
+	if ts := m.Meta(flat.MetaTagset); ts != "" {
+		t.tagset = ts
+	}
+	if lang := m.Meta(flat.MetaLanguage); lang != "" {
+		t.lang = lang
+	}
+	if n, err := strconv.Atoi(m.Meta(flat.MetaTemplate)); err == nil {
+		t.template = perceptron.Template(n)
+	}
+
 	for _, opt := range opts {
 		opt(t)
 	}
 	t.pool.New = func() any {
 		return &scratch{
 			scores: make([]float32, len(m.Classes())),
-			key:    make([]byte, 0, 64),
+			feats:  perceptron.NewFeatures(t.template),
 		}
 	}
 	return t
@@ -158,12 +180,19 @@ func newWithModel(m *flat.Model, opts ...Option) *Tagger {
 // nothing in steady state.
 type scratch struct {
 	scores  []float32
-	key     []byte
+	feats   *perceptron.Features
 	context []string
 }
 
 // Name reports which tagger this is.
 func (t *Tagger) Name() string { return Default }
+
+// Tagset reports the tag set the tagger emits: Penn or Universal.
+func (t *Tagger) Tagset() string { return t.tagset }
+
+// Language reports the language the tagger's model was trained for, as a
+// BCP 47 tag such as "en" or "de".
+func (t *Tagger) Language() string { return t.lang }
 
 // Tag assigns a tag to each word and returns the tagged tokens.
 //
@@ -198,15 +227,15 @@ func (t *Tagger) TagTokens(tokens []Token) {
 		s.context = make([]string, need)
 	}
 	ctx := s.context[:need]
-	ctx[0] = "-START-"
-	ctx[1] = "-START2-"
+	ctx[0] = perceptron.Start
+	ctx[1] = perceptron.Start2
 	for i := range tokens {
-		ctx[i+2] = normalize(tokens[i].Text)
+		ctx[i+2] = perceptron.Normalize(tokens[i].Text)
 	}
-	ctx[need-2] = "-END-"
-	ctx[need-1] = "-END2-"
+	ctx[need-2] = perceptron.End
+	ctx[need-1] = perceptron.End2
 
-	p1, p2 := "-START-", "-START2-"
+	p1, p2 := perceptron.Start, perceptron.Start2
 	for i := range tokens {
 		tag := t.tagOne(s, i, ctx, tokens[i].Text, p1, p2)
 		tokens[i].Tag = tag
@@ -217,17 +246,8 @@ func (t *Tagger) TagTokens(tokens []Token) {
 // tagOne resolves a single token. The special cases below short-circuit the
 // model for tokens it was never trained on.
 func (t *Tagger) tagOne(s *scratch, i int, ctx []string, word, p1, p2 string) string {
-	switch {
-	case word == "-":
-		return "-"
-	case isEmoticon(word):
-		return "SYM"
-	case strings.HasPrefix(word, "@"):
-		return "NN"
-	case noneRe.MatchString(word):
-		return "-NONE-"
-	case keepRe.MatchString(word):
-		return word
+	if tag, ok := t.fixed(word); ok {
+		return tag
 	}
 	// Ahead of the model's own lexicon: a caller supplying one is making a
 	// more specific claim than the training data.
@@ -239,6 +259,33 @@ func (t *Tagger) tagOne(s *scratch, i int, ctx []string, word, p1, p2 string) st
 		return tag
 	}
 	return t.predict(s, i, ctx, word, p1, p2)
+}
+
+// fixed returns the tag of a token the model never decides.
+//
+// The Penn model has several: the corpus conventions for traces and brackets,
+// and a few token shapes it was never trained on. A universal model decides
+// everything but emoticons, which are symbols in every language.
+func (t *Tagger) fixed(word string) (string, bool) {
+	if t.tagset != Penn {
+		if isEmoticon(word) {
+			return "SYM", true
+		}
+		return "", false
+	}
+	switch {
+	case word == "-":
+		return "-", true
+	case isEmoticon(word):
+		return "SYM", true
+	case strings.HasPrefix(word, "@"):
+		return "NN", true
+	case noneRe.MatchString(word):
+		return "-NONE-", true
+	case keepRe.MatchString(word):
+		return word, true
+	}
+	return "", false
 }
 
 // lookup consults the caller's lexicon, trying the word as written before its
@@ -265,7 +312,7 @@ func (t *Tagger) lookup(word string) (string, bool) {
 // predict scores the model's features for one token and returns the best tag.
 //
 // This does not allocate: scores live in pooled scratch space, and each
-// feature key is assembled in a reusable buffer.
+// feature key is assembled in a reusable buffer and looked up by value.
 func (t *Tagger) predict(s *scratch, i int, ctx []string, word, p1, p2 string) string {
 	for j := range s.scores {
 		s.scores[j] = 0
@@ -273,114 +320,10 @@ func (t *Tagger) predict(s *scratch, i int, ctx []string, word, p1, p2 string) s
 
 	i = min(len(ctx)-3, i+2)
 
-	suf := suffix(word, 3)
-	pre := prefix1(word)
-	iMinus := suffix(ctx[i-1], 3)
-	iPlus := suffix(ctx[i+1], 3)
-
-	// Each feature is scored with weight 1. A feature that appears twice
-	// contributes twice, which is correct because scoring is linear.
-	t.feat(s, "bias")
-	t.feat(s, "i suffix ", suf)
-	t.feat(s, "i pref1 ", pre)
-	t.feat(s, "i-1 tag ", p1)
-	t.feat(s, "i-2 tag ", p2)
-	t.feat(s, "i tag+i-2 tag ", p1, " ", p2)
-	t.feat(s, "i word ", ctx[i])
-	t.feat(s, "i-1 tag+i word ", p1, " ", ctx[i])
-	t.feat(s, "i-1 word ", ctx[i-1])
-	t.feat(s, "i-1 suffix ", iMinus)
-	t.feat(s, "i-2 word ", ctx[i-2])
-	t.feat(s, "i+1 word ", ctx[i+1])
-	t.feat(s, "i+1 suffix ", iPlus)
-	t.feat(s, "i+2 word ", ctx[i+2])
+	s.feats.Build(ctx, i, word, p1, p2)
+	for k, n := 0, s.feats.Len(); k < n; k++ {
+		t.model.AccumulateInto(s.feats.Key(k), 1, s.scores)
+	}
 
 	return t.model.Best(s.scores)
-}
-
-// feat assembles a feature key from parts and accumulates its weights.
-//
-// The key is built in scratch space; the model looks it up by value, so no
-// string is allocated.
-func (t *Tagger) feat(s *scratch, parts ...string) {
-	s.key = s.key[:0]
-	for _, p := range parts {
-		s.key = append(s.key, p...)
-	}
-	t.model.AccumulateInto(bytesToString(s.key), 1, s.scores)
-}
-
-// suffix returns the last n bytes of w, or all of w if shorter.
-func suffix(w string, n int) string {
-	if len(w) <= n {
-		return w
-	}
-	return w[len(w)-n:]
-}
-
-// prefix1 returns the first byte of w as a string.
-//
-// This is byte-oriented rather than rune-oriented, deliberately: the model was
-// trained with these keys, so switching to runes would silently stop matching
-// learned features.
-func prefix1(w string) string {
-	if w == "" {
-		return ""
-	}
-	return w[:1]
-}
-
-// normalize maps a word onto the form the model was trained against.
-//
-// Allocation-free on the common path. Note the year test: strconv.Atoi would
-// be the obvious way to write it, but Atoi allocates a *NumError on failure —
-// which is almost every word — so it scans digits directly instead.
-func normalize(word string) string {
-	if word == "" {
-		return word
-	}
-	first := word[0]
-	if first != '-' && strings.IndexByte(word, '-') >= 0 {
-		return "!HYPHEN"
-	}
-	if len(word) == 4 && isDecimalInt(word) {
-		return "!YEAR"
-	}
-	if first >= '0' && first <= '9' {
-		return "!DIGITS"
-	}
-	return toLower(word)
-}
-
-// isDecimalInt reports whether s is what strconv.Atoi would accept: an
-// optional sign followed by at least one ASCII digit. Only ever called with
-// len(s) == 4, so overflow is not a concern.
-func isDecimalInt(s string) bool {
-	i := 0
-	if s[0] == '+' || s[0] == '-' {
-		i = 1
-	}
-	if i == len(s) {
-		return false
-	}
-	for ; i < len(s); i++ {
-		if s[i] < '0' || s[i] > '9' {
-			return false
-		}
-	}
-	return true
-}
-
-// toLower avoids allocating when a word is already lowercase ASCII, which is
-// the common case once a sentence's first word is past. Anything with an
-// uppercase letter or a non-ASCII byte falls through to strings.ToLower for
-// correct Unicode folding.
-func toLower(s string) string {
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if (c >= 'A' && c <= 'Z') || c >= utf8.RuneSelf {
-			return strings.ToLower(s)
-		}
-	}
-	return s
 }

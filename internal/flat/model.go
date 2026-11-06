@@ -25,7 +25,13 @@ type Model struct {
 
 	// tagMap holds unambiguous word -> class assignments, bypassing scoring.
 	tagMap map[string]uint8
+
+	// meta describes the model; empty for a version 1 file.
+	meta map[string]string
 }
+
+// Meta returns the metadata stored under key, or "" if there is none.
+func (m *Model) Meta(key string) string { return m.meta[key] }
 
 // Classes returns the class names, indexed by class ID.
 func (m *Model) Classes() []string { return m.classes }
@@ -184,11 +190,12 @@ func Unmarshal(data []byte) (*Model, error) {
 	if string(r.bytes(len(Magic))) != Magic {
 		return nil, errors.New("not a prose flat tagger model")
 	}
-	if v := r.u32(); v != Version {
-		return nil, fmt.Errorf("unsupported model version %d (want %d)", v, Version)
+	version := r.u32()
+	if version < 1 || version > Version {
+		return nil, fmt.Errorf("unsupported model version %d (want 1..%d)", version, Version)
 	}
 
-	m := &Model{}
+	m := &Model{meta: map[string]string{}}
 
 	nClasses := int(r.u32())
 	if r.err != nil {
@@ -252,6 +259,18 @@ func Unmarshal(data []byte) (*Model, error) {
 	}
 	if r.err != nil {
 		return nil, r.err
+	}
+
+	if version >= 2 {
+		nMeta := int(r.u32())
+		for i := 0; i < nMeta; i++ {
+			k := r.str16()
+			v := r.str16()
+			if r.err != nil {
+				return nil, r.err
+			}
+			m.meta[k] = v
+		}
 	}
 
 	if err := m.validate(); err != nil {

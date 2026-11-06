@@ -26,6 +26,12 @@
 //	classIDs  nPairs x uint8
 //	weights   nPairs x float32
 //	nTagMap   uint32   then per entry: uint16 len + bytes, uint8 classID
+//	nMeta     uint32   then per entry: key and value, each uint16 len + bytes
+//	                                        (version 2 and later)
+//
+// The metadata names what the model is: its language, tag set, and the
+// feature template it was trained with (see internal/perceptron). A version 1
+// model has none and is read as the English Penn Treebank model.
 //
 // Feature strings are sliced zero-copy out of the backing bytes. The numeric
 // arrays are copied once into aligned slices, since go:embed makes no
@@ -38,7 +44,23 @@ const Magic = "PROSETAG"
 
 // Version is the current format version. Bump on any layout change; the
 // reader rejects anything it does not recognise.
-const Version = 1
+//
+// Version 2 appended the metadata section. Version 1 files are still read.
+const Version = 2
+
+// Metadata keys a model may carry.
+const (
+	// MetaLanguage is the BCP 47 language tag the model was trained for.
+	MetaLanguage = "lang"
+	// MetaTagset names the tag set the model emits: "penn" or "upos".
+	MetaTagset = "tagset"
+	// MetaTemplate is the feature template number, as a decimal string.
+	MetaTemplate = "template"
+	// MetaSource describes the training data.
+	MetaSource = "source"
+	// MetaLicense is the license of the training data.
+	MetaLicense = "license"
+)
 
 // MaxClasses is the ceiling implied by storing class IDs as uint8. The
 // shipped English model has 38.

@@ -14,6 +14,9 @@ type Source struct {
 	Weights map[string]map[string]float64
 	TagMap  map[string]string
 	Classes []string
+
+	// Meta describes the model; see the Meta* keys.
+	Meta map[string]string
 }
 
 // Marshal encodes src into the flat format.
@@ -129,6 +132,21 @@ func Marshal(src Source) ([]byte, error) {
 			return nil, err
 		}
 		out.WriteByte(id)
+	}
+
+	metaKeys := make([]string, 0, len(src.Meta))
+	for k := range src.Meta {
+		metaKeys = append(metaKeys, k)
+	}
+	sort.Strings(metaKeys)
+	putU32(&out, uint32(len(metaKeys)))
+	for _, k := range metaKeys {
+		if err := putStr16(&out, k); err != nil {
+			return nil, err
+		}
+		if err := putStr16(&out, src.Meta[k]); err != nil {
+			return nil, err
+		}
 	}
 
 	// A class first seen in the tag map would not be in the header written
