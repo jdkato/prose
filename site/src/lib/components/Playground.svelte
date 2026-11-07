@@ -99,12 +99,14 @@
 			for (; ti < tokens.length && tokens[ti].end <= b; ti++) {
 				const tok = tokens[ti];
 				if (tok.start < a) continue;
-				if (tok.start > pos) group.chunks.push({ text: slice(pos, tok.start) });
+				// Whitespace stays inside an entity only between its own
+				// tokens; at a boundary it goes to the next group.
 				const ent = entities.find((e) => tok.start >= e.start && tok.end <= e.end);
 				if (ent !== group.entity) {
 					if (group.chunks.length) groups.push(group);
 					group = { entity: ent, chunks: [] };
 				}
+				if (tok.start > pos) group.chunks.push({ text: slice(pos, tok.start) });
 				group.chunks.push({ token: tok });
 				pos = tok.end;
 			}

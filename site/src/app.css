@@ -197,12 +197,12 @@
 }
 .ent {
 	--ent: 84;
+	display: inline-block;
+	vertical-align: top;
 	background: hsl(var(--ent) 75% 88%);
 	color: inherit;
 	border-radius: 0.3rem;
 	padding: 0.05rem 0.3rem;
-	box-decoration-break: clone;
-	-webkit-box-decoration-break: clone;
 }
 .dark .ent {
 	background: hsl(var(--ent) 45% 26%);
