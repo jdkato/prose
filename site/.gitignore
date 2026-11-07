@@ -1,0 +1,6 @@
+node_modules
+.svelte-kit
+build
+# Built by `make wasm` at the repo root.
+static/prose.wasm
+static/wasm_exec.js

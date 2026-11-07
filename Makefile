@@ -1,4 +1,4 @@
-.PHONY: all test race bench lint fmt vet tidy cover clean models pack
+.PHONY: all test race bench lint fmt vet tidy cover clean models pack wasm test-wasm site
 
 all: test
 
@@ -44,3 +44,18 @@ models:
 # tagged models-$(VERSION).
 pack:
 	go run ./cmd/pack-models -version $(VERSION) -out dist/models
+
+# The playground on the documentation site: prose compiled to WebAssembly,
+# plus the loader that ships with the Go toolchain that built it.
+wasm:
+	GOOS=js GOARCH=wasm go build -ldflags="-s -w" -o site/static/prose.wasm ./cmd/prosew
+	install -m 0644 "$$(go env GOROOT)/lib/wasm/wasm_exec.js" site/static/wasm_exec.js
+
+test-wasm: wasm
+	node testdata/wasm/smoke.mjs site/static/wasm_exec.js site/static/prose.wasm
+
+# Build the documentation site into site/build. BASE_PATH is where it will
+# be served from, /prose on GitHub Pages.
+site: wasm
+	pnpm --dir site install --frozen-lockfile
+	BASE_PATH=$(BASE_PATH) pnpm --dir site build
