@@ -76,6 +76,21 @@ func ForLanguage(lang string) (*Tagger, error) {
 	return m.tg, m.err
 }
 
+// LanguageModel returns the model registered for lang, in prose's flat format,
+// as RegisterLanguage received it. It is for a program that ships models apart
+// from its binary, as prose/v3/cmd/pack-models does; a program that only tags
+// wants ForLanguage.
+func LanguageModel(lang string) ([]byte, bool) {
+	languagesMu.RLock()
+	defer languagesMu.RUnlock()
+
+	m, ok := languages[normalizeLang(lang)]
+	if !ok {
+		return nil, false
+	}
+	return m.data, true
+}
+
 // aliases maps language tags onto the registered model that serves them.
 var aliases = map[string]string{
 	"no": "nb", // Norwegian: the model was trained on Bokmål text

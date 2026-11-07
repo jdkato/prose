@@ -12,6 +12,10 @@
 // exception: its model is older, larger and Penn Treebank-tagged, and
 // tag.ToUniversal maps its tags across.
 //
+// A program that would rather download a model than link it reads
+// prose/v3/models for what is published and fetches the archive
+// prose/v3/cmd/pack-models writes from the matching prose release.
+//
 // MODELS.md lists each model's training data, license and accuracy; build.sh
 // retrains them all. The models are averaged perceptrons trained by
 // prose/v3/cmd/train-tagger, and a caller with a treebank of their own can

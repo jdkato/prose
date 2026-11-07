@@ -1,6 +1,7 @@
 package segment_test
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -96,5 +97,38 @@ func TestRulesCoverInput(t *testing.T) {
 				t.Errorf("Segment(%q) = %q loses text", src, all)
 			}
 		}
+	}
+}
+
+// A model taken out of the registry and read back through FromBytes segments
+// as the registered one does, abbreviations included.
+func TestFromBytesMatchesRegistered(t *testing.T) {
+	gz, abbrevs, ok := segment.LanguageModel("de")
+	if !ok {
+		t.Fatal("German should be registered")
+	}
+
+	loose, err := segment.FromBytes(gz, abbrevs...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	registered, err := segment.ForLanguage("de")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	src := "Dr. Müller kommt z.B. morgen. Er bleibt."
+	if got, want := loose.SegmentText(src), registered.SegmentText(src); !reflect.DeepEqual(got, want) {
+		t.Errorf("FromBytes = %q, ForLanguage = %q", got, want)
+	}
+	if n := len(loose.SegmentText(src)); n != 2 {
+		t.Errorf("got %d sentences, want 2", n)
+	}
+
+	if _, _, ok := segment.LanguageModel("xx"); ok {
+		t.Error("an unregistered language should not have a model")
+	}
+	if _, err := segment.FromBytes([]byte("not gzip")); err == nil {
+		t.Error("garbage should not decode")
 	}
 }

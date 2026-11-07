@@ -190,6 +190,18 @@ func (t *Tagger) Name() string { return Default }
 // Tagset reports the tag set the tagger emits: Penn or Universal.
 func (t *Tagger) Tagset() string { return t.tagset }
 
+// Metadata keys a model carries, for Meta.
+const (
+	// MetaSource describes the training data.
+	MetaSource = flat.MetaSource
+	// MetaLicense is the license of the training data.
+	MetaLicense = flat.MetaLicense
+)
+
+// Meta returns what the model's metadata says under key, or "" when it says
+// nothing: the English model predates metadata and says nothing at all.
+func (t *Tagger) Meta(key string) string { return t.model.Meta(key) }
+
 // Language reports the language the tagger's model was trained for, as a
 // BCP 47 tag such as "en" or "de".
 func (t *Tagger) Language() string { return t.lang }

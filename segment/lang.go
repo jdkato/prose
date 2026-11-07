@@ -56,27 +56,59 @@ var aliases = map[string]string{
 
 func (m *languageModel) load() (*sentences.Storage, error) {
 	m.once.Do(func() {
-		zr, err := gzip.NewReader(bytes.NewReader(m.gz))
-		if err != nil {
-			m.err = err
-			return
-		}
-		b, err := io.ReadAll(zr)
-		if err != nil {
-			m.err = err
-			return
-		}
-		m.storage, m.err = sentences.LoadTraining(b)
-		if m.err != nil {
-			return
-		}
-		// Added before anyone segments with it, so the shared storage is
-		// never written to afterwards.
-		for _, a := range m.abbrevs {
-			m.storage.AbbrevTypes.Add(a)
-		}
+		m.storage, m.err = decode(m.gz, m.abbrevs)
 	})
 	return m.storage, m.err
+}
+
+// decode reads a compressed Punkt model and adds abbrevs to it, before anyone
+// segments with it, so the storage is never written to afterwards.
+func decode(gz []byte, abbrevs []string) (*sentences.Storage, error) {
+	zr, err := gzip.NewReader(bytes.NewReader(gz))
+	if err != nil {
+		return nil, err
+	}
+	b, err := io.ReadAll(zr)
+	if err != nil {
+		return nil, err
+	}
+	storage, err := sentences.LoadTraining(b)
+	if err != nil {
+		return nil, err
+	}
+	for _, a := range abbrevs {
+		storage.AbbrevTypes.Add(a)
+	}
+	return storage, nil
+}
+
+// FromBytes returns a Segmenter for a Punkt model held outside the binary:
+// gz is the model's JSON, gzip-compressed, as the packages under
+// prose/v3/segment/lang hold it, and abbrevs are abbreviations to add,
+// lower-cased and without the trailing period. The model is decoded on every
+// call, so a caller keeps the Segmenter rather than asking again. It is safe
+// for concurrent use.
+func FromBytes(gz []byte, abbrevs ...string) (*Segmenter, error) {
+	storage, err := decode(gz, abbrevs)
+	if err != nil {
+		return nil, err
+	}
+	return newWithStorage(storage), nil
+}
+
+// LanguageModel returns the Punkt model registered for lang as it was
+// registered: the compressed JSON and the added abbreviations. It is for a
+// program that ships models apart from its binary, as prose/v3/cmd/pack-models
+// does; a program that only segments wants ForLanguage.
+func LanguageModel(lang string) (gz []byte, abbrevs []string, ok bool) {
+	languagesMu.RLock()
+	defer languagesMu.RUnlock()
+
+	m, ok := languages[normalizeLang(lang)]
+	if !ok {
+		return nil, nil, false
+	}
+	return m.gz, m.abbrevs, true
 }
 
 func normalizeLang(lang string) string {

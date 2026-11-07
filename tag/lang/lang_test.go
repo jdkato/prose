@@ -103,3 +103,25 @@ func TestForLanguageIsShared(t *testing.T) {
 		t.Error("ForLanguage should return the same tagger for one language")
 	}
 }
+
+// A model taken out of the registry carries its provenance, which is what a
+// program shipping it apart from the binary writes down beside it.
+func TestLanguageModelMeta(t *testing.T) {
+	data, ok := tag.LanguageModel("fr")
+	if !ok {
+		t.Fatal("French should be registered")
+	}
+	tg, err := tag.FromBytes(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tg.Language() != "fr" || tg.Tagset() != tag.Universal {
+		t.Errorf("language %q, tagset %q", tg.Language(), tg.Tagset())
+	}
+	if !strings.Contains(tg.Meta(tag.MetaSource), "French") || tg.Meta(tag.MetaLicense) == "" {
+		t.Errorf("source %q, license %q", tg.Meta(tag.MetaSource), tg.Meta(tag.MetaLicense))
+	}
+	if _, ok := tag.LanguageModel("xx"); ok {
+		t.Error("an unregistered language should not have a model")
+	}
+}

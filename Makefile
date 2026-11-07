@@ -1,4 +1,4 @@
-.PHONY: all test race bench lint fmt vet tidy cover clean models
+.PHONY: all test race bench lint fmt vet tidy cover clean models pack
 
 all: test
 
@@ -37,3 +37,10 @@ clean:
 # out under $(UD); see tag/lang/build.sh.
 models:
 	UD=$(UD) tag/lang/build.sh
+
+# Write the language models as one archive per language, for a program that
+# downloads them instead of linking them; see cmd/pack-models. VERSION is the
+# prose release they belong to, and the archives are attached to a release
+# tagged models-$(VERSION).
+pack:
+	go run ./cmd/pack-models -version $(VERSION) -out dist/models
