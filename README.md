@@ -118,10 +118,10 @@ Each piece can be asked for a language on its own: `tokenize.ForLanguage`,
 The English tagger uses the Penn Treebank tag set; every other model emits the
 [Universal Dependencies](https://universaldependencies.org/u/pos/) tag set, so
 one rule reads across languages, and `tag.ToUniversal` maps Penn tags onto it.
-The models are averaged perceptrons trained on the Universal Dependencies
-treebanks; [`tag/lang/MODELS.md`](tag/lang/MODELS.md) lists each one's training
-data, license and accuracy, and `cmd/train-tagger` trains one from any CoNLL-U
-treebank.
+The models, English included, are averaged perceptrons trained on the Universal
+Dependencies treebanks; [`tag/lang/MODELS.md`](tag/lang/MODELS.md) lists each
+one's training data, license and accuracy, and `cmd/train-tagger` trains one
+from any CoNLL-U treebank.
 
 Entity extraction and readability are English only.
 

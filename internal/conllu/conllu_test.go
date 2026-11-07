@@ -20,7 +20,7 @@ const sample = `# sent_id = 1
 `
 
 func TestReadCollapsesRangesAndSkipsEmptyNodes(t *testing.T) {
-	sents, err := Read(strings.NewReader(sample), UPOS)
+	sents, err := Read(strings.NewReader(sample), UPOS, Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,11 +42,50 @@ func TestReadCollapsesRangesAndSkipsEmptyNodes(t *testing.T) {
 }
 
 func TestReadXPOS(t *testing.T) {
-	sents, err := Read(strings.NewReader(sample), XPOS)
+	sents, err := Read(strings.NewReader(sample), XPOS, Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got := sents[0].Tags[1]; got != "VVFIN" {
 		t.Errorf("xpos = %q, want VVFIN", got)
+	}
+}
+
+const hyphens = `# text = A well-known Hewlett-Packard device - not e-mail.
+1	A	a	DET	DT	_	5	det	_	_
+2	well	well	ADV	RB	_	4	advmod	_	SpaceAfter=No
+3	-	-	PUNCT	HYPH	_	4	punct	_	SpaceAfter=No
+4	known	know	VERB	VBN	_	5	amod	_	_
+5	Hewlett	Hewlett	PROPN	NNP	_	7	compound	_	SpaceAfter=No
+6	-	-	PUNCT	HYPH	_	5	punct	_	SpaceAfter=No
+7	Packard	Packard	PROPN	NNP	_	8	compound	_	_
+8	device	device	NOUN	NN	_	0	root	_	_
+9	-	-	PUNCT	HYPH	_	12	punct	_	_
+10	not	not	PART	RB	_	12	advmod	_	_
+11	e	e	NOUN	NN	_	12	compound	_	SpaceAfter=No
+12	-	-	PUNCT	HYPH	_	12	punct	_	SpaceAfter=No
+13	mail	mail	NOUN	NN	_	8	conj	_	SpaceAfter=No
+14	.	.	PUNCT	.	_	8	punct	_	_
+`
+
+func TestJoinHyphens(t *testing.T) {
+	sents, err := Read(strings.NewReader(hyphens), XPOS, Options{JoinHyphens: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	words := strings.Join(sents[0].Words, " ")
+	tags := strings.Join(sents[0].Tags, " ")
+	if words != "A well-known Hewlett-Packard device - not e-mail ." {
+		t.Errorf("words = %q", words)
+	}
+	// well-known modifies a noun, so it is an adjective; Hewlett-Packard
+	// keeps its head's tag; the spaced hyphen is left alone.
+	if tags != "DT JJ NNP NN HYPH RB NN ." {
+		t.Errorf("tags = %q", tags)
+	}
+
+	plain, _ := Read(strings.NewReader(hyphens), XPOS, Options{})
+	if len(plain[0].Words) != 14 {
+		t.Errorf("without the option, got %d tokens, want 14", len(plain[0].Words))
 	}
 }

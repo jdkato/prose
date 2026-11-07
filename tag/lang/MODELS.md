@@ -1,8 +1,10 @@
 # Language models
 
 Each model is an averaged perceptron trained on the Universal Dependencies
-treebanks named below, emitting the universal tag set. Accuracy is measured on
-the treebank's own development and test sections through the production
+treebanks named below. English, the built-in model, emits the Penn Treebank
+tag set and is trained with hyphenated spans joined, as prose tokenizes them;
+every other model emits the universal tag set. Accuracy is measured on the
+first treebank's own development and test sections through the production
 tagger, so it is what a caller of `tag.ForLanguage` gets on text of that kind.
 
 Written by `build.sh`; do not edit by hand.
@@ -11,6 +13,7 @@ Written by `build.sh`; do not edit by hand.
 | --- | --- | --- | --- | --- | --- | --- |
 | Danish | `da` | UD_Danish-DDT | CC BY-SA 4.0 | 94.22% | 94.23% | 0.8 MB |
 | German | `de` | UD_German-GSD | CC BY-SA 4.0 | 94.16% | 93.93% | 1.6 MB |
+| English | `en` | UD_English-EWT | CC BY-SA 4.0 | 93.36% | 93.44% | 1.9 MB |
 | Spanish | `es` | UD_Spanish-AnCora | CC BY 4.0 | 98.03% | 97.98% | 1.4 MB |
 | Finnish | `fi` | UD_Finnish-TDT | CC BY-SA 4.0 | 92.61% | 92.71% | 1.8 MB |
 | French | `fr` | UD_French-GSD | CC BY-SA 4.0 | 97.00% | 96.67% | 1.6 MB |

@@ -17,6 +17,7 @@ TRAIN=${TRAIN:-go run ./cmd/train-tagger}
 TABLE='
 da|Danish|ud_danish-ddt|CC BY-SA 4.0
 de|German|ud_german-gsd|CC BY-SA 4.0
+en|English|ud_english-ewt|CC BY-SA 4.0
 es|Spanish|ud_spanish-ancora|CC BY 4.0
 fi|Finnish|ud_finnish-tdt|CC BY-SA 4.0
 fr|French|ud_french-gsd|CC BY-SA 4.0
@@ -53,8 +54,10 @@ if [ ${#want[@]} -eq 0 ]; then
 # Language models
 
 Each model is an averaged perceptron trained on the Universal Dependencies
-treebanks named below, emitting the universal tag set. Accuracy is measured on
-the treebank's own development and test sections through the production
+treebanks named below. English, the built-in model, emits the Penn Treebank
+tag set and is trained with hyphenated spans joined, as prose tokenizes them;
+every other model emits the universal tag set. Accuracy is measured on the
+first treebank's own development and test sections through the production
 tagger, so it is what a caller of `tag.ForLanguage` gets on text of that kind.
 
 Written by `build.sh`; do not edit by hand.
@@ -93,10 +96,19 @@ while IFS='|' read -r code name tbs license; do
     source="${source:+$source; }$(basename "$(git -C "$UD/$tb" remote get-url origin)")@$sha ($date)"
   done
 
-  mkdir -p "tag/lang/$code"
+  # English is the built-in model: Penn tags, read with hyphenated spans
+  # joined as prose's tokenizer keeps them, and embedded by tag/aptagmodel.
+  flags=()
+  bin="tag/lang/$code/$code.bin"
+  if [ "$code" = en ]; then
+    flags=(-xpos -join-hyphens -iter 10)
+    bin=tag/aptagmodel/en.bin
+  fi
+
+  mkdir -p "$(dirname "$bin")"
   echo "== $name ($code)"
-  out=$($TRAIN -lang "$code" -train "$train" ${dev:+-dev "$dev"} ${test:+-test "$test"} \
-    -source "$source" -license "$license" -out "tag/lang/$code/$code.bin")
+  out=$($TRAIN -lang "$code" "${flags[@]}" -train "$train" ${dev:+-dev "$dev"} ${test:+-test "$test"} \
+    -source "$source" -license "$license" -out "$bin")
   echo "$out"
 
   devacc=$(echo "$out" | sed -n 's/^dev: \([0-9.]*%\).*/\1/p')
@@ -104,6 +116,7 @@ while IFS='|' read -r code name tbs license; do
   size=$(echo "$out" | sed -n 's/^.*size=\([0-9]*\).*/\1/p')
   mb=$(awk "BEGIN{printf \"%.1f MB\", $size/1e6}")
 
+  if [ "$code" != en ]; then
   cat >"tag/lang/$code/$code.go" <<GO
 // Package $code registers the $name part-of-speech model with prose/v3/tag.
 //
@@ -131,6 +144,7 @@ var model []byte
 func init() { tag.RegisterLanguage("$code", model) }
 GO
   gofmt -w "tag/lang/$code/$code.go"
+  fi
 
   if [ ${#want[@]} -eq 0 ]; then
     tbnames=$(echo "$source" | sed 's/@[0-9a-f]* ([0-9-]*)//g')

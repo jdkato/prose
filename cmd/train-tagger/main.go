@@ -13,6 +13,9 @@
 // it in production, so the reported accuracy is what a user gets.
 //
 // With -eval and no -train, an existing model is evaluated instead.
+//
+// -join-hyphens reads "well-known" as one token where the treebank splits it,
+// for a tokenizer that keeps hyphens, as prose's does.
 package main
 
 import (
@@ -44,6 +47,7 @@ func main() {
 		seed     = flag.Int64("seed", 1, "shuffle seed")
 		template = flag.Int("template", int(perceptron.TemplateRunes), "feature template")
 		xpos     = flag.Bool("xpos", false, "train on the language-specific XPOS column rather than UPOS")
+		hyphens  = flag.Bool("join-hyphens", false, "read a hyphenated span written without spaces as one token")
 	)
 	flag.Parse()
 
@@ -51,6 +55,7 @@ func main() {
 		fatal("-lang is required")
 	}
 
+	opt := conllu.Options{JoinHyphens: *hyphens}
 	col := conllu.UPOS
 	if *xpos {
 		col = conllu.XPOS
@@ -72,7 +77,7 @@ func main() {
 		size = len(data)
 
 	case *train != "":
-		sents := read(*train, col)
+		sents := read(*train, col, opt)
 		fmt.Fprintf(os.Stderr, "training on %d sentences, %d tokens\n", len(sents), tokens(sents))
 
 		tagset := tag.Universal
@@ -135,20 +140,20 @@ func main() {
 		if set.files == "" {
 			continue
 		}
-		sents := read(set.files, col)
+		sents := read(set.files, col, opt)
 		right, total := accuracy(tagger, sents)
 		fmt.Printf("%s: %.2f%% (%d/%d tokens)\n", set.name, 100*float64(right)/float64(total), right, total)
 	}
 }
 
-func read(files string, col conllu.Column) []conllu.Sentence {
+func read(files string, col conllu.Column, opt conllu.Options) []conllu.Sentence {
 	var all []conllu.Sentence
 	for _, path := range strings.Split(files, ",") {
 		path = strings.TrimSpace(path)
 		if path == "" {
 			continue
 		}
-		sents, err := conllu.ReadFile(path, col)
+		sents, err := conllu.ReadFile(path, col, opt)
 		if err != nil {
 			fatal(err)
 		}
