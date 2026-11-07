@@ -9,8 +9,8 @@
 external services.
 
 - **Tokenization** — words and punctuation, with byte offsets, in any language
-- **Segmentation** — sentences, via the Punkt algorithm, in 17 languages
-- **Tagging** — part of speech, in 21 languages
+- **Segmentation** — sentences, via the Punkt algorithm, in 12 languages
+- **Tagging** — part of speech, in 12 languages
 - **Entities** — people, places and organizations (English)
 - **Readability** — Flesch–Kincaid, Gunning fog, SMOG, Coleman–Liau and more
 - **Case conversion** — title and sentence case, AP and Chicago styles
@@ -111,9 +111,9 @@ Each piece can be asked for a language on its own: `tokenize.ForLanguage`,
 
 | | Languages |
 | --- | --- |
-| Tagging | Catalan, Croatian, Danish, Dutch, English, Finnish, French, German, Indonesian, Italian, Korean, Latvian, Lithuanian, Norwegian, Portuguese, Romanian, Russian, Serbian, Spanish, Swedish, Turkish |
-| Segmentation | Czech, Danish, Dutch, English, Estonian, Finnish, French, German, Greek, Italian, Norwegian, Polish, Portuguese, Slovene, Spanish, Swedish, Turkish; punctuation rules for everything else, including Chinese, Japanese and Korean |
-| Tokenization | Every language. French, Italian and Catalan elisions (`l'homme`), French clitics (`donne-moi`), Spanish `¿¡`, every quotation style, and script boundaries for Chinese and Japanese |
+| Tagging | Danish, Dutch, English, Finnish, French, German, Italian, Norwegian, Portuguese, Spanish, Swedish, Turkish |
+| Segmentation | The same twelve; punctuation rules for everything else, including Chinese, Japanese and Korean |
+| Tokenization | Every language. French and Italian elisions (`l'homme`), French clitics (`donne-moi`), Spanish `¿¡`, every quotation style, and script boundaries for Chinese and Japanese |
 
 The English tagger uses the Penn Treebank tag set; every other model emits the
 [Universal Dependencies](https://universaldependencies.org/u/pos/) tag set, so

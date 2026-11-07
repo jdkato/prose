@@ -36,7 +36,6 @@ func TestLanguageRules(t *testing.T) {
 		{"en", "Peter's house", "Peter|'s|house"},
 
 		{"it", "L'acqua dell'amore un'ora.", "L'|acqua|dell'|amore|un'|ora|."},
-		{"ca", "L'home d'aquí.", "L'|home|d'|aquí|."},
 
 		// German and Russian quotation marks.
 		{"de", "Er sagte „Hallo“ zu mir.", "Er|sagte|„|Hallo|“|zu|mir|."},
@@ -90,7 +89,7 @@ func TestForLanguageIsShared(t *testing.T) {
 		t.Error("an empty language should mean English")
 	}
 	langs := tokenize.Languages()
-	if len(langs) < 6 || langs[0] != "ca" {
+	if len(langs) != 5 || langs[0] != "en" {
 		t.Errorf("Languages() = %v", langs)
 	}
 }

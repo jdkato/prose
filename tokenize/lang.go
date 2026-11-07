@@ -15,8 +15,8 @@ import (
 // all:
 //
 //   - English splits contractions: "don't" is "do" and "n't".
-//   - French, Italian and Catalan split elisions: "l'homme" is "l'" and
-//     "homme", as the Universal Dependencies treebanks have it; French also
+//   - French and Italian split elisions: "l'homme" is "l'" and "homme", as
+//     the Universal Dependencies treebanks have it; French also
 //     splits hyphenated clitics, "donne-moi" into "donne" and "-moi".
 //   - Chinese and Japanese are split where the script changes and at every
 //     punctuation mark, which is as far as a tokenizer without a dictionary
@@ -70,7 +70,6 @@ var languages = map[string]func() *Tokenizer{
 		)
 	},
 	"it": func() *Tokenizer { return New(UsingSplitCases(nil), UsingElision(italianElision)) },
-	"ca": func() *Tokenizer { return New(UsingSplitCases(nil), UsingElision(catalanElision)) },
 	"ja": func() *Tokenizer { return New(UsingSplitCases(nil), SplittingScripts(true)) },
 	"zh": func() *Tokenizer { return New(UsingSplitCases(nil), SplittingScripts(true)) },
 }
@@ -88,7 +87,6 @@ var (
 		`-(?i:t-il|t-elle|t-on|t-ils|t-elles|je|tu|il|elle|on|nous|vous|ils|elles|moi|toi|lui|leur|le|la|les|y|en|ce|ci|là)$`)
 	italianElision = regexp.MustCompile(
 		`^(?i:l|un|d|c|s|m|t|n|v|gl|dell|dall|nell|sull|all|coll|quell|quest|bell|sant|anch|com|tutt|senz|dov|cos|quand|finch|perch|poich|sicch)['’]`)
-	catalanElision = regexp.MustCompile(`^(?i:l|d|m|t|s|n|qu)['’]`)
 )
 
 func sortStrings(s []string) {

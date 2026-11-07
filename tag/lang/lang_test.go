@@ -36,15 +36,10 @@ func TestLanguages(t *testing.T) {
 		{"pt", "O cachorro corre no parque.", "O/DET cachorro/NOUN corre/VERB no/ADP parque/NOUN ./PUNCT"},
 		{"nl", "De kat slaapt op de bank.", "De/DET kat/NOUN slaapt/VERB op/ADP de/DET bank/NOUN ./PUNCT"},
 		{"sv", "Hunden springer snabbt.", "Hunden/NOUN springer/VERB snabbt/ADV ./PUNCT"},
-		{"ru", "Москва — большой город.", "Москва/PROPN —/PUNCT большой/ADJ город/NOUN ./PUNCT"},
 		{"nb", "Regjeringen la fram et nytt forslag om skatt.", "Regjeringen/NOUN la/VERB fram/ADV et/DET nytt/ADJ forslag/NOUN om/ADP skatt/NOUN ./PUNCT"},
 		{"da", "Hunden løber hurtigt.", "Hunden/NOUN løber/VERB hurtigt/ADV ./PUNCT"},
 		{"fi", "Koira juoksee nopeasti.", "Koira/NOUN juoksee/VERB nopeasti/ADV ./PUNCT"},
-		{"ca", "El gos corre ràpidament.", "El/DET gos/NOUN corre/VERB ràpidament/ADV ./PUNCT"},
-		{"ro", "Guvernul a adoptat ieri o nouă lege.", "Guvernul/NOUN a/AUX adoptat/VERB ieri/ADV o/DET nouă/ADJ lege/NOUN ./PUNCT"},
-		{"hr", "Djeca se igraju u parku.", "Djeca/NOUN se/PRON igraju/VERB u/ADP parku/NOUN ./PUNCT"},
 		{"tr", "Çocuklar parkta top oynuyor.", "Çocuklar/NOUN parkta/NOUN top/NOUN oynuyor/VERB ./PUNCT"},
-		{"id", "Anjing itu berlari cepat.", "Anjing/NOUN itu/DET berlari/VERB cepat/ADJ ./PUNCT"},
 	}
 	for _, tc := range cases {
 		if got := tagsOf(t, tc.lang, tc.text); got != tc.want {
@@ -75,7 +70,7 @@ func TestTagsetAndLanguage(t *testing.T) {
 		t.Error("Japanese has no model and must be an error, not English tags")
 	}
 	langs := tag.Languages()
-	if len(langs) != 21 || langs[0] != "ca" || langs[len(langs)-1] != "tr" {
+	if len(langs) != 12 || langs[0] != "da" || langs[len(langs)-1] != "tr" {
 		t.Errorf("Languages() = %v", langs)
 	}
 }

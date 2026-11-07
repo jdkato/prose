@@ -118,12 +118,12 @@ func normalizeLang(lang string) string {
 // ForLanguage returns a Segmenter for lang, a BCP 47 tag such as "de" or
 // "pt-BR".
 //
-// English is built in. Sixteen more languages have a trained Punkt model,
+// English is built in. Eleven more languages have a trained Punkt model,
 // which knows the language's abbreviations, each in its own package under
 // prose/v3/segment/lang: import the ones you need, or prose/v3/segment/lang/all
-// for every one. They are Czech, Danish, Dutch, Estonian, Finnish, French,
-// German, Greek, Italian, Norwegian, Polish, Portuguese, Slovene, Spanish,
-// Swedish and Turkish.
+// for every one. They are Danish, Dutch, Finnish, French, German, Italian,
+// Norwegian, Portuguese, Spanish, Swedish and Turkish -- the languages that
+// have a tagging model too, so a language prose supports, it supports whole.
 //
 // Any other language, or one whose package was not imported, gets a
 // rule-based segmenter that works from punctuation alone and handles the East

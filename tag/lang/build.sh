@@ -15,24 +15,15 @@ TRAIN=${TRAIN:-go run ./cmd/train-tagger}
 
 # code | name | treebanks (comma-separated) | license
 TABLE='
-ca|Catalan|ud_catalan-ancora|CC BY 4.0
 da|Danish|ud_danish-ddt|CC BY-SA 4.0
 de|German|ud_german-gsd|CC BY-SA 4.0
 es|Spanish|ud_spanish-ancora|CC BY 4.0
 fi|Finnish|ud_finnish-tdt|CC BY-SA 4.0
 fr|French|ud_french-gsd|CC BY-SA 4.0
-hr|Croatian|ud_croatian-set|CC BY-SA 4.0
-id|Indonesian|ud_indonesian-gsd|CC BY-SA 4.0
 it|Italian|ud_italian-markit,ud_italian-pud,ud_italian-valico|CC BY 4.0, CC BY-SA 3.0, CC BY-SA 4.0
-ko|Korean|ud_korean-gsd|CC BY-SA 4.0
-lt|Lithuanian|ud_lithuanian-alksnis|CC BY-SA 4.0
-lv|Latvian|ud_latvian-lvtb|CC BY-SA 4.0
 nb|Norwegian Bokmål|ud_norwegian-bokmaal|CC BY-SA 4.0
 nl|Dutch|ud_dutch-alpino|CC BY-SA 4.0
 pt|Portuguese|ud_portuguese-bosque|CC BY-SA 4.0
-ro|Romanian|ud_romanian-rrt|CC BY-SA 4.0
-ru|Russian|ud_russian-gsd,ud_russian-taiga|CC BY-SA 4.0
-sr|Serbian|ud_serbian-set|CC BY-SA 4.0
 sv|Swedish|ud_swedish-talbanken|CC BY-SA 4.0
 tr|Turkish|ud_turkish-boun|CC BY-SA 4.0
 '

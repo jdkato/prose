@@ -77,7 +77,7 @@ func TestForLanguage(t *testing.T) {
 		t.Errorf("Japanese should be rule-based (err=%v)", err)
 	}
 	langs := segment.Languages()
-	if len(langs) != 17 || langs[0] != "cs" {
+	if len(langs) != 12 || langs[0] != "da" {
 		t.Errorf("Languages() = %v", langs)
 	}
 }

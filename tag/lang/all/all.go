@@ -11,24 +11,15 @@ package all
 
 import (
 	// Each import registers its language; nothing else is used.
-	_ "github.com/jdkato/prose/v3/tag/lang/ca"
 	_ "github.com/jdkato/prose/v3/tag/lang/da"
 	_ "github.com/jdkato/prose/v3/tag/lang/de"
 	_ "github.com/jdkato/prose/v3/tag/lang/es"
 	_ "github.com/jdkato/prose/v3/tag/lang/fi"
 	_ "github.com/jdkato/prose/v3/tag/lang/fr"
-	_ "github.com/jdkato/prose/v3/tag/lang/hr"
-	_ "github.com/jdkato/prose/v3/tag/lang/id"
 	_ "github.com/jdkato/prose/v3/tag/lang/it"
-	_ "github.com/jdkato/prose/v3/tag/lang/ko"
-	_ "github.com/jdkato/prose/v3/tag/lang/lt"
-	_ "github.com/jdkato/prose/v3/tag/lang/lv"
 	_ "github.com/jdkato/prose/v3/tag/lang/nb"
 	_ "github.com/jdkato/prose/v3/tag/lang/nl"
 	_ "github.com/jdkato/prose/v3/tag/lang/pt"
-	_ "github.com/jdkato/prose/v3/tag/lang/ro"
-	_ "github.com/jdkato/prose/v3/tag/lang/ru"
-	_ "github.com/jdkato/prose/v3/tag/lang/sr"
 	_ "github.com/jdkato/prose/v3/tag/lang/sv"
 	_ "github.com/jdkato/prose/v3/tag/lang/tr"
 )
