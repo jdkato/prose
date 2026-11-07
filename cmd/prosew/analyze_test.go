@@ -19,6 +19,9 @@ func TestAnalyze(t *testing.T) {
 		if src[s.Start:s.End] != s.Text {
 			t.Errorf("sentence %q is not at [%d:%d]", s.Text, s.Start, s.End)
 		}
+		if s.Grade <= 0 {
+			t.Errorf("sentence %q has grade %v", s.Text, s.Grade)
+		}
 	}
 	for _, tok := range got.Tokens {
 		if src[tok.Start:tok.End] != tok.Text {
@@ -68,5 +71,24 @@ func TestConvertCase(t *testing.T) {
 	}
 	if got.Chicago == "" || got.Sentence == "" {
 		t.Errorf("cases = %+v", got)
+	}
+}
+
+func TestGrade(t *testing.T) {
+	// A short, monosyllabic sentence grades low; a long polysyllabic one
+	// grades higher.
+	easy, err := analyze("The cat sat on the mat.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	hard, err := analyze("Institutional accountability necessitates comprehensive, independently verifiable documentation of every administrative determination.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if easy.Sentences[0].Grade >= hard.Sentences[0].Grade {
+		t.Errorf("easy = %v, hard = %v", easy.Sentences[0].Grade, hard.Sentences[0].Grade)
+	}
+	if got := grade(nil, 0, 0); got != 0 {
+		t.Errorf("empty grade = %v", got)
 	}
 }

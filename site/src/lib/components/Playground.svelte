@@ -1,8 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { load, analyze, convertCase, type Analysis, type Cases } from '#lib/prose';
+	import {
+		load,
+		analyze,
+		convertCase,
+		type Analysis,
+		type Cases,
+		type Entity,
+		type Span,
+		type Token
+	} from '#lib/prose';
+	import { highlightGo } from '#lib/go-highlight';
 
-	const sample = `Marie Curie studied in Paris. She won the Nobel Prize twice, and the Curie Institute still carries her name.`;
+	const sample = `Marie Curie studied in Paris. She won the Nobel Prize twice, and the Curie Institute still carries her name. Institutional recognition of her contributions nevertheless arrived comparatively late.`;
 
 	let text = $state(sample);
 	let title = $state('the quick brown fox jumps over the lazy dog');
@@ -10,13 +20,17 @@
 	let failure = $state('');
 	let result = $state<Analysis | null>(null);
 	let cases = $state<Cases | null>(null);
-	let view = $state<'tokens' | 'sentences' | 'entities' | 'readability'>('tokens');
 	let elapsed = $state(0);
+	let copied = $state(false);
 
-	const views = [
-		['tokens', 'Tokens'],
-		['sentences', 'Sentences'],
+	// What is drawn over the text.
+	let layers = $state({ tags: true, entities: true, sentences: false, readability: false });
+	let hidden = $state(new Set<string>());
+
+	const layerNames = [
+		['tags', 'Tags'],
 		['entities', 'Entities'],
+		['sentences', 'Sentences'],
 		['readability', 'Readability']
 	] as const;
 
@@ -50,26 +64,91 @@
 		}
 	});
 
-	// Entities as inline marks over the source text.
-	const marked = $derived.by(() => {
+	// --- The rendered view ---------------------------------------------------
+	//
+	// The text is drawn as its sentences, each a list of groups, each group
+	// a run of tokens and the whitespace between them, wrapped in an entity
+	// or not. Offsets are bytes, so slicing goes through the encoded text.
+
+	interface Chunk {
+		text?: string;
+		token?: Token;
+	}
+	interface Group {
+		entity?: Entity;
+		chunks: Chunk[];
+	}
+	interface SentenceView {
+		span?: Span;
+		groups: Group[];
+	}
+
+	const views = $derived.by((): SentenceView[] => {
 		if (!result) return [];
 		const bytes = new TextEncoder().encode(text);
 		const dec = new TextDecoder();
-		const parts: { text: string; label?: string }[] = [];
-		let at = 0;
-		for (const e of result.entities) {
-			if (e.start > at) parts.push({ text: dec.decode(bytes.slice(at, e.start)) });
-			parts.push({ text: e.text, label: e.label });
-			at = e.end;
+		const slice = (a: number, b: number) => dec.decode(bytes.slice(a, b));
+		const tokens = result.tokens;
+		const entities = result.entities;
+
+		let ti = 0;
+		function view(a: number, b: number, span?: Span): SentenceView | null {
+			const groups: Group[] = [];
+			let group: Group = { chunks: [] };
+			let pos = a;
+			for (; ti < tokens.length && tokens[ti].end <= b; ti++) {
+				const tok = tokens[ti];
+				if (tok.start < a) continue;
+				if (tok.start > pos) group.chunks.push({ text: slice(pos, tok.start) });
+				const ent = entities.find((e) => tok.start >= e.start && tok.end <= e.end);
+				if (ent !== group.entity) {
+					if (group.chunks.length) groups.push(group);
+					group = { entity: ent, chunks: [] };
+				}
+				group.chunks.push({ token: tok });
+				pos = tok.end;
+			}
+			if (pos < b) group.chunks.push({ text: slice(pos, b) });
+			if (group.chunks.length) groups.push(group);
+			return groups.length ? { span, groups } : null;
 		}
-		if (at < bytes.length) parts.push({ text: dec.decode(bytes.slice(at)) });
-		return parts;
+
+		const out: SentenceView[] = [];
+		let cursor = 0;
+		for (const s of result.sentences) {
+			if (s.start > cursor) {
+				const v = view(cursor, s.start);
+				if (v) out.push(v);
+			}
+			const v = view(s.start, s.end, s);
+			if (v) out.push(v);
+			cursor = s.end;
+		}
+		if (cursor < bytes.length) {
+			const v = view(cursor, bytes.length);
+			if (v) out.push(v);
+		}
+		return out;
 	});
 
-	const scores: [string, number][] = $derived(
+	const legend = $derived.by(() => {
+		const counts = new Map<string, number>();
+		for (const e of result?.entities ?? []) counts.set(e.label, (counts.get(e.label) ?? 0) + 1);
+		return [...counts].sort((a, b) => b[1] - a[1]);
+	});
+
+	function toggleLabel(label: string) {
+		const next = new Set(hidden);
+		if (next.has(label)) next.delete(label);
+		else next.add(label);
+		hidden = next;
+	}
+
+	const difficulty = (grade: number) => (grade > 12 ? 'harder' : grade > 8 ? 'hard' : '');
+
+	const scores = $derived(
 		result
-			? [
-					['Flesch–Kincaid grade', result.readability.fleschKincaid],
+			? ([
 					['Flesch reading ease', result.readability.fleschReadingEase],
 					['Gunning fog', result.readability.gunningFog],
 					['SMOG', result.readability.smog],
@@ -77,148 +156,211 @@
 					['Automated readability', result.readability.automatedReadability],
 					['Dale–Chall', result.readability.daleChall],
 					['LIX', result.readability.lix]
-				]
+				] as [string, number][])
 			: []
 	);
 
-	const counts: [string, number][] = $derived(
-		result
-			? [
-					['Words', result.readability.words],
-					['Sentences', result.readability.sentences],
-					['Syllables', result.readability.syllables],
-					['Characters', result.readability.characters]
-				]
-			: []
-	);
+	// --- The code panel ------------------------------------------------------
+
+	function goString(s: string): string {
+		if (s.includes('\n') && !s.includes('`')) return '`' + s + '`';
+		return JSON.stringify(s);
+	}
+
+	function comments(lines: string[], indent: string): string {
+		const shown = lines.slice(0, 3).map((l) => `${indent}// ${l.length > 60 ? l.slice(0, 57) + '…' : l}`);
+		if (lines.length > 3) shown.push(`${indent}// …`);
+		return shown.join('\n');
+	}
+
+	const code = $derived.by(() => {
+		const r = result;
+		const imports = ['"fmt"', '', '"github.com/jdkato/prose/v3"'];
+		if (layers.readability) imports.push('"github.com/jdkato/prose/v3/summarize"');
+		const body: string[] = [];
+		body.push(`\ttext := ${goString(text)}`);
+		body.push('', '\tdoc, err := prose.NewDocument(text)', '\tif err != nil {', '\t\tpanic(err)', '\t}');
+
+		if (layers.sentences) {
+			body.push('', '\tfor _, sent := range doc.Sentences() {', '\t\tfmt.Println(sent.Text)');
+			if (r) body.push(comments(r.sentences.map((s) => s.text), '\t\t'));
+			body.push('\t}');
+		}
+		if (layers.tags || (!layers.entities && !layers.sentences && !layers.readability)) {
+			body.push('', '\tfor _, tok := range doc.Tokens() {');
+			body.push(layers.tags ? '\t\tfmt.Println(tok.Text, tok.Tag)' : '\t\tfmt.Println(tok.Text)');
+			if (r) body.push(comments(r.tokens.map((t) => (layers.tags ? `${t.text} ${t.tag}` : t.text)), '\t\t'));
+			body.push('\t}');
+		}
+		if (layers.entities) {
+			body.push('', '\tfor _, ent := range doc.Entities() {', '\t\tfmt.Println(ent.Text, ent.Label)');
+			if (r) body.push(comments(r.entities.map((e) => `${e.text} ${e.label}`), '\t\t'));
+			body.push('\t}');
+		}
+		if (layers.readability) {
+			body.push('', '\td := summarize.NewDocument(text)', '\tfmt.Println(d.FleschKincaid())');
+			if (r) body.push(`\t// ${r.readability.fleschKincaid.toFixed(1)}`);
+		}
+
+		return [
+			'package main',
+			'',
+			'import (',
+			...imports.map((i) => (i ? `\t${i}` : '')),
+			')',
+			'',
+			'func main() {',
+			...body,
+			'}',
+			''
+		].join('\n');
+	});
+
+	async function copy() {
+		try {
+			await navigator.clipboard.writeText(code);
+			copied = true;
+			setTimeout(() => (copied = false), 1500);
+		} catch {
+			// Clipboard access can be refused; the code is still selectable.
+		}
+	}
 </script>
 
-<svelte:head>
-	<title>Playground · prose</title>
-	<meta name="description" content="Run prose in your browser: tokens, sentences, entities and readability for any English text." />
-</svelte:head>
-
-<div class="max-w-4xl">
-	<h1 class="text-3xl font-bold tracking-tight">Playground</h1>
-	<p class="mt-2 text-muted">
-		The same Go code, compiled to WebAssembly and run in your browser. English only; nothing
-		leaves the page.
-	</p>
-
-	<label class="mt-6 block">
-		<span class="text-sm font-medium">Text</span>
+<div class="grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+	<div class="min-w-0">
 		<textarea
 			bind:value={text}
 			oninput={schedule}
-			rows="5"
-			class="mt-1 w-full rounded-md border border-line bg-card p-3 font-mono text-sm"
+			rows="4"
+			aria-label="Text"
+			class="w-full rounded-md border border-line bg-card p-3 font-mono text-sm"
 			spellcheck="false"
 		></textarea>
-	</label>
 
-	<p class="mt-2 h-5 text-xs text-muted">
-		{#if status === 'loading'}
-			Loading prose.wasm (about 15 MB) …
-		{:else if status === 'failed'}
-			<span class="text-red-600">Could not load the playground: {failure}</span>
-		{:else if failure}
-			<span class="text-red-600">{failure}</span>
-		{:else if result}
-			{result.tokens.length} tokens, {result.sentences.length} sentences, {result.entities.length}
-			entities in {elapsed.toFixed(1)} ms
-		{/if}
-	</p>
-
-	<div class="mt-4 flex flex-wrap gap-1 border-b border-line text-sm">
-		{#each views as [key, label] (key)}
-			<button
-				onclick={() => (view = key)}
-				class="-mb-px border-b-2 px-3 py-2 {view === key
-					? 'border-accent font-medium'
-					: 'border-transparent text-muted hover:text-fg'}"
-			>
-				{label}
-			</button>
-		{/each}
-	</div>
-
-	{#if result}
-		<div class="doc mt-4">
-			{#if view === 'tokens'}
-				<div class="max-h-[32rem] overflow-auto rounded-md border border-line">
-					<table>
-						<thead>
-							<tr><th>Text</th><th>Tag</th><th>Label</th><th>Start</th><th>End</th></tr>
-						</thead>
-						<tbody>
-							{#each result.tokens as t, i (i)}
-								<tr>
-									<td><code>{t.text}</code></td>
-									<td>{t.tag}</td>
-									<td class="text-muted">{t.label ?? ''}</td>
-									<td class="font-mono text-muted">{t.start}</td>
-									<td class="font-mono text-muted">{t.end}</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				</div>
-			{:else if view === 'sentences'}
-				<ol>
-					{#each result.sentences as s, i (i)}
-						<li>
-							{s.text}
-							<span class="font-mono text-xs text-muted">[{s.start}:{s.end}]</span>
-						</li>
+		<div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+			{#each layerNames as [key, label] (key)}
+				<label class="flex items-center gap-1.5">
+					<input type="checkbox" bind:checked={layers[key]} class="accent-accent" />
+					{label}
+				</label>
+			{/each}
+			{#if layers.entities && legend.length}
+				<span class="legend ml-auto flex flex-wrap gap-2">
+					{#each legend as [label, n] (label)}
+						<button
+							onclick={() => toggleLabel(label)}
+							class="ent ent-{label} text-xs {hidden.has(label) ? 'opacity-40' : ''}"
+							aria-pressed={!hidden.has(label)}
+						>
+							{n}<span class="chip">{label}</span>
+						</button>
 					{/each}
-				</ol>
-			{:else if view === 'entities'}
-				<p class="rounded-md border border-line bg-card p-4 leading-8">
-					{#each marked as part, i (i)}
-						{#if part.label}
-							<mark class="rounded bg-accent-soft px-1 text-fg">
-								{part.text}
-								<span class="ml-1 align-super text-[0.6rem] font-semibold text-accent"
-									>{part.label}</span
-								>
-							</mark>
-						{:else}{part.text}{/if}
-					{/each}
-				</p>
-				{#if result.entities.length === 0}
-					<p class="text-muted">No entities found.</p>
-				{/if}
-			{:else}
-				<div class="grid gap-6 sm:grid-cols-2">
-					<table>
-						<tbody>
-							{#each counts as [name, n] (name)}
-								<tr><td>{name}</td><td class="text-right font-mono">{n}</td></tr>
-							{/each}
-						</tbody>
-					</table>
-					<table>
-						<tbody>
-							{#each scores as [name, n] (name)}
-								<tr><td>{name}</td><td class="text-right font-mono">{n.toFixed(2)}</td></tr>
-							{/each}
-						</tbody>
-					</table>
-				</div>
+				</span>
 			{/if}
 		</div>
-	{/if}
 
-	<h2 class="mt-12 text-xl font-semibold">Case conversion</h2>
-	<label class="mt-3 block">
-		<span class="text-sm font-medium">Title</span>
-		<input
-			bind:value={title}
-			oninput={schedule}
-			class="mt-1 w-full rounded-md border border-line bg-card p-2 font-mono text-sm"
-			spellcheck="false"
-		/>
-	</label>
+		<p class="mt-3 h-5 text-xs text-muted">
+			{#if status === 'loading'}
+				Loading prose.wasm (about 15 MB) …
+			{:else if status === 'failed'}
+				<span class="text-red-600">Could not load the playground: {failure}</span>
+			{:else if failure}
+				<span class="text-red-600">{failure}</span>
+			{:else if result}
+				{result.tokens.length} tokens · {result.sentences.length} sentences ·
+				{result.entities.length} entities
+				{#if layers.readability}
+					· grade {result.readability.fleschKincaid.toFixed(1)}
+				{/if}
+				· {elapsed.toFixed(1)} ms
+			{/if}
+		</p>
+
+		{#if result}
+			<div
+				class="rendered mt-2 rounded-md border border-line bg-card px-4 py-3 text-[0.95rem]"
+				class:tags={layers.tags}
+			>
+				{#each views as v, i (i)}
+					{#if layers.sentences && v.span}<span class="boundary"></span>{/if}
+					<span
+						class="sentence"
+						class:hard={layers.readability && v.span && difficulty(v.span.grade) === 'hard'}
+						class:harder={layers.readability && v.span && difficulty(v.span.grade) === 'harder'}
+						title={layers.readability && v.span ? `grade ${v.span.grade.toFixed(1)}` : undefined}
+					>
+						{#each v.groups as g, j (j)}
+							{#snippet chunks()}
+								{#each g.chunks as c, k (k)}
+									{#if c.token}
+										<span class="tok">
+											<span>{c.token.text}</span>
+											{#if layers.tags}<span class="tag">{c.token.tag}</span>{/if}
+										</span>
+									{:else}{c.text}{/if}
+								{/each}
+							{/snippet}
+							{#if g.entity && layers.entities && !hidden.has(g.entity.label)}
+								<mark class="ent ent-{g.entity.label}">{@render chunks()}<span class="chip">{g.entity.label}</span></mark>
+							{:else}
+								{@render chunks()}
+							{/if}
+						{/each}
+					</span>
+				{/each}
+			</div>
+
+			{#if layers.readability}
+				<details class="mt-3 text-sm">
+					<summary class="cursor-pointer text-muted">
+						Sentences above grade 8 are tinted, above 12 more so. All scores
+					</summary>
+					<table class="doc mt-2 max-w-sm">
+						<tbody>
+							<tr>
+								<td>Flesch–Kincaid grade</td>
+								<td class="text-right font-mono">{result.readability.fleschKincaid.toFixed(1)}</td>
+							</tr>
+							{#each scores as [name, n] (name)}
+								<tr><td>{name}</td><td class="text-right font-mono">{n.toFixed(1)}</td></tr>
+							{/each}
+							<tr>
+								<td>Words / sentences / syllables</td>
+								<td class="text-right font-mono"
+									>{result.readability.words} / {result.readability.sentences} / {result.readability
+										.syllables}</td
+								>
+							</tr>
+						</tbody>
+					</table>
+				</details>
+			{/if}
+		{/if}
+	</div>
+
+	<aside class="min-w-0 lg:sticky lg:top-6 lg:self-start">
+		<div class="flex items-center justify-between">
+			<h2 class="text-sm font-medium">The same thing in Go</h2>
+			<button onclick={copy} class="text-xs text-muted hover:text-fg">{copied ? 'Copied' : 'Copy'}</button>
+		</div>
+		<pre class="gocode mt-2 rounded-md border border-line bg-card p-4">{@html highlightGo(code)}</pre>
+	</aside>
+</div>
+
+<section class="mt-12 max-w-2xl">
+	<h2 class="text-lg font-semibold">Case conversion</h2>
+	<p class="mt-1 text-sm text-muted">
+		<code class="rounded bg-accent-soft px-1">strcase</code> writes a string in a style, using the tagger to tell
+		which words stay lowercase.
+	</p>
+	<input
+		bind:value={title}
+		oninput={schedule}
+		aria-label="Title"
+		class="mt-3 w-full rounded-md border border-line bg-card p-2 font-mono text-sm"
+		spellcheck="false"
+	/>
 	{#if cases}
 		<table class="doc mt-3 w-full text-sm">
 			<tbody>
@@ -228,4 +370,4 @@
 			</tbody>
 		</table>
 	{/if}
-</div>
+</section>

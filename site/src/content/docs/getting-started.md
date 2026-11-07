@@ -61,5 +61,6 @@ be switched off; see [Choosing stages](stages).
 
 ## Try it
 
-The [playground](../playground) runs this same code in your browser, compiled
-to WebAssembly, so you can see what each stage produces for your own text.
+The [playground](../) on the home page runs this same code in your browser,
+compiled to WebAssembly, so you can see what each stage produces for your own
+text.

@@ -11,6 +11,8 @@ export interface Span {
 	text: string;
 	start: number;
 	end: number;
+	// Flesch-Kincaid grade of the sentence on its own.
+	grade: number;
 }
 export interface Entity extends Span {
 	label: string;

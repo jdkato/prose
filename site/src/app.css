@@ -146,3 +146,99 @@
 	color: var(--color-muted);
 	margin: 0 0 1rem;
 }
+
+/* The playground's rendered text. */
+.rendered {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	line-height: 2;
+}
+.rendered.tags {
+	line-height: 1.4;
+}
+.rendered .tok {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	vertical-align: top;
+}
+.rendered.tags .tok {
+	margin: 0.15rem 0;
+}
+.rendered .tag {
+	font-family: var(--font-mono);
+	font-size: 0.6rem;
+	line-height: 1;
+	color: var(--color-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding-top: 0.2rem;
+}
+.rendered .boundary {
+	display: inline-block;
+	width: 2px;
+	height: 1em;
+	background: var(--color-accent);
+	margin: 0 0.35rem 0 0.1rem;
+	vertical-align: middle;
+	border-radius: 1px;
+}
+.rendered .sentence {
+	border-radius: 0.2rem;
+	padding: 0.1rem 0;
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+.rendered .sentence.hard {
+	background: hsl(35 90% 55% / 0.22);
+}
+.rendered .sentence.harder {
+	background: hsl(5 85% 55% / 0.22);
+}
+.ent {
+	--ent: 84;
+	background: hsl(var(--ent) 75% 88%);
+	color: inherit;
+	border-radius: 0.3rem;
+	padding: 0.05rem 0.3rem;
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+.dark .ent {
+	background: hsl(var(--ent) 45% 26%);
+}
+.ent .chip,
+.legend .chip {
+	font-family: var(--font-mono);
+	font-size: 0.55rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	vertical-align: super;
+	margin-left: 0.3rem;
+	color: hsl(var(--ent) 60% 32%);
+}
+.dark .ent .chip,
+.dark .legend .chip {
+	color: hsl(var(--ent) 70% 75%);
+}
+.ent-PERSON { --ent: 215; }
+.ent-GPE { --ent: 150; }
+.ent-ORGANIZATION { --ent: 275; }
+.ent-LOCATION { --ent: 185; }
+.ent-FACILITY { --ent: 30; }
+.ent-GSP { --ent: 100; }
+
+/* The playground's code panel. */
+.gocode {
+	font-family: var(--font-mono);
+	font-size: 0.8rem;
+	line-height: 1.55;
+	white-space: pre;
+	overflow-x: auto;
+	tab-size: 4;
+}
+.gocode .k { color: hsl(330 60% 40%); }
+.gocode .s { color: hsl(150 55% 30%); }
+.gocode .c { color: var(--color-muted); font-style: italic; }
+.dark .gocode .k { color: hsl(330 70% 72%); }
+.dark .gocode .s { color: hsl(150 50% 65%); }

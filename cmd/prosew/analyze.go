@@ -5,6 +5,8 @@
 package main
 
 import (
+	"unicode"
+
 	"github.com/jdkato/prose/v3"
 	"github.com/jdkato/prose/v3/strcase"
 	"github.com/jdkato/prose/v3/summarize"
@@ -28,11 +30,13 @@ type Token struct {
 	End   int    `json:"end"`
 }
 
-// Span is a sentence: its text and where it sits in the source.
+// Span is a sentence: its text, where it sits in the source, and its
+// Flesch-Kincaid grade on its own.
 type Span struct {
-	Text  string `json:"text"`
-	Start int    `json:"start"`
-	End   int    `json:"end"`
+	Text  string  `json:"text"`
+	Start int     `json:"start"`
+	End   int     `json:"end"`
+	Grade float64 `json:"grade"`
 }
 
 // Entity is a named entity and where it sits in the source.
@@ -85,7 +89,10 @@ func analyze(text string) (*Analysis, error) {
 		})
 	}
 	for _, s := range doc.Sentences() {
-		out.Sentences = append(out.Sentences, Span{Text: s.Text, Start: s.Start, End: s.End()})
+		out.Sentences = append(out.Sentences, Span{
+			Text: s.Text, Start: s.Start, End: s.End(),
+			Grade: grade(doc.Tokens(), s.Start, s.End()),
+		})
 	}
 	for _, e := range doc.Entities() {
 		out.Entities = append(out.Entities, Entity{
@@ -118,4 +125,34 @@ func convertCase(text string) Cases {
 		Chicago:  strcase.NewTitleConverter(strcase.ChicagoStyle).Convert(text),
 		Sentence: strcase.NewSentenceConverter().Convert(text),
 	}
+}
+
+// grade is the Flesch-Kincaid grade of the one sentence spanning [start,
+// end), from the word tokens inside it. A sentence with no words is 0.
+func grade(tokens []prose.Token, start, end int) float64 {
+	words, syllables := 0, 0
+	for _, t := range tokens {
+		if t.Start < start || t.End() > end || !isWord(t.Text) {
+			continue
+		}
+		words++
+		syllables += summarize.Syllables(t.Text)
+	}
+	if words == 0 {
+		return 0
+	}
+	g := 0.39*float64(words) + 11.8*float64(syllables)/float64(words) - 15.59
+	if g < 0 {
+		return 0
+	}
+	return g
+}
+
+func isWord(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			return true
+		}
+	}
+	return false
 }

@@ -4,8 +4,7 @@
 
 	const links = [
 		{ href: resolve('/docs/[slug]', { slug: 'getting-started' }), label: 'Docs', prefix: resolve('/docs') },
-		{ href: resolve('/models'), label: 'Models', prefix: resolve('/models') },
-		{ href: resolve('/playground'), label: 'Playground', prefix: resolve('/playground') }
+		{ href: resolve('/models'), label: 'Models', prefix: resolve('/models') }
 	];
 
 	const active = (prefix: string) => page.url.pathname.startsWith(prefix);
