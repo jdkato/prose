@@ -3,9 +3,9 @@
 	import Playground from '#lib/components/Playground.svelte';
 
 	// One run on an Apple M1, Go 1.27, ten copies of the Sherlock fixture
-	// (1.08M words): tokens, sentences and tags in 2.9 s.
+	// (1.08M words) through the default pipeline in 8.9 s.
 	const stats = [
-		['370k', 'words per second', 'tokens, sentences and tags, one core'],
+		['120k', 'words per second', 'tokens, sentences, tags and entities, one core'],
 		['3 + 4 MB', 'models', 'tagger and entity recognizer, linked separately'],
 		['12', 'languages', 'tagging and segmentation, one package each'],
 		['0', 'cgo', 'pure Go, no services, runs in a browser']

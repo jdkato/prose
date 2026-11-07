@@ -40,6 +40,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"strings"
 	"unsafe"
 )
 
@@ -57,6 +58,9 @@ type Model struct {
 	blob    string   // feature keys, concatenated, sorted bytewise
 	keyOff  []uint32 // nKeys+1 offsets into blob
 	weights []float32
+
+	// labelIndex maps each label to its position in labels.
+	labelIndex map[string]int
 
 	extra []float32
 }
@@ -211,7 +215,36 @@ func Unmarshal(data []byte) (*Model, error) {
 	if err := m.validate(); err != nil {
 		return nil, err
 	}
+	m.labelIndex = make(map[string]int, len(m.labels))
+	for i, l := range m.labels {
+		m.labelIndex[l] = i
+	}
 	return m, nil
+}
+
+// Vector fills vec, indexed like Labels(), with the weight of prefix+label
+// for each label, or 0 where the model has no such key. prefix is a feature
+// and value with the trailing dash, "name-value-".
+//
+// The keys are sorted, so every key with the prefix is adjacent: one binary
+// search finds the first and a short scan reads the rest.
+func (m *Model) Vector(prefix string, vec []float32) {
+	for j := range vec {
+		vec[j] = 0
+	}
+	n := len(m.keyOff) - 1
+	i := sort.Search(n, func(i int) bool {
+		return m.blob[m.keyOff[i]:m.keyOff[i+1]] >= prefix
+	})
+	for ; i < n; i++ {
+		key := m.blob[m.keyOff[i]:m.keyOff[i+1]]
+		if !strings.HasPrefix(key, prefix) {
+			return
+		}
+		if j, ok := m.labelIndex[key[len(prefix):]]; ok {
+			vec[j] = m.weights[i]
+		}
+	}
 }
 
 // validate checks the invariants Weight relies on, so a corrupt model fails at

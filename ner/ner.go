@@ -3,10 +3,10 @@
 // The classifier is a binary maximum-entropy model; see features.go for the
 // feature set.
 //
-// The model loads once per process behind sync.OnceValues. Feature weights are
-// looked up directly by key — one binary search over a sorted blob — rather
-// than through an index indirection. Label selection is deterministic: ties
-// break toward the label's position in the model's list.
+// The model loads once per process behind sync.OnceValues. Each feature is
+// looked up once per token and yields its weight for every label at once.
+// Label selection is deterministic: ties break toward the label's position in
+// the model's list.
 //
 // # Concurrency
 //
@@ -93,6 +93,7 @@ func newWithModel(m *maxent.Model) *Extracter {
 	e.pool.New = func() any {
 		return &scratch{
 			scores: make([]float32, len(m.Labels())),
+			vec:    make([]float32, len(m.Labels())),
 			key:    make([]byte, 0, 96),
 			feats:  make(map[string]string, len(featureOrder)),
 		}
@@ -104,6 +105,7 @@ func newWithModel(m *maxent.Model) *Extracter {
 // allocate a fresh score array and feature map for every token.
 type scratch struct {
 	scores  []float32
+	vec     []float32
 	key     []byte
 	feats   map[string]string
 	history []string
@@ -128,12 +130,7 @@ func (e *Extracter) Label(tokens []Token) {
 		clear(s.feats)
 		extractInto(s.feats, i, tokens, s.history)
 
-		for j := range s.scores {
-			s.scores[j] = 0
-		}
-		for j, label := range labels {
-			s.scores[j] = e.score(s, label)
-		}
+		e.score(s)
 
 		best := 0
 		bestScore := float32(math.Inf(-1))
@@ -148,31 +145,31 @@ func (e *Extracter) Label(tokens []Token) {
 	}
 }
 
-// score sums the weights of the features present for one label.
+// score fills s.scores with each label's total weight for the features in
+// s.feats.
 //
-// Features are walked and accumulated directly, with the key assembled in
-// scratch space rather than joined into a new string per feature.
-func (e *Extracter) score(s *scratch, label string) float32 {
-	var total float32
+// Each feature is one lookup returning its weight for every label, with the
+// key assembled in scratch space rather than joined into a new string.
+func (e *Extracter) score(s *scratch) {
+	for j := range s.scores {
+		s.scores[j] = 0
+	}
 	for _, name := range featureOrder {
 		val, ok := s.feats[name]
 		if !ok {
 			val = ""
 		}
-		// The model's keys are "name-value-label"; build that in scratch
-		// space rather than allocating a joined string per feature.
 		s.key = s.key[:0]
 		s.key = append(s.key, name...)
 		s.key = append(s.key, '-')
 		s.key = append(s.key, val...)
 		s.key = append(s.key, '-')
-		s.key = append(s.key, label...)
 
-		if w, found := e.model.Weight(bytesToString(s.key)); found {
-			total += w
+		e.model.Vector(bytesToString(s.key), s.vec)
+		for j, w := range s.vec {
+			s.scores[j] += w
 		}
 	}
-	return total
 }
 
 // Chunk groups labeled tokens into entities.

@@ -113,12 +113,17 @@ func extractInto(feats map[string]string, i int, ctx []token.Token, history []st
 		[]string{prevShape, feats["prevtag"]}, "+")
 }
 
+var (
+	punctTail = regexp.MustCompile(`\W+$`)
+	wordTail  = regexp.MustCompile(`\w+$`)
+)
+
 func shape(word string) string {
 	if isNumeric(word) {
 		return "number"
-	} else if match, _ := regexp.MatchString(`\W+$`, word); match {
+	} else if punctTail.MatchString(word) {
 		return "punct"
-	} else if match, _ := regexp.MatchString(`\w+$`, word); match {
+	} else if wordTail.MatchString(word) {
 		if strings.ToLower(word) == word {
 			return "downcase"
 		}
