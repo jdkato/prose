@@ -92,7 +92,7 @@ jobs:
           # Pinned rather than "latest": the action's v6 line installs
           # golangci-lint v1, which neither reads this repo's v2 config schema
           # nor accepts a Go 1.25 target. Pinning also keeps CI reproducible.
-          version: v2.12.2
+          version: v2.15
 
   coverage:
     name: coverage
