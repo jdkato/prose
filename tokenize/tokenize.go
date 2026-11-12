@@ -403,6 +403,7 @@ var defaultPrefixes = []string{
 	"‘", // left single quotation mark
 	"«", // left-pointing guillemet
 	"„", // double low-9 quotation mark: opens a German or Russian quotation
+	"”", // right double quotation mark: opens a Finnish or Swedish ”quotation”
 	"‚", // single low-9 quotation mark
 	"‹",
 	"¿", "¡", // Spanish inverted marks

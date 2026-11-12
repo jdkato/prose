@@ -39,6 +39,7 @@ func TestLanguageRules(t *testing.T) {
 
 		// German and Russian quotation marks.
 		{"de", "Er sagte „Hallo“ zu mir.", "Er|sagte|„|Hallo|“|zu|mir|."},
+		{"fi", "Hän sanoi ”hei” minulle.", "Hän|sanoi|”|hei|”|minulle|."},
 		{"ru", "Он сказал «привет» мне.", "Он|сказал|«|привет|»|мне|."},
 		{"es", "¿Qué pasa? ¡Nada!", "¿|Qué|pasa|?|¡|Nada|!"},
 
