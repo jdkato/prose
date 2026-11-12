@@ -7,9 +7,9 @@
 //	tagger, err := tag.ForLanguage("de")
 //
 // The model emits the Universal Dependencies tag set. It was trained on
-// UD_German-GSD@ce54dbe (2026-05-06)
-// (license: CC BY-SA 4.0), and scores 94.16% on that treebank's development
-// section and 93.93% on its test section. See MODELS.md for how.
+// UD_German-GSD@f223fbc (2026-11-10); UD_German-HDT@8c45e44 (2026-11-10)
+// (license: CC BY-SA 4.0), and scores 94.49% on that treebank's development
+// section and 94.92% on its test section. See MODELS.md for how.
 package de
 
 import (

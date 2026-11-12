@@ -13,20 +13,23 @@ cd "$(dirname "$0")/../.."
 UD=${UD:-$HOME/universaldependencies}
 TRAIN=${TRAIN:-go run ./cmd/train-tagger}
 
-# code | name | treebanks (comma-separated) | license
+# code | name | treebanks (comma-separated) | license | extra train-tagger flags
+#
+# German and Spanish add a second treebank each, which is what lifts them on
+# text outside their first one, and prune harder to keep the result small.
 TABLE='
-da|Danish|ud_danish-ddt|CC BY-SA 4.0
-de|German|ud_german-gsd|CC BY-SA 4.0
-en|English|ud_english-ewt|CC BY-SA 4.0
-es|Spanish|ud_spanish-ancora|CC BY 4.0
-fi|Finnish|ud_finnish-tdt|CC BY-SA 4.0
-fr|French|ud_french-gsd|CC BY-SA 4.0
-it|Italian|ud_italian-markit,ud_italian-pud,ud_italian-valico|CC BY 4.0, CC BY-SA 3.0, CC BY-SA 4.0
-nb|Norwegian Bokmål|ud_norwegian-bokmaal|CC BY-SA 4.0
-nl|Dutch|ud_dutch-alpino|CC BY-SA 4.0
-pt|Portuguese|ud_portuguese-bosque|CC BY-SA 4.0
-sv|Swedish|ud_swedish-talbanken|CC BY-SA 4.0
-tr|Turkish|ud_turkish-boun|CC BY-SA 4.0
+da|Danish|ud_danish-ddt|CC BY-SA 4.0|
+de|German|ud_german-gsd,ud_german-hdt|CC BY-SA 4.0|-prune 1.0
+en|English|ud_english-ewt|CC BY-SA 4.0|-xpos -join-hyphens
+es|Spanish|ud_spanish-ancora,ud_spanish-gsd|CC BY 4.0, CC BY-SA 4.0|-prune 1.0
+fi|Finnish|ud_finnish-tdt|CC BY-SA 4.0|
+fr|French|ud_french-gsd|CC BY-SA 4.0|
+it|Italian|ud_italian-markit,ud_italian-pud,ud_italian-valico|CC BY 4.0, CC BY-SA 3.0, CC BY-SA 4.0|
+nb|Norwegian Bokmål|ud_norwegian-bokmaal|CC BY-SA 4.0|
+nl|Dutch|ud_dutch-alpino|CC BY-SA 4.0|
+pt|Portuguese|ud_portuguese-bosque|CC BY-SA 4.0|
+sv|Swedish|ud_swedish-talbanken|CC BY-SA 4.0|
+tr|Turkish|ud_turkish-boun|CC BY-SA 4.0|
 '
 
 want=("$@")
@@ -41,7 +44,7 @@ join() {
   local out="" tb f
   IFS=, read -ra tbs <<<"$1"
   for tb in "${tbs[@]}"; do
-    for f in "$UD/$tb"/*-ud-"$2".conllu; do
+    for f in "$UD/$tb"/*-ud-"$2"*.conllu; do
       [ -e "$f" ] && out="${out:+$out,}$f"
     done
   done
@@ -67,7 +70,7 @@ Written by `build.sh`; do not edit by hand.
 MD
 fi
 
-while IFS='|' read -r code name tbs license; do
+while IFS='|' read -r code name tbs license opts; do
   [ -z "$code" ] && continue
   wanted "$code" || continue
 
@@ -96,18 +99,20 @@ while IFS='|' read -r code name tbs license; do
     source="${source:+$source; }$(basename "$(git -C "$UD/$tb" remote get-url origin)")@$sha ($date)"
   done
 
-  # English is the built-in model: Penn tags, read with hyphenated spans
-  # joined as prose's tokenizer keeps them, and embedded by tag/aptagmodel.
-  flags=()
+  # English is the built-in model, embedded by tag/aptagmodel; its row
+  # carries the flags that make it Penn-tagged and hyphen-joined.
   bin="tag/lang/$code/$code.bin"
   if [ "$code" = en ]; then
-    flags=(-xpos -join-hyphens -iter 10)
     bin=tag/aptagmodel/en.bin
+  fi
+  flags=()
+  if [ -n "$opts" ]; then
+    read -ra flags <<<"$opts"
   fi
 
   mkdir -p "$(dirname "$bin")"
   echo "== $name ($code)"
-  out=$($TRAIN -lang "$code" "${flags[@]}" -train "$train" ${dev:+-dev "$dev"} ${test:+-test "$test"} \
+  out=$($TRAIN -lang "$code" -iter 10 ${flags[@]+"${flags[@]}"} -train "$train" ${dev:+-dev "$dev"} ${test:+-test "$test"} \
     -source "$source" -license "$license" -out "$bin")
   echo "$out"
 

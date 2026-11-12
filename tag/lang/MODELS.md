@@ -12,9 +12,9 @@ Written by `build.sh`; do not edit by hand.
 | Language | Code | Training data | License | Dev | Test | Size |
 | --- | --- | --- | --- | --- | --- | --- |
 | Danish | `da` | UD_Danish-DDT | CC BY-SA 4.0 | 94.22% | 94.23% | 0.8 MB |
-| German | `de` | UD_German-GSD | CC BY-SA 4.0 | 94.16% | 93.93% | 1.6 MB |
+| German | `de` | UD_German-GSD; UD_German-HDT | CC BY-SA 4.0 | 94.49% | 94.92% | 4.3 MB |
 | English | `en` | UD_English-EWT | CC BY-SA 4.0 | 93.36% | 93.44% | 1.9 MB |
-| Spanish | `es` | UD_Spanish-AnCora | CC BY 4.0 | 98.03% | 97.98% | 1.4 MB |
+| Spanish | `es` | UD_Spanish-AnCora; UD_Spanish-GSD | CC BY 4.0, CC BY-SA 4.0 | 97.74% | 97.68% | 2.0 MB |
 | Finnish | `fi` | UD_Finnish-TDT | CC BY-SA 4.0 | 92.61% | 92.71% | 1.8 MB |
 | French | `fr` | UD_French-GSD | CC BY-SA 4.0 | 97.00% | 96.67% | 1.6 MB |
 | Italian | `it` | UD_Italian-MarkIT; UD_Italian-PUD; UD_Italian-Valico | CC BY 4.0, CC BY-SA 3.0, CC BY-SA 4.0 | 92.57% | 92.42% | 0.6 MB |
