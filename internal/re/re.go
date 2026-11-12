@@ -1,4 +1,4 @@
-// Package re adapts github.com/dlclark/regexp2 to the parts of the standard
+// Package re adapts github.com/jdkato/regexp2 to the parts of the standard
 // library's regexp API that prose needs.
 //
 // prose uses regexp2 where patterns come from callers — vocabulary entries and
@@ -12,7 +12,7 @@
 // surface the error from the middle of one.
 package re
 
-import "github.com/dlclark/regexp2/v2"
+import "github.com/jdkato/regexp2/v2"
 
 // Regexp is a compiled pattern.
 type Regexp struct {

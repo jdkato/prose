@@ -3,7 +3,7 @@ module github.com/jdkato/prose/v3
 go 1.25
 
 require (
-	github.com/dlclark/regexp2/v2 v2.5.2
+	github.com/jdkato/regexp2/v2 v2.5.6
 	gopkg.in/neurosnap/sentences.v1 v1.0.6
 )
 
