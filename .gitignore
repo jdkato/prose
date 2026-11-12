@@ -31,3 +31,6 @@ testdata/temp
 
 # Coverage output
 coverage.out
+
+# Packed model archives; see `make pack`.
+dist/
