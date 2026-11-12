@@ -5,20 +5,28 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"sort"
 )
 
 // Model is a flat averaged-perceptron model, ready for scoring.
 //
 // Lookup is by feature string. Features are held in one sorted byte blob and
-// found by binary search, which keeps the whole structure pointer-free: the GC
-// never has to trace 75,447 individual strings.
+// found through a hash table of their positions, which keeps the whole
+// structure pointer-free: the GC never has to trace 75,447 individual
+// strings.
 type Model struct {
 	classes []string // class ID -> name
 
 	blob    string   // all feature strings, concatenated, sorted bytewise
 	featOff []uint32 // nFeatures+1 offsets into blob
 	pairOff []uint32 // nFeatures+1 offsets into classIDs/weights
+
+	// index is an open-addressing table from a feature's hash to its
+	// position plus one, zero marking an empty slot. It is at least twice
+	// the feature count, so a probe sequence is short, and is built at load:
+	// every token scores twenty features, and a binary search over the blob
+	// cost half of tagging.
+	index []uint32
+	mask  uint32
 
 	classIDs []uint8
 	weights  []float32
@@ -50,16 +58,50 @@ func (m *Model) TagFor(word string) (string, bool) {
 	return "", false
 }
 
-// feature returns the index of feat, or -1. Binary search over the blob.
+// feature returns the index of feat, or -1.
 func (m *Model) feature(feat string) int {
-	n := len(m.featOff) - 1
-	i := sort.Search(n, func(i int) bool {
-		return m.blob[m.featOff[i]:m.featOff[i+1]] >= feat
-	})
-	if i < n && m.blob[m.featOff[i]:m.featOff[i+1]] == feat {
-		return i
+	if len(m.index) == 0 {
+		return -1
 	}
-	return -1
+	for i := uint32(hash(feat)) & m.mask; ; i = (i + 1) & m.mask {
+		slot := m.index[i]
+		if slot == 0 {
+			return -1
+		}
+		j := int(slot - 1)
+		if m.blob[m.featOff[j]:m.featOff[j+1]] == feat {
+			return j
+		}
+	}
+}
+
+// buildIndex fills the hash table from the feature blob.
+func (m *Model) buildIndex() {
+	n := len(m.featOff) - 1
+	size := uint32(1)
+	for size < uint32(2*n) { //nolint:gosec // a feature count
+		size <<= 1
+	}
+	m.index = make([]uint32, size)
+	m.mask = size - 1
+	for j := 0; j < n; j++ {
+		feat := m.blob[m.featOff[j]:m.featOff[j+1]]
+		i := uint32(hash(feat)) & m.mask
+		for m.index[i] != 0 {
+			i = (i + 1) & m.mask
+		}
+		m.index[i] = uint32(j + 1) //nolint:gosec // j is a feature index
+	}
+}
+
+// hash is FNV-1a over the bytes of s.
+func hash(s string) uint64 {
+	h := uint64(14695981039346656037)
+	for i := 0; i < len(s); i++ {
+		h ^= uint64(s[i])
+		h *= 1099511628211
+	}
+	return h
 }
 
 // AccumulateInto adds the weights of feat, scaled by value, into scores.
@@ -276,6 +318,7 @@ func Unmarshal(data []byte) (*Model, error) {
 	if err := m.validate(); err != nil {
 		return nil, err
 	}
+	m.buildIndex()
 	return m, nil
 }
 
@@ -307,7 +350,8 @@ func (m *Model) validate() error {
 				id, len(m.classes))
 		}
 	}
-	// The binary search in feature() is only correct on sorted input.
+	// The format keeps features sorted, which also rules out a duplicate the
+	// index would otherwise hide behind its first occurrence.
 	for i := 1; i < n; i++ {
 		prev := m.blob[m.featOff[i-1]:m.featOff[i]]
 		cur := m.blob[m.featOff[i]:m.featOff[i+1]]

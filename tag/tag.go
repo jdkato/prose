@@ -9,7 +9,7 @@
 // # Performance
 //
 // The English model is loaded once per process, behind sync.OnceValues, and
-// costs about 1.2 ms and 2 MB. Tagging runs at roughly 0.9 µs per token and,
+// costs about 1.6 ms and 2.6 MB. Tagging runs at roughly 0.6 µs per token and,
 // once the scratch pool is warm, allocates only for words that need Unicode
 // case folding.
 //
