@@ -114,6 +114,16 @@ func TestTokenizationBehaviour(t *testing.T) {
 		{"Well) done", []string{"Well", ")", "done"}},
 		{"He said “hi” now.", []string{"He", "said", "“", "hi", "”", "now", "."}},
 		{"It’s fine.", []string{"It", "’s", "fine", "."}},
+		// A short word at the end of a sentence gives up its period ...
+		{"A library for Go.", []string{"A", "library", "for", "Go", "."}},
+		{"I met Bob.", []string{"I", "met", "Bob", "."}},
+		{"It ships in May.", []string{"It", "ships", "in", "May", "."}},
+		// ... while a real abbreviation, or an initialism, keeps it.
+		{"Ask Dr. Smith.", []string{"Ask", "Dr.", "Smith", "."}},
+		{"Mr. and Mrs. Lee", []string{"Mr.", "and", "Mrs.", "Lee"}},
+		{"Due Jan. 5.", []string{"Due", "Jan.", "5", "."}},
+		{"Holmes, Esq., of San Francisco, Cal., U.S.A.", []string{"Holmes", ",", "Esq.", ",", "of", "San", "Francisco", ",", "Cal.", ",", "U.S.A."}},
+		{"Made in the U.S. today", []string{"Made", "in", "the", "U.S.", "today"}},
 	}
 
 	tk := tokenize.New()

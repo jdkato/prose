@@ -306,7 +306,8 @@ func (t *Tokenizer) cliticAt(span string) int {
 
 // special reports whether a span must be kept whole.
 func (t *Tokenizer) special(span string) bool {
-	return emoticon.Is(span) || t.specialRE.MatchString(span) || t.isSpecial(span)
+	_, abbr := abbreviations[span]
+	return emoticon.Is(span) || abbr || t.specialRE.MatchString(span) || t.isSpecial(span)
 }
 
 // matchPrefix returns the byte length of the leading prefix, or 0.
@@ -373,7 +374,43 @@ func equalFoldASCII(a, b string) bool {
 	return true
 }
 
-var internalRE = regexp.MustCompile(`^(?:[A-Za-z]\.){2,}$|^[A-Z][a-z]{1,2}\.$`)
+// internalRE keeps initialisms whole: "U.S.", "e.g.", "Ph.D.".
+var internalRE = regexp.MustCompile(`^(?:[A-Za-z]\.){2,}$`)
+
+// abbreviations are the capitalized short forms whose period belongs to the
+// word: titles, business and place words, and month and weekday names.
+//
+// It is a list rather than a shape. The shape it replaced, a capital and one
+// or two lowercase letters before a period, also matched every short word
+// that ends a sentence -- "Go.", "Bob.", "May." -- and kept the period on it,
+// which in turn hid the word from the tagger and the entity recognizer.
+//
+// "May" and "Sun" are left out: as sentence-final words they are far more
+// common than as abbreviations.
+var abbreviations = map[string]struct{}{
+	// Titles.
+	"Mr.": {}, "Mrs.": {}, "Ms.": {}, "Dr.": {}, "Jr.": {}, "Sr.": {},
+	"St.": {}, "Rev.": {}, "Gen.": {}, "Gov.": {}, "Sen.": {}, "Rep.": {},
+	"Col.": {}, "Lt.": {}, "Sgt.": {}, "Pvt.": {}, "Hon.": {}, "Fr.": {},
+	"Esq.": {}, "Prof.": {},
+	// Business and reference.
+	"Co.": {}, "Inc.": {}, "Ltd.": {}, "No.": {}, "Vol.": {}, "Fig.": {},
+	"Eq.": {}, "Ch.": {}, "Pp.": {}, "Vs.": {}, "Ed.": {}, "Eds.": {},
+	// Places.
+	"Mt.": {}, "Ft.": {}, "Ave.": {}, "Rd.": {}, "Blvd.": {}, "Ln.": {},
+	// U.S. states, in the older style that still turns up in addresses. "Mass.",
+	// "Ill.", "Wash.", and "Me." are left out: they are ordinary words too.
+	"Ala.": {}, "Ariz.": {}, "Ark.": {}, "Cal.": {}, "Calif.": {}, "Colo.": {},
+	"Conn.": {}, "Del.": {}, "Fla.": {}, "Ga.": {}, "Ind.": {}, "Kan.": {},
+	"Ky.": {}, "La.": {}, "Md.": {}, "Mich.": {}, "Minn.": {}, "Miss.": {},
+	"Mo.": {}, "Mont.": {}, "Neb.": {}, "Nev.": {}, "Okla.": {}, "Ore.": {},
+	"Pa.": {}, "Tenn.": {}, "Tex.": {}, "Va.": {}, "Vt.": {}, "Wis.": {}, "Wyo.": {},
+	// Months and weekdays.
+	"Jan.": {}, "Feb.": {}, "Mar.": {}, "Apr.": {}, "Jun.": {}, "Jul.": {},
+	"Aug.": {}, "Sep.": {}, "Sept.": {}, "Oct.": {}, "Nov.": {}, "Dec.": {},
+	"Mon.": {}, "Tue.": {}, "Tues.": {}, "Wed.": {}, "Thu.": {}, "Thur.": {},
+	"Thurs.": {}, "Fri.": {}, "Sat.": {},
+}
 
 // Both apostrophe forms are listed. Since the input is never rewritten, the
 // curly forms have to be recognized directly or "It’s" stays one token.
