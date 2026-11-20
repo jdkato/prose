@@ -120,3 +120,30 @@ func TestLexicalRefinesWithinTheModelsClass(t *testing.T) {
 		t.Errorf("'like' = %s, want VB (the model read it as a verb)", got)
 	}
 }
+
+// After a proper noun, "'s" is the possessive: the English Web Treebank has it
+// so 378 times in 384. The model alone tagged "the Air Force's software" with
+// a noun for the clitic.
+func TestPossessiveAfterProperNoun(t *testing.T) {
+	tg, err := tag.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, words := range [][]string{
+		{"The", "Air", "Force", "'s", "software", "."},
+		{"John", "'s", "car", "is", "red", "."},
+		{"The", "Rubin", "Observatory", "’s", "platform"},
+	} {
+		for i, tok := range tg.Tag(words) {
+			if tok.Text == "'s" || tok.Text == "’s" {
+				if tok.Tag != "POS" {
+					t.Errorf("%v: %q tagged %s, want POS", words, words[i], tok.Tag)
+				}
+			}
+		}
+	}
+	// Elsewhere the model still decides: "It's" is a verb.
+	if got := tg.Tag([]string{"It", "'s", "fine"})[1].Tag; got != "VBZ" {
+		t.Errorf(`"It 's fine": 's tagged %s, want VBZ`, got)
+	}
+}
