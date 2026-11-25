@@ -10,6 +10,8 @@ import (
 var cases = []testCase{
 	{"", ""},
 	{"1. An important heading", "1. An important heading"},
+	{"1.2. an important heading", "1.2. An important heading"},
+	{"2.0 Release notes", "2.0 release notes"},
 	{"getting started with Vale server", "Getting started with vale server"},
 	{"Lession 1: getting started with vale server", "Lession 1: Getting started with vale server"},
 	{"Top-Level ideas", "Top-level ideas"},

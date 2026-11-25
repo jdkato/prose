@@ -11,7 +11,9 @@ import (
 	"github.com/jdkato/prose/v3/internal/strutil"
 )
 
-var reNumberList = re.MustCompile(`\d+\.`)
+// reNumberList is a heading's list number, `1.` or `1.2.`: the whole word,
+// so a version (`2.0`, `v2.0`) isn't one.
+var reNumberList = re.MustCompile(`^(?:\d+\.)+$`)
 var defaultSentOpts = CaseOpts{
 	vocab: []string{},
 	indicator: func(word string, idx int) bool {
