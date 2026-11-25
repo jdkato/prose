@@ -220,3 +220,5 @@ fmt.Println(tc.Convert("the quick brown fox"))
 
 MIT. See [LICENSE](LICENSE), which also records the upstream work `prose`
 derives from.
+
+Created and maintained by [Joseph Kato](https://jdkato.io).
