@@ -20,7 +20,7 @@ TRAIN=${TRAIN:-go run ./cmd/train-tagger}
 TABLE='
 da|Danish|ud_danish-ddt|CC BY-SA 4.0|
 de|German|ud_german-gsd,ud_german-hdt|CC BY-SA 4.0|-prune 1.0
-en|English|ud_english-ewt|CC BY-SA 4.0|-xpos -join-hyphens -split-ranges
+en|English|ud_english-ewt|CC BY-SA 4.0|-xpos -join-hyphens -split-ranges -closed CC,DT,EX,MD,PDT,POS,PRP,PRP$,TO,WDT,WP,WP$,WRB
 es|Spanish|ud_spanish-ancora,ud_spanish-gsd|CC BY 4.0, CC BY-SA 4.0|-prune 1.0
 fi|Finnish|ud_finnish-tdt|CC BY-SA 4.0|
 fr|French|ud_french-gsd|CC BY-SA 4.0|

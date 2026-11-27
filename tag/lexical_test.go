@@ -171,3 +171,21 @@ func TestCliticsAfterCommonNouns(t *testing.T) {
 		}
 	}
 }
+
+// A closed-class tag goes only to a word the training data gives it. In this
+// ungrammatical sentence the model's best guess for "write" was PDT, a tag the
+// treebank gives to six words; a grammar rule needs it read as a verb.
+func TestClosedClassTagsKeepTheirWords(t *testing.T) {
+	tg, err := tag.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	toks := tg.Tag([]string{"It", "would", "be", "great", "write", "a", "story", "."})
+	if got := toks[4].Tag; got != "VB" {
+		t.Errorf(`"write" tagged %s, want VB`, got)
+	}
+	// A member keeps its tag.
+	if got := tg.Tag([]string{"All", "the", "servers", "restarted", "."})[0].Tag; got != "PDT" {
+		t.Errorf(`"All the servers": "All" tagged %s, want PDT`, got)
+	}
+}

@@ -60,6 +60,10 @@ const (
 	MetaSource = "source"
 	// MetaLicense is the license of the training data.
 	MetaLicense = "license"
+	// MetaClosed lists the words the training data gives each closed-class
+	// tag, as "TAG word word;TAG word ...", lower-cased. The tagger gives
+	// such a tag to no other word.
+	MetaClosed = "closed"
 )
 
 // MaxClasses is the ceiling implied by storing class IDs as uint8. The

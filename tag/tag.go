@@ -25,10 +25,12 @@
 package tag
 
 import (
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/jdkato/prose/v3/internal/emoticon"
 	"github.com/jdkato/prose/v3/internal/flat"
@@ -81,6 +83,10 @@ type Tagger struct {
 	template perceptron.Template
 	tagset   string
 	lang     string
+
+	// closed maps a closed-class tag's class ID to the words that may take
+	// it; see flat.MetaClosed. Nil for a model without the list.
+	closed map[int]map[string]bool
 }
 
 // A Lexicon fixes the tag for words that only ever carry one.
@@ -163,6 +169,7 @@ func newWithModel(m *flat.Model, opts ...Option) *Tagger {
 	if n, err := strconv.Atoi(m.Meta(flat.MetaTemplate)); err == nil {
 		t.template = perceptron.Template(n)
 	}
+	t.closed = parseClosed(m.Meta(flat.MetaClosed), m.Classes())
 
 	for _, opt := range opts {
 		opt(t)
@@ -351,5 +358,71 @@ func (t *Tagger) predict(s *scratch, i int, ctx []string, word, p1, p2 string) s
 		t.model.AccumulateInto(s.feats.Key(k), 1, s.scores)
 	}
 
-	return t.model.Best(s.scores)
+	if t.closed == nil || !allLetters(word) {
+		return t.model.Best(s.scores)
+	}
+	return t.bestAllowed(s.scores, word)
+}
+
+// bestAllowed is the highest-scoring tag that word may take: a closed-class
+// tag only for a word the training data gave it. In "it would be great write
+// a story" the model's best guess for "write" was PDT, a tag the treebank gives
+// to "all", "such" and four other words; the next best was VB.
+func (t *Tagger) bestAllowed(scores []float32, word string) string {
+	classes := t.model.Classes()
+	lower := strings.ToLower(word)
+	best, bestID := float32(math.Inf(-1)), -1
+	for id := range classes {
+		if scores[id] <= best {
+			continue
+		}
+		if members, ok := t.closed[id]; ok && !members[lower] {
+			continue
+		}
+		best, bestID = scores[id], id
+	}
+	if bestID < 0 {
+		return t.model.Best(scores)
+	}
+	return classes[bestID]
+}
+
+// allLetters reports whether word is letters only. The closed-class lists hold
+// words, so a token with punctuation in it ("'It", "It--it") is left to the
+// model rather than read as a stranger to every list.
+func allLetters(word string) bool {
+	for _, r := range word {
+		if !unicode.IsLetter(r) {
+			return false
+		}
+	}
+	return word != ""
+}
+
+// parseClosed reads flat.MetaClosed into class IDs and their words.
+func parseClosed(meta string, classes []string) map[int]map[string]bool {
+	if meta == "" {
+		return nil
+	}
+	ids := make(map[string]int, len(classes))
+	for id, c := range classes {
+		ids[c] = id
+	}
+	out := map[int]map[string]bool{}
+	for _, group := range strings.Split(meta, ";") {
+		fields := strings.Fields(group)
+		if len(fields) < 2 {
+			continue
+		}
+		id, ok := ids[fields[0]]
+		if !ok {
+			continue
+		}
+		words := make(map[string]bool, len(fields)-1)
+		for _, w := range fields[1:] {
+			words[w] = true
+		}
+		out[id] = words
+	}
+	return out
 }

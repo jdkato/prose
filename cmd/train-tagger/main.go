@@ -17,6 +17,10 @@
 // -join-hyphens reads "well-known" as one token where the treebank splits it,
 // for a tokenizer that keeps hyphens, as prose's does.
 //
+// -closed names closed-class tags, comma-separated, such as "DT,PDT,CC". The words the training
+// data gives each are stored in the model, and the tagger gives those tags to
+// no other word.
+//
 // -split-ranges keeps a multiword token's words ("Elena" and "'s") wherever
 // prose's tokenizer splits its surface form the same way, so the model learns
 // the clitics it will be handed.
@@ -26,6 +30,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -54,6 +59,7 @@ func main() {
 		xpos     = flag.Bool("xpos", false, "train on the language-specific XPOS column rather than UPOS")
 		hyphens  = flag.Bool("join-hyphens", false, "read a hyphenated span written without spaces as one token")
 		ranges   = flag.Bool("split-ranges", false, "keep a multiword token's words where prose's tokenizer splits it the same way")
+		closed   = flag.String("closed", "", "comma-separated closed-class tags, given only to the words training gives them")
 	)
 	flag.Parse()
 
@@ -116,6 +122,9 @@ func main() {
 		})
 		if err != nil {
 			fatal(err)
+		}
+		if c := closedWords(sents, strings.FieldsFunc(*closed, func(r rune) bool { return r == ',' })); c != "" {
+			src.Meta[flat.MetaClosed] = c
 		}
 		src.Meta[flat.MetaLanguage] = *lang
 		src.Meta[flat.MetaTagset] = tagset
@@ -188,6 +197,35 @@ func tokens(sents []conllu.Sentence) int {
 		n += len(s.Words)
 	}
 	return n
+}
+
+// closedWords lists, for each tag in tags, the lower-cased words the training
+// data gives it, in the flat.MetaClosed form.
+func closedWords(sents []conllu.Sentence, tags []string) string {
+	words := map[string]map[string]bool{}
+	for _, t := range tags {
+		words[t] = map[string]bool{}
+	}
+	for _, s := range sents {
+		for i, t := range s.Tags {
+			if set, ok := words[t]; ok {
+				set[strings.ToLower(s.Words[i])] = true
+			}
+		}
+	}
+
+	groups := make([]string, 0, len(tags))
+	for _, t := range tags {
+		list := make([]string, 0, len(words[t]))
+		for w := range words[t] {
+			if !strings.ContainsAny(w, " ;") {
+				list = append(list, w)
+			}
+		}
+		sort.Strings(list)
+		groups = append(groups, t+" "+strings.Join(list, " "))
+	}
+	return strings.Join(groups, ";")
 }
 
 func toPerceptron(sents []conllu.Sentence) []perceptron.Sentence {
