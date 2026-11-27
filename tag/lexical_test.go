@@ -147,3 +147,27 @@ func TestPossessiveAfterProperNoun(t *testing.T) {
 		t.Errorf(`"It 's fine": 's tagged %s, want VBZ`, got)
 	}
 }
+
+// The English model is trained on contractions split the way prose's
+// tokenizer splits them, so it tags the clitics it is handed: the possessive
+// after a common noun, and "n't" and "'ll" (#1239 in vale-cli/vale).
+func TestCliticsAfterCommonNouns(t *testing.T) {
+	tg, err := tag.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		words []string
+		at    int
+		want  string
+	}{
+		{[]string{"The", "server", "'s", "address", "is", "fixed", "."}, 2, "POS"},
+		{[]string{"The", "build-server", "'s", "address", "is", "fixed", "."}, 2, "POS"},
+		{[]string{"I", "do", "n't", "think", "so", "."}, 2, "RB"},
+		{[]string{"We", "'ll", "see", "."}, 1, "MD"},
+	} {
+		if got := tg.Tag(tc.words)[tc.at].Tag; got != tc.want {
+			t.Errorf("%v: %q tagged %s, want %s", tc.words, tc.words[tc.at], got, tc.want)
+		}
+	}
+}

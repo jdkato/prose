@@ -20,7 +20,7 @@ TRAIN=${TRAIN:-go run ./cmd/train-tagger}
 TABLE='
 da|Danish|ud_danish-ddt|CC BY-SA 4.0|
 de|German|ud_german-gsd,ud_german-hdt|CC BY-SA 4.0|-prune 1.0
-en|English|ud_english-ewt|CC BY-SA 4.0|-xpos -join-hyphens
+en|English|ud_english-ewt|CC BY-SA 4.0|-xpos -join-hyphens -split-ranges
 es|Spanish|ud_spanish-ancora,ud_spanish-gsd|CC BY 4.0, CC BY-SA 4.0|-prune 1.0
 fi|Finnish|ud_finnish-tdt|CC BY-SA 4.0|
 fr|French|ud_french-gsd|CC BY-SA 4.0|
@@ -58,10 +58,11 @@ if [ ${#want[@]} -eq 0 ]; then
 
 Each model is an averaged perceptron trained on the Universal Dependencies
 treebanks named below. English, the built-in model, emits the Penn Treebank
-tag set and is trained with hyphenated spans joined, as prose tokenizes them;
-every other model emits the universal tag set. Accuracy is measured on the
-first treebank's own development and test sections through the production
-tagger, so it is what a caller of `tag.ForLanguage` gets on text of that kind.
+tag set and is trained with hyphenated spans joined and contractions split, as
+prose tokenizes them; every other model emits the universal tag set. Accuracy
+is measured on the first treebank's own development and test sections through
+the production tagger, so it is what a caller of `tag.ForLanguage` gets on
+text of that kind.
 
 Written by `build.sh`; do not edit by hand.
 

@@ -39,6 +39,13 @@ type Options struct {
 	// the adjective tag when the span modifies a noun ("well-known" is JJ,
 	// not VBN).
 	JoinHyphens bool
+
+	// Split, when set, says how a tokenizer cuts a multiword token's surface
+	// form. Where its pieces are the range's syntactic words ("Elena's" into
+	// "Elena" and "'s"), the words are kept with their own tags, so a model
+	// sees the tokens it will be asked about; otherwise the surface form is
+	// read as one word, as without it.
+	Split func(form string) []string
 }
 
 // A token is one line of a sentence, with what the join needs.
@@ -73,7 +80,8 @@ func ReadFile(path string, col Column, opt Options) ([]Sentence, error) {
 // of its first syntactic word. That is the token a tokenizer working on
 // surface text produces, and the first word's tag (ADP for a contracted
 // preposition, VERB for a verb with a clitic attached) is the one a rule is
-// after. Empty nodes ("8.1") are skipped.
+// after; Options.Split keeps the words instead where a tokenizer splits them
+// too. Empty nodes ("8.1") are skipped.
 func Read(r io.Reader, col Column, opt Options) ([]Sentence, error) {
 	var (
 		sents []Sentence
@@ -98,7 +106,10 @@ func Read(r io.Reader, col Column, opt Options) ([]Sentence, error) {
 	sc := bufio.NewScanner(r)
 	sc.Buffer(make([]byte, 0, 64*1024), 16*1024*1024)
 
-	var rangeForm string
+	var (
+		rangeForm string
+		words     []token // the syntactic words of the current range
+	)
 	for n := 1; sc.Scan(); n++ {
 		line := sc.Text()
 		if line == "" {
@@ -122,16 +133,16 @@ func Read(r io.Reader, col Column, opt Options) ([]Sentence, error) {
 		if lo, hi, ok := parseRange(id); ok {
 			rangeForm = fields[1]
 			skip = hi - lo + 1
+			words = words[:0]
 			continue
 		}
 
 		tag := fields[col]
 		if skip > 0 {
 			skip--
-			if rangeForm != "" {
-				// First syntactic word of the range: it names the tag.
-				cur = append(cur, token{form: rangeForm, tag: tag})
-				rangeForm = ""
+			words = append(words, token{form: fields[1], tag: tag})
+			if skip == 0 {
+				cur = append(cur, rangeTokens(rangeForm, words, opt.Split)...)
 			}
 			continue
 		}
@@ -151,6 +162,32 @@ func Read(r io.Reader, col Column, opt Options) ([]Sentence, error) {
 	flush()
 
 	return sents, nil
+}
+
+// rangeTokens reads a multiword token: its syntactic words, where split cuts
+// the surface form into exactly those words, or else the surface form alone
+// with the first word's tag.
+func rangeTokens(form string, words []token, split func(string) []string) []token {
+	if split != nil {
+		pieces := split(form)
+		if len(pieces) == len(words) {
+			same := true
+			for i := range pieces {
+				if pieces[i] != words[i].form {
+					same = false
+					break
+				}
+			}
+			if same {
+				out := make([]token, len(words))
+				for i, w := range words {
+					out[i] = token{form: w.form, tag: w.tag}
+				}
+				return out
+			}
+		}
+	}
+	return []token{{form: form, tag: words[0].tag}}
 }
 
 // joinHyphens merges each run of pieces glued together by hyphens into one

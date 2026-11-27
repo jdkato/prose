@@ -16,6 +16,10 @@
 //
 // -join-hyphens reads "well-known" as one token where the treebank splits it,
 // for a tokenizer that keeps hyphens, as prose's does.
+//
+// -split-ranges keeps a multiword token's words ("Elena" and "'s") wherever
+// prose's tokenizer splits its surface form the same way, so the model learns
+// the clitics it will be handed.
 package main
 
 import (
@@ -29,6 +33,7 @@ import (
 	"github.com/jdkato/prose/v3/internal/flat"
 	"github.com/jdkato/prose/v3/internal/perceptron"
 	"github.com/jdkato/prose/v3/tag"
+	"github.com/jdkato/prose/v3/tokenize"
 )
 
 func main() {
@@ -48,6 +53,7 @@ func main() {
 		template = flag.Int("template", int(perceptron.TemplateRunes), "feature template")
 		xpos     = flag.Bool("xpos", false, "train on the language-specific XPOS column rather than UPOS")
 		hyphens  = flag.Bool("join-hyphens", false, "read a hyphenated span written without spaces as one token")
+		ranges   = flag.Bool("split-ranges", false, "keep a multiword token's words where prose's tokenizer splits it the same way")
 	)
 	flag.Parse()
 
@@ -56,6 +62,17 @@ func main() {
 	}
 
 	opt := conllu.Options{JoinHyphens: *hyphens}
+	if *ranges {
+		tok := tokenize.New()
+		opt.Split = func(form string) []string {
+			toks := tok.Tokenize(form)
+			out := make([]string, len(toks))
+			for i, t := range toks {
+				out[i] = t.Text
+			}
+			return out
+		}
+	}
 	col := conllu.UPOS
 	if *xpos {
 		col = conllu.XPOS

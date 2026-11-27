@@ -89,3 +89,50 @@ func TestJoinHyphens(t *testing.T) {
 		t.Errorf("without the option, got %d tokens, want 14", len(plain[0].Words))
 	}
 }
+
+const clitics = `# text = Elena's server won't start.
+1-2	Elena's	_	_	_	_	_	_	_	_
+1	Elena	Elena	PROPN	NNP	_	3	nmod:poss	_	_
+2	's	's	PART	POS	_	1	case	_	_
+3	server	server	NOUN	NN	_	6	nsubj	_	_
+4-5	won't	_	_	_	_	_	_	_	_
+4	wo	will	AUX	MD	_	6	aux	_	_
+5	n't	not	PART	RB	_	6	advmod	_	_
+6	start	start	VERB	VB	_	0	root	_	SpaceAfter=No
+7	.	.	PUNCT	.	_	6	punct	_	_
+`
+
+// Split keeps a range's words only where the tokenizer cuts the surface form
+// into exactly those words; "won't" stays whole here because the tokenizer
+// below has no rule for it.
+func TestReadSplitsRangesTheTokenizerSplits(t *testing.T) {
+	split := func(form string) []string {
+		if base, ok := strings.CutSuffix(form, "'s"); ok {
+			return []string{base, "'s"}
+		}
+		return []string{form}
+	}
+
+	sents, err := Read(strings.NewReader(clitics), XPOS, Options{Split: split})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(sents[0].Words, " "); got != "Elena 's server won't start ." {
+		t.Errorf("words = %q", got)
+	}
+	if got := strings.Join(sents[0].Tags, " "); got != "NNP POS NN MD VB ." {
+		t.Errorf("tags = %q", got)
+	}
+
+	// Without Split, every range is read whole, as before.
+	sents, err = Read(strings.NewReader(clitics), XPOS, Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(sents[0].Words, " "); got != "Elena's server won't start ." {
+		t.Errorf("unsplit words = %q", got)
+	}
+	if got := strings.Join(sents[0].Tags, " "); got != "NNP NN MD VB ." {
+		t.Errorf("unsplit tags = %q", got)
+	}
+}
